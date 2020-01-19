@@ -21,6 +21,7 @@ import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.model.LocalizedModel;
 import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.portal.kernel.model.ShardedModel;
+import com.liferay.portal.kernel.model.StagedGroupedModel;
 import com.liferay.portal.kernel.model.StagedAuditedModel;
 
 import java.util.Date;
@@ -43,7 +44,7 @@ import org.osgi.annotation.versioning.ProviderType;
 @ProviderType
 public interface DDMDataProviderInstanceModel
 	extends BaseModel<DDMDataProviderInstance>, GroupedModel, LocalizedModel,
-			MVCCModel, ShardedModel, StagedAuditedModel {
+			MVCCModel, ShardedModel, StagedGroupedModel, StagedAuditedModel {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -467,5 +468,21 @@ public interface DDMDataProviderInstanceModel
 	@Override
 	public void prepareLocalizedFieldsForImport(Locale defaultImportLocale)
 		throws LocaleException;
+
+	/**
+	 * Returns the last publish date of this ddm form instance record.
+	 *
+	 * @return the last publish date of this ddm form instance record
+	 */
+	@Override
+	public Date getLastPublishDate();
+
+	/**
+	 * Sets the last publish date of this ddm form instance record.
+	 *
+	 * @param lastPublishDate the last publish date of this ddm form instance record
+	 */
+	@Override
+	public void setLastPublishDate(Date lastPublishDate);
 
 }
