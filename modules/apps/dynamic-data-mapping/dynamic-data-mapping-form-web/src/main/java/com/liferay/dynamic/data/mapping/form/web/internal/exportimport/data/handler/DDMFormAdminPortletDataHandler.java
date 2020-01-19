@@ -69,14 +69,14 @@ public class DDMFormAdminPortletDataHandler extends BasePortletDataHandler {
 
 		PortletDataHandlerControl[] formsPortletDataHandlerControlChildren = {
 			new PortletDataHandlerBoolean(
-				NAMESPACE, "ddm-data-provider", true, false, null,
-				DDMDataProviderInstance.class.getName()),
-			new PortletDataHandlerBoolean(
 				NAMESPACE, "form-entries", true, false, null,
 				DDMFormInstanceRecord.class.getName())
 		};
 
 		setExportControls(
+			new PortletDataHandlerBoolean(
+				NAMESPACE, "ddm-data-provider", true, false, null,
+				DDMDataProviderInstance.class.getName()),
 			new PortletDataHandlerBoolean(
 				NAMESPACE, "forms", true, false,
 				formsPortletDataHandlerControlChildren,
