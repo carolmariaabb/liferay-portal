@@ -14,8 +14,6 @@
 
 import * as FormSupport from 'dynamic-data-mapping-form-renderer/js/components/FormRenderer/FormSupport.es';
 import handlePaginationItemClicked from 'dynamic-data-mapping-form-renderer/js/store/actions/handlePaginationItemClicked.es';
-import handlePaginationNextClicked from 'dynamic-data-mapping-form-renderer/js/store/actions/handlePaginationNextClicked.es';
-import handlePaginationPreviousClicked from 'dynamic-data-mapping-form-renderer/js/store/actions/handlePaginationPreviousClicked.es';
 import {
 	PagesVisitor,
 	RulesVisitor
@@ -461,20 +459,14 @@ class LayoutProvider extends Component {
 
 	_handlePaginationNextClicked() {
 		const {activePage, pages} = this.state;
-
-		handlePaginationNextClicked(
-			{
-				activePage,
-				pages
-			},
-			this.dispatch.bind(this)
-		);
+		const pageIndex = Math.min(activePage + 1, pages.length - 1);
+		handlePaginationItemClicked({pageIndex}, this.dispatch.bind(this));
 	}
 
 	_handlePaginationPreviousClicked() {
 		const {activePage} = this.state;
-
-		handlePaginationPreviousClicked({activePage}, this.dispatch.bind(this));
+		const pageIndex = Math.max(activePage - 1, 0);
+		handlePaginationItemClicked({pageIndex}, this.dispatch.bind(this));
 	}
 
 	_handleRuleAdded(rule) {
