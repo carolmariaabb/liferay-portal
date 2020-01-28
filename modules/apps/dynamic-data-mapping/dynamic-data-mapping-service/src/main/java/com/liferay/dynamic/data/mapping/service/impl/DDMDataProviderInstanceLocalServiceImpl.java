@@ -47,7 +47,7 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.net.URL;
-
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -292,7 +292,9 @@ public class DDMDataProviderInstanceLocalServiceImpl
 			Map<Locale, String> nameMap, Map<Locale, String> descriptionMap,
 			DDMFormValues ddmFormValues, ServiceContext serviceContext)
 		throws PortalException {
-
+		
+		Date now = new Date();
+		
 		User user = userLocalService.getUser(userId);
 
 		validate(nameMap, ddmFormValues);
@@ -303,6 +305,7 @@ public class DDMDataProviderInstanceLocalServiceImpl
 
 		dataProviderInstance.setUserId(user.getUserId());
 		dataProviderInstance.setUserName(user.getFullName());
+		dataProviderInstance.setModifiedDate(now);
 		dataProviderInstance.setNameMap(nameMap);
 		dataProviderInstance.setDescriptionMap(descriptionMap);
 		dataProviderInstance.setDefinition(serialize(ddmFormValues));
