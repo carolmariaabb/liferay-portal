@@ -78,7 +78,7 @@ public class DDMDataProviderInstanceCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(27);
+		StringBundler sb = new StringBundler(29);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -106,6 +106,8 @@ public class DDMDataProviderInstanceCacheModel
 		sb.append(definition);
 		sb.append(", type=");
 		sb.append(type);
+		sb.append(", lastPublishDate=");
+		sb.append(lastPublishDate);
 		sb.append("}");
 
 		return sb.toString();
@@ -180,6 +182,14 @@ public class DDMDataProviderInstanceCacheModel
 			ddmDataProviderInstanceImpl.setType(type);
 		}
 
+		if (lastPublishDate == Long.MIN_VALUE) {
+			ddmDataProviderInstanceImpl.setLastPublishDate(null);
+		}
+		else {
+			ddmDataProviderInstanceImpl.setLastPublishDate(
+				new Date(lastPublishDate));
+		}
+
 		ddmDataProviderInstanceImpl.resetOriginalValues();
 
 		return ddmDataProviderInstanceImpl;
@@ -204,6 +214,7 @@ public class DDMDataProviderInstanceCacheModel
 		description = objectInput.readUTF();
 		definition = objectInput.readUTF();
 		type = objectInput.readUTF();
+		lastPublishDate = objectInput.readLong();
 	}
 
 	@Override
@@ -262,6 +273,8 @@ public class DDMDataProviderInstanceCacheModel
 		else {
 			objectOutput.writeUTF(type);
 		}
+
+		objectOutput.writeLong(lastPublishDate);
 	}
 
 	public long mvccVersion;
@@ -277,5 +290,6 @@ public class DDMDataProviderInstanceCacheModel
 	public String description;
 	public String definition;
 	public String type;
+	public long lastPublishDate;
 
 }
