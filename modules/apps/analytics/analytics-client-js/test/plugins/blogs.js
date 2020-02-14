@@ -15,6 +15,7 @@
 import fetchMock from 'fetch-mock';
 import dom from 'metal-dom';
 
+
 import AnalyticsClient from '../../src/analytics';
 
 const applicationId = 'Blog';
