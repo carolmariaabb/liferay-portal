@@ -18,7 +18,7 @@
 
 <%
 String redirect = ParamUtil.getString(request, "redirect");
-
+String serializedSettingsForm = ddmFormAdminDisplayContext.serializeSettingsForm();
 DDMFormInstance formInstance = ddmFormAdminDisplayContext.getDDMFormInstance();
 
 long formInstanceId = BeanParamUtil.getLong(formInstance, request, "formInstanceId");
