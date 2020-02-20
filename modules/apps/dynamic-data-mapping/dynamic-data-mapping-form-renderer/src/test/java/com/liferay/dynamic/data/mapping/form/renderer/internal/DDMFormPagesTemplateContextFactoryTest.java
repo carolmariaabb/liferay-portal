@@ -780,7 +780,8 @@ public class DDMFormPagesTemplateContextFactoryTest extends PowerMockito {
 
 		Map<String, String> optionField = options.get(0);
 
-		Assert.assertEquals(formFieldOption, optionField.get("label"));
+		Assert.assertEquals(
+			HtmlUtil.escape(formFieldOption), optionField.get("label"));
 
 		Assert.assertEquals(formFieldTip, fieldTemplateContext.get("tip"));
 	}
