@@ -66,7 +66,7 @@ const doEvaluate = debounce((fieldName, evaluatorContext, callback) => {
 			callback(null, mergedPages);
 		})
 		.catch(error => callback(error));
-}, 300);
+}, 600);
 
 export const evaluate = (fieldName, evaluatorContext) => {
 	return new Promise((resolve, reject) => {
