@@ -1091,6 +1091,13 @@ class Sidebar extends Component {
 			spritemap,
 		} = this.props;
 		const {pages, rules} = this.getSettingsFormContext();
+		const sidebarTabIndex = pages.length - 1;
+
+		if (sidebarTabIndex < activeTab) {
+			this.setState({
+				activeTab: sidebarTabIndex,
+			});
+		}
 
 		return (
 			<Form
