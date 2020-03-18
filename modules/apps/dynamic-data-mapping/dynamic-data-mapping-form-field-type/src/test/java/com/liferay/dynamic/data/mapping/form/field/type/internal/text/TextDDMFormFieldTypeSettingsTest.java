@@ -18,8 +18,13 @@ import com.liferay.dynamic.data.mapping.form.field.type.BaseDDMFormFieldTypeSett
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayoutColumn;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
 import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
+import com.liferay.dynamic.data.mapping.util.DDMFormLayoutFactory;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -229,6 +234,107 @@ public class TextDDMFormFieldTypeSettingsTest
 			actions.contains(
 				"setVisible('options', contains(getValue('dataSourceType'), " +
 					"\"manual\") and getValue('autocomplete'))"));
+	}
+
+	@Test
+	public void testTextDDMFormFieldTypeSettingsDDMFormLayout() {
+		DDMFormLayout ddmFormLayout = DDMFormLayoutFactory.create(
+			TextDDMFormFieldTypeSettings.class);
+
+		List<DDMFormLayoutPage> ddmFormLayoutPages =
+			ddmFormLayout.getDDMFormLayoutPages();
+
+		DDMFormLayoutPage ddmFormLayoutPageBasic = ddmFormLayoutPages.get(0);
+
+		for (DDMFormLayoutRow ddmFormLayoutRow :
+				ddmFormLayoutPageBasic.getDDMFormLayoutRows()) {
+
+			for (DDMFormLayoutColumn ddmFormLayoutColumn :
+					ddmFormLayoutRow.getDDMFormLayoutColumns()) {
+
+				List<String> ddmFormFieldNamesColumnBasic =
+					ddmFormLayoutColumn.getDDMFormFieldNames();
+
+				Assert.assertEquals(
+					"label", ddmFormFieldNamesColumnBasic.get(0));
+				Assert.assertEquals(
+					"placeholder", ddmFormFieldNamesColumnBasic.get(1));
+				Assert.assertEquals("tip", ddmFormFieldNamesColumnBasic.get(2));
+				Assert.assertEquals(
+					"displayStyle", ddmFormFieldNamesColumnBasic.get(3));
+				Assert.assertEquals(
+					"required", ddmFormFieldNamesColumnBasic.get(4));
+			}
+		}
+
+		DDMFormLayoutPage ddmFormLayoutPageAdvanced = ddmFormLayoutPages.get(1);
+
+		for (DDMFormLayoutRow ddmFormLayoutRow :
+				ddmFormLayoutPageAdvanced.getDDMFormLayoutRows()) {
+
+			for (DDMFormLayoutColumn ddmFormLayoutColumn :
+					ddmFormLayoutRow.getDDMFormLayoutColumns()) {
+
+				List<String> ddmFormFieldNamesColumnAdvanced =
+					ddmFormLayoutColumn.getDDMFormFieldNames();
+
+				Assert.assertEquals(
+					"name", ddmFormFieldNamesColumnAdvanced.get(0));
+				Assert.assertEquals(
+					"predefinedValue", ddmFormFieldNamesColumnAdvanced.get(1));
+				Assert.assertEquals(
+					"visibilityExpression",
+					ddmFormFieldNamesColumnAdvanced.get(2));
+				Assert.assertEquals(
+					"fieldNamespace", ddmFormFieldNamesColumnAdvanced.get(3));
+				Assert.assertEquals(
+					"indexType", ddmFormFieldNamesColumnAdvanced.get(4));
+				Assert.assertEquals(
+					"localizable", ddmFormFieldNamesColumnAdvanced.get(5));
+				Assert.assertEquals(
+					"readOnly", ddmFormFieldNamesColumnAdvanced.get(6));
+				Assert.assertEquals(
+					"dataType", ddmFormFieldNamesColumnAdvanced.get(7));
+				Assert.assertEquals(
+					"type", ddmFormFieldNamesColumnAdvanced.get(8));
+				Assert.assertEquals(
+					"showLabel", ddmFormFieldNamesColumnAdvanced.get(9));
+				Assert.assertEquals(
+					"repeatable", ddmFormFieldNamesColumnAdvanced.get(10));
+				Assert.assertEquals(
+					"validation", ddmFormFieldNamesColumnAdvanced.get(11));
+				Assert.assertEquals(
+					"tooltip", ddmFormFieldNamesColumnAdvanced.get(12));
+			}
+		}
+
+		DDMFormLayoutPage ddmFormLayoutPageAutocomplete =
+			ddmFormLayoutPages.get(2);
+
+		for (DDMFormLayoutRow ddmFormLayoutRow :
+				ddmFormLayoutPageAutocomplete.getDDMFormLayoutRows()) {
+
+			for (DDMFormLayoutColumn ddmFormLayoutColumn :
+					ddmFormLayoutRow.getDDMFormLayoutColumns()) {
+
+				List<String> ddmFormFieldNamesColumnAutocomplete =
+					ddmFormLayoutColumn.getDDMFormFieldNames();
+
+				Assert.assertEquals(
+					"autocomplete", ddmFormFieldNamesColumnAutocomplete.get(0));
+				Assert.assertEquals(
+					"dataSourceType",
+					ddmFormFieldNamesColumnAutocomplete.get(1));
+				Assert.assertEquals(
+					"ddmDataProviderInstanceId",
+					ddmFormFieldNamesColumnAutocomplete.get(2));
+				Assert.assertEquals(
+					"ddmDataProviderInstanceOutput",
+					ddmFormFieldNamesColumnAutocomplete.get(3));
+				Assert.assertEquals(
+					"options", ddmFormFieldNamesColumnAutocomplete.get(4));
+			}
+		}
 	}
 
 	@Override

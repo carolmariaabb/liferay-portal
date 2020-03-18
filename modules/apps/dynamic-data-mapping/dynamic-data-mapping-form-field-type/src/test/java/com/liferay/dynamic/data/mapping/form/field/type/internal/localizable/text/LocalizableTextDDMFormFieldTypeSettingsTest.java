@@ -17,7 +17,12 @@ package com.liferay.dynamic.data.mapping.form.field.type.internal.localizable.te
 import com.liferay.dynamic.data.mapping.form.field.type.BaseDDMFormFieldTypeSettingsTestCase;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayoutColumn;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
 import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
+import com.liferay.dynamic.data.mapping.util.DDMFormLayoutFactory;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -25,6 +30,7 @@ import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -83,6 +89,77 @@ public class LocalizableTextDDMFormFieldTypeSettingsTest
 		Assert.assertNotNull(tooltipDDMFormField);
 		Assert.assertEquals(
 			"FALSE", tooltipDDMFormField.getVisibilityExpression());
+	}
+
+	@Test
+	public void testLocalizableTextDDMFormFieldTypeSettingsDDMFormLayout() {
+		DDMFormLayout ddmFormLayout = DDMFormLayoutFactory.create(
+			LocalizableTextDDMFormFieldTypeSettings.class);
+
+		List<DDMFormLayoutPage> ddmFormLayoutPages =
+			ddmFormLayout.getDDMFormLayoutPages();
+
+		DDMFormLayoutPage ddmFormLayoutPageBasic = ddmFormLayoutPages.get(0);
+
+		for (DDMFormLayoutRow ddmFormLayoutRow :
+				ddmFormLayoutPageBasic.getDDMFormLayoutRows()) {
+
+			for (DDMFormLayoutColumn ddmFormLayoutColumn :
+					ddmFormLayoutRow.getDDMFormLayoutColumns()) {
+
+				List<String> ddmFormFieldNamesColumnBasic =
+					ddmFormLayoutColumn.getDDMFormFieldNames();
+
+				Assert.assertEquals(
+					"label", ddmFormFieldNamesColumnBasic.get(0));
+				Assert.assertEquals(
+					"placeholder", ddmFormFieldNamesColumnBasic.get(1));
+				Assert.assertEquals("tip", ddmFormFieldNamesColumnBasic.get(2));
+				Assert.assertEquals(
+					"displayStyle", ddmFormFieldNamesColumnBasic.get(3));
+				Assert.assertEquals(
+					"required", ddmFormFieldNamesColumnBasic.get(4));
+			}
+		}
+
+		DDMFormLayoutPage ddmFormLayoutPageAdvanced = ddmFormLayoutPages.get(1);
+
+		for (DDMFormLayoutRow ddmFormLayoutRow :
+				ddmFormLayoutPageAdvanced.getDDMFormLayoutRows()) {
+
+			for (DDMFormLayoutColumn ddmFormLayoutColumn :
+					ddmFormLayoutRow.getDDMFormLayoutColumns()) {
+
+				List<String> ddmFormFieldNamesColumnAdvanced =
+					ddmFormLayoutColumn.getDDMFormFieldNames();
+
+				Assert.assertEquals(
+					"name", ddmFormFieldNamesColumnAdvanced.get(0));
+				Assert.assertEquals(
+					"predefinedValue", ddmFormFieldNamesColumnAdvanced.get(1));
+				Assert.assertEquals(
+					"visibilityExpression",
+					ddmFormFieldNamesColumnAdvanced.get(2));
+				Assert.assertEquals(
+					"fieldNamespace", ddmFormFieldNamesColumnAdvanced.get(3));
+				Assert.assertEquals(
+					"indexType", ddmFormFieldNamesColumnAdvanced.get(4));
+				Assert.assertEquals(
+					"localizable", ddmFormFieldNamesColumnAdvanced.get(5));
+				Assert.assertEquals(
+					"readOnly", ddmFormFieldNamesColumnAdvanced.get(6));
+				Assert.assertEquals(
+					"dataType", ddmFormFieldNamesColumnAdvanced.get(7));
+				Assert.assertEquals(
+					"type", ddmFormFieldNamesColumnAdvanced.get(8));
+				Assert.assertEquals(
+					"showLabel", ddmFormFieldNamesColumnAdvanced.get(9));
+				Assert.assertEquals(
+					"repeatable", ddmFormFieldNamesColumnAdvanced.get(10));
+				Assert.assertEquals(
+					"tooltip", ddmFormFieldNamesColumnAdvanced.get(11));
+			}
+		}
 	}
 
 	private void _setUpLanguageUtil() {
