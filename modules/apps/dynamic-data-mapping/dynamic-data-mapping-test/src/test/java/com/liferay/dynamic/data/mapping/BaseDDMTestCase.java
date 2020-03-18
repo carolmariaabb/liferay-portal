@@ -500,6 +500,8 @@ public abstract class BaseDDMTestCase extends PowerMockito {
 		);
 
 		Map<String, Object> properties = HashMapBuilder.<String, Object>put(
+			"ddm.form.field.type.group", "basic"
+		).put(
 			"ddm.form.field.type.icon", "my-icon"
 		).put(
 			"ddm.form.field.type.js.class.name", "myJavaScriptClass"
