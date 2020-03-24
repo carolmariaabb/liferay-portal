@@ -79,6 +79,8 @@ public class DDMFormFieldTypesJSONSerializerTest extends BaseDDMTestCase {
 
 	protected String createExpectedJSON() {
 		JSONObject jsonObject = JSONUtil.put(
+			"group", "basic"
+		).put(
 			"icon", "my-icon"
 		).put(
 			"javaScriptClass", "myJavaScriptClass"
@@ -118,6 +120,8 @@ public class DDMFormFieldTypesJSONSerializerTest extends BaseDDMTestCase {
 		);
 
 		Map<String, Object> properties = HashMapBuilder.<String, Object>put(
+			"ddm.form.field.type.group", "basic"
+		).put(
 			"ddm.form.field.type.icon", "my-icon"
 		).put(
 			"ddm.form.field.type.js.class.name", "myJavaScriptClass"
