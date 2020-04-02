@@ -238,91 +238,111 @@ public class UpgradeDDMDataProviderInstance extends UpgradeProcess {
 	}
 
 	private void _updateDDMStructures() throws Exception {
-		StringBundler sb1 = new StringBundler(2);
+		StringBundler sb = new StringBundler(7);
 
-		sb1.append("update DDMStructure set definition = ? where structureId ");
-		sb1.append("= ?");
+		sb.append("select DDMStructure.structureId, DDMStructure.definition ");
+		sb.append("from DDMDataProviderInstanceLink join DDMStructureVersion ");
+		sb.append("on DDMStructureVersion.structureId = ");
+		sb.append("DDMDataProviderInstanceLink.structureId left join ");
+		sb.append("DDMStructure on DDMStructure.structureId = ");
+		sb.append("DDMDataProviderInstanceLink.structureId and ");
+		sb.append("DDMStructure.version = DDMStructureVersion.version");
 
-		PreparedStatement ps1 =
-			AutoBatchPreparedStatementUtil.concurrentAutoBatch(
-				connection, sb1.toString());
+		try (PreparedStatement ps1 = connection.prepareStatement(sb.toString());
+			PreparedStatement ps2 =
+				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
+					connection,
+					"update DDMStructure set definition = ? where " +
+						"structureId = ?");
+			PreparedStatement ps3 = connection.prepareStatement(
+				"select structureVersionId, definition from " +
+					"DDMStructureVersion where structureId = ?");
+			PreparedStatement ps4 =
+				AutoBatchPreparedStatementUtil.concurrentAutoBatch(
+					connection,
+					"update DDMStructureVersion set definition = ? where " +
+						"structureVersionId = ?")) {
 
-		StringBundler sb2 = new StringBundler(2);
+			try (ResultSet rs = ps1.executeQuery()) {
+				while (rs.next()) {
+					JSONObject jsonObject = _jsonFactory.createJSONObject(
+						rs.getString(2));
 
-		sb2.append("update DDMStructureVersion set definition = ? where ");
-		sb2.append("structureVersionId = ?");
+					boolean updated = _updateDDMStructure(jsonObject);
 
-		PreparedStatement ps2 =
-			AutoBatchPreparedStatementUtil.concurrentAutoBatch(
-				connection, sb2.toString());
+					long structureId = rs.getLong(1);
 
-		StringBundler sb3 = new StringBundler(8);
+					if (updated &&
+						!_updatedStructureIds.contains(structureId)) {
 
-		sb3.append("select structureVersionId, DDMStructure.structureId, ");
-		sb3.append("DDMStructureVersion.definition from ");
-		sb3.append("DDMDataProviderInstanceLink join DDMStructureVersion on ");
-		sb3.append("DDMStructureVersion.structureId = ");
-		sb3.append("DDMDataProviderInstanceLink.structureId left join ");
-		sb3.append("DDMStructure on DDMStructure.structureId = ");
-		sb3.append("DDMDataProviderInstanceLink.structureId and ");
-		sb3.append("DDMStructure.version = DDMStructureVersion.version");
+						ps2.setString(1, jsonObject.toString());
 
-		PreparedStatement ps3 = connection.prepareStatement(sb3.toString());
+						ps2.setLong(2, structureId);
 
-		ResultSet rs3 = ps3.executeQuery();
+						ps2.addBatch();
 
-		while (rs3.next()) {
-			JSONObject jsonObject = _jsonFactory.createJSONObject(
-				rs3.getString("definition"));
+						_updatedStructureIds.add(structureId);
+					}
 
-			boolean rulesUpdated = false;
+					ps3.setLong(1, structureId);
 
-			JSONArray rulesJSONArray = jsonObject.getJSONArray("rules");
+					try (ResultSet rs2 = ps3.executeQuery()) {
+						while (rs2.next()) {
+							jsonObject = _jsonFactory.createJSONObject(
+								rs2.getString("definition"));
 
-			if (rulesJSONArray != null) {
-				rulesUpdated = _updateDDMDataProviderRules(rulesJSONArray);
-			}
+							updated = _updateDDMStructure(jsonObject);
 
-			boolean fieldsUpdated = false;
+							long structureVersionId = rs2.getLong(
+								"structureVersionId");
 
-			JSONArray fieldsJSONArray = jsonObject.getJSONArray("fields");
+							if (updated &&
+								!_updatedStructureVersionIds.contains(
+									structureVersionId)) {
 
-			if (fieldsJSONArray != null) {
-				fieldsUpdated = _updateFieldsWithDataProviderAssigned(
-					fieldsJSONArray);
-			}
+								ps4.setString(1, jsonObject.toString());
 
-			long structureVersionId = rs3.getLong("structureVersionId");
+								ps4.setLong(2, structureVersionId);
 
-			if ((rulesUpdated || fieldsUpdated) &&
-				!_updatedStructureVersionIds.contains(structureVersionId)) {
+								ps4.addBatch();
 
-				ps2.setString(1, jsonObject.toString());
+								_updatedStructureVersionIds.add(
+									structureVersionId);
+							}
+						}
+					}
+				}
 
-				ps2.setLong(2, structureVersionId);
+				ps2.executeBatch();
 
-				ps2.addBatch();
-
-				_updatedStructureVersionIds.add(structureVersionId);
-			}
-
-			long structureId = rs3.getLong("structureId");
-
-			if ((structureId > 0) &&
-				!_updatedStructureIds.contains(structureId)) {
-
-				ps1.setString(1, jsonObject.toString());
-
-				ps1.setLong(2, structureId);
-
-				ps1.addBatch();
-
-				_updatedStructureIds.add(structureId);
+				ps4.executeBatch();
 			}
 		}
+	}
 
-		ps2.executeBatch();
-		ps1.executeBatch();
+	private boolean _updateDDMStructure(JSONObject jsonObject) {
+		boolean rulesUpdated = false;
+
+		JSONArray rulesJSONArray = jsonObject.getJSONArray("rules");
+
+		if (rulesJSONArray != null) {
+			rulesUpdated = _updateDDMDataProviderRules(rulesJSONArray);
+		}
+
+		boolean fieldsUpdated = false;
+
+		JSONArray fieldsJSONArray = jsonObject.getJSONArray("fields");
+
+		if (fieldsJSONArray != null) {
+			fieldsUpdated = _updateFieldsWithDataProviderAssigned(
+				fieldsJSONArray);
+		}
+
+		if (rulesUpdated || fieldsUpdated) {
+			return true;
+		}
+
+		return false;
 	}
 
 	private boolean _updateFieldsWithDataProviderAssigned(
@@ -335,7 +355,7 @@ public class UpgradeDDMDataProviderInstance extends UpgradeProcess {
 
 			if (!StringUtil.equals(
 					fieldJSONObject.getString("dataSourceType"),
-					"data-provider")) {
+					"[\"data-provider\"]")) {
 
 				continue;
 			}
