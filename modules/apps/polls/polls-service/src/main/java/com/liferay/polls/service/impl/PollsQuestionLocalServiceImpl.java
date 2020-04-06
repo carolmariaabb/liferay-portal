@@ -26,12 +26,9 @@ import com.liferay.polls.service.base.PollsQuestionLocalServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Hits;
 import com.liferay.portal.kernel.search.Indexable;
@@ -43,13 +40,11 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.Validator;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -265,29 +260,6 @@ public class PollsQuestionLocalServiceImpl
 		long companyId, long[] groupIds, String keywords, int start, int end,
 		OrderByComparator<PollsQuestion> orderByComparator) {
 
-		try {
-			Hits hits = searchIndexer(
-				companyId, groupIds, keywords, start, end, orderByComparator);
-
-			List<PollsQuestion> pollsQuestions = new ArrayList<>(
-				hits.getLength());
-
-			for (Document document : hits.getDocs()) {
-				Long questionId = GetterUtil.getLong(
-					document.get(Field.ENTRY_CLASS_PK));
-
-				pollsQuestions.add(
-					pollsQuestionPersistence.fetchByPrimaryKey(questionId));
-			}
-
-			return pollsQuestions;
-		}
-		catch (PortalException portalException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
-			}
-		}
-
 		return pollsQuestionFinder.findByKeywords(
 			companyId, groupIds, keywords, start, end, orderByComparator);
 	}
@@ -305,19 +277,6 @@ public class PollsQuestionLocalServiceImpl
 
 	@Override
 	public int searchCount(long companyId, long[] groupIds, String keywords) {
-		Indexer<PollsQuestion> indexer = _indexerRegistry.getIndexer(
-			PollsQuestion.class.getName());
-
-		try {
-			return (int)indexer.searchCount(
-				buildSearchContext(companyId, groupIds, keywords));
-		}
-		catch (PortalException portalException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(portalException, portalException);
-			}
-		}
-
 		return pollsQuestionFinder.countByKeywords(
 			companyId, groupIds, keywords);
 	}
@@ -531,9 +490,6 @@ public class PollsQuestionLocalServiceImpl
 				"Expiration date " + expirationDate + " is in the past");
 		}
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		PollsQuestionLocalServiceImpl.class);
 
 	@Reference
 	private IndexerRegistry _indexerRegistry;
