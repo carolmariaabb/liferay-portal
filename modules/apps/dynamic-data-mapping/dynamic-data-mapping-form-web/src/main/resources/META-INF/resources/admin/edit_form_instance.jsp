@@ -142,8 +142,48 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 <liferay-portlet:resourceURL copyCurrentRenderParameters="<%= false %>" id="saveFormInstance" var="autoSaveFormInstanceURL" />
 
 <c:if test="<%= ddmFormAdminDisplayContext.isShowSummary() %>">
-	<div class="hide" id="<portlet:namespace />formSummary">
-		<liferay-util:include page="/admin/list_form_instance_records.jsp" servletContext="<%= application %>" />
+
+	<%
+	DDMFormViewFormInstanceRecordsDisplayContext ddmFormViewFormInstanceRecordsDisplayContext = ddmFormAdminDisplayContext.getFormViewRecordsDisplayContext();
+	String lastEntrySent = "30 min";
+	%>
+
+	<div class="ddm-form-summary hide" id="<portlet:namespace />formSummary">
+		<header class="ddm-form-summary-header">
+			<div class="ddm-form-summary-header-content">
+				<div class="container-fluid container-fluid-max-xl">
+					<div class="align-items-center autofit-row">
+						<span class="ddm-form-summary-title text-truncate">
+							<liferay-ui:message arguments="<%= ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems() %>" key="x-entries" />
+						</span>
+
+						<div class="autofit-col autofit-col-expand">
+							<div class="justify-content-md-end navbar-form">
+								<clay:dropdown-actions
+									dropdownItems="<%= ddmFormAdminDisplayContext.getFormSummaryDropdownItems() %>"
+								/>
+							</div>
+						</div>
+					</div>
+
+					<div class="align-items-center autofit-row">
+						<span class="ddm-form-summary-subtitle text-truncate">
+							<liferay-ui:message arguments="<%= lastEntrySent %>" key="last-entry-sent-x-ago" />
+						</span>
+					</div>
+				</div>
+			</div>
+
+			<clay:navigation-bar
+				componentId="formSummaryNavigationBar"
+				elementClasses="form-summary-navigation-bar"
+				navigationItems="<%= ddmFormAdminDisplayContext.getFormSummaryNavigationItems() %>"
+			/>
+		</header>
+
+		<div class="container-fluid-1280 ddm-form-summary-container">
+			<liferay-util:include page="/admin/form_instance_records_search_container.jsp" servletContext="<%= application %>" />
+		</div>
 	</div>
 </c:if>
 

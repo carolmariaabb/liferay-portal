@@ -578,6 +578,63 @@ public class DDMFormAdminDisplayContext {
 		return getJSONObjectLocalizedPropertyFromRequest("name");
 	}
 
+	public List<DropdownItem> getFormSummaryDropdownItems() {
+		HttpServletRequest httpServletRequest =
+			formAdminRequestHelper.getRequest();
+
+		return DropdownItemListBuilder.add(
+			dropdownItem -> {
+				dropdownItem.putData("action", "getEmailNotifications");
+				dropdownItem.setIcon("times-circle");
+				dropdownItem.setLabel(
+					LanguageUtil.get(
+						httpServletRequest, "get-email-notifications"));
+				dropdownItem.setQuickAction(true);
+			}
+		).add(
+			dropdownItem -> {
+				dropdownItem.putData("action", "exportAllEntries");
+				dropdownItem.setIcon("times-circle");
+				dropdownItem.setLabel(
+					LanguageUtil.get(httpServletRequest, "export-all-entries"));
+				dropdownItem.setQuickAction(true);
+			}
+		).add(
+			dropdownItem -> {
+				dropdownItem.putData("action", "deleteAllEntries");
+				dropdownItem.setIcon("times-circle");
+				dropdownItem.setLabel(
+					LanguageUtil.get(httpServletRequest, "delete-all-entries"));
+				dropdownItem.setQuickAction(true);
+			}
+		).build();
+	}
+
+	public List<NavigationItem> getFormSummaryNavigationItems() {
+		HttpServletRequest httpServletRequest =
+			formAdminRequestHelper.getRequest();
+
+		NavigationItemListBuilder.NavigationItemListWrapper
+			navigationItemListWrapper = NavigationItemListBuilder.add(
+				navigationItem -> {
+					navigationItem.putData("action", "showSummary");
+					navigationItem.setActive(true);
+					navigationItem.setHref(StringPool.BLANK);
+					navigationItem.setLabel(
+						LanguageUtil.get(httpServletRequest, "summary"));
+				}
+			).add(
+				navigationItem -> {
+					navigationItem.putData("action", "showEntries");
+					navigationItem.setHref(StringPool.BLANK);
+					navigationItem.setLabel(
+						LanguageUtil.get(httpServletRequest, "entries"));
+				}
+			);
+
+		return navigationItemListWrapper.build();
+	}
+
 	public String getFormURL() throws PortalException {
 		return getFormURL(getDDMFormInstance());
 	}

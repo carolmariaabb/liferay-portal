@@ -417,3 +417,45 @@ td.lfr-name-column {
 		width: 12px;
 	}
 }
+
+.ddm-form-summary {
+	.ddm-form-summary-container,
+	.ddm-form-summary-header-content > .container-fluid-max-xl,
+	.form-summary-navigation-bar > .container-fluid-max-xl {
+		padding-left: 10%;
+		padding-right: 10%;
+	}
+
+	.ddm-form-summary-container {
+		margin-top: 1.5rem;
+
+		.container-fluid-1280 {
+			padding-left: 0;
+			padding-right: 0;
+		}
+	}
+
+	.ddm-form-summary-header-content {
+		background-color: #fff;
+		height: 120px;
+		padding-top: 1.5rem !important;
+	}
+
+	.ddm-form-summary-subtitle {
+		color: #6b6c7e;
+		font-size: 14px;
+		font-weight: normal;
+	}
+
+	.ddm-form-summary-title {
+		color: #272833;
+		font-size: 32px;
+		font-weight: 600;
+	}
+
+	.form-summary-navigation-bar .nav-item {
+		.nav-link {
+			cursor: pointer;
+		}
+	}
+}
