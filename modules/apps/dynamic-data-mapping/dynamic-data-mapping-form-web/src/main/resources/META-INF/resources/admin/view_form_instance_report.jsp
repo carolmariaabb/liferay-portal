@@ -48,15 +48,18 @@ int totalItems = ddmFormViewFormInstanceRecordsDisplayContext.getTotalItems();
 		</div>
 	</div>
 
-	<liferay-ui:tabs
+	<div class="container-fluid container-fluid-max-xl">
+		<liferay-ui:tabs
 		cssClass="navbar-no-collapse navigation-bar-light"
 		names="entries"
 		refresh="<%= false %>"
-	>
-		<liferay-ui:section>
-			<liferay-util:include page="/admin/form_instance_records_search_container.jsp" servletContext="<%= application %>">
-				<liferay-util:param name="redirect" value="<%= redirect %>" />
-			</liferay-util:include>
-		</liferay-ui:section>
-	</liferay-ui:tabs>
+		>
+			<liferay-ui:section>
+				<liferay-util:include page="/admin/form_instance_records_search_container.jsp" servletContext="<%= application %>">
+					<liferay-util:param name="redirect" value="<%= redirect %>" />
+				</liferay-util:include>
+			</liferay-ui:section>
+		</liferay-ui:tabs>
+	</div>
+
 </div>
