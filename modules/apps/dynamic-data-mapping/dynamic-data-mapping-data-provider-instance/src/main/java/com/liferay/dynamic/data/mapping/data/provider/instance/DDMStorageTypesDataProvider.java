@@ -18,10 +18,14 @@ import com.liferay.dynamic.data.mapping.data.provider.DDMDataProvider;
 import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderRequest;
 import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderResponse;
 import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterTracker;
+import com.liferay.dynamic.data.mapping.storage.StorageType;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.KeyValuePair;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
@@ -43,11 +47,25 @@ public class DDMStorageTypesDataProvider implements DDMDataProvider {
 
 		List<KeyValuePair> keyValuePairs = new ArrayList<>();
 
+		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
+			"content.Language", ddmDataProviderRequest.getLocale(), getClass());
+
 		Set<String> storageTypes =
 			ddmStorageAdapterTracker.getDDMStorageAdapterTypes();
 
 		for (String storageType : storageTypes) {
-			keyValuePairs.add(new KeyValuePair(storageType, storageType));
+			if (storageType.equals(StorageType.JSON.toString())) {
+				keyValuePairs.add(
+					new KeyValuePair(
+						storageType,
+						LanguageUtil.get(resourceBundle, "json[stands-for]")));
+			}
+			else {
+				keyValuePairs.add(
+					new KeyValuePair(
+						storageType,
+						LanguageUtil.get(resourceBundle, storageType)));
+			}
 		}
 
 		DDMDataProviderResponse.Builder builder =
