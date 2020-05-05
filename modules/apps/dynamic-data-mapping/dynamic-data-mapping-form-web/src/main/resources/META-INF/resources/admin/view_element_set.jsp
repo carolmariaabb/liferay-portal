@@ -121,17 +121,19 @@ SearchContainer<?> ddmFormAdminDisplaySearchContainer = ddmFormAdminDisplayConte
 					title='<%= LanguageUtil.get(request, "there-are-no-element-sets-yet") %>'
 				/>
 
-				<portlet:renderURL var="addNewElementSetURL">
-					<portlet:param name="mvcRenderCommandName" value="/admin/edit_element_set" />
-					<portlet:param name="redirect" value="<%= currentURL %>" />
-					<portlet:param name="groupId" value="<%= String.valueOf(themeDisplay.getScopeGroupId()) %>" />
-				</portlet:renderURL>
+				<c:if test="<%= fieldSetPermissionCheckerHelper.isShowAddButton() %>">
+					<portlet:renderURL var="addNewElementSetURL">
+						<portlet:param name="mvcRenderCommandName" value="/admin/edit_element_set" />
+						<portlet:param name="redirect" value="<%= currentURL %>" />
+						<portlet:param name="groupId" value="<%= String.valueOf(themeDisplay.getScopeGroupId()) %>" />
+					</portlet:renderURL>
 
-				<div class="text-center">
-					<a class="btn btn-secondary" href="<%= addNewElementSetURL %>" type="button">
-						<%= LanguageUtil.get(request, "new-element-set") %>
-					</a>
-				</div>
+					<div class="text-center">
+						<a class="btn btn-secondary" href="<%= addNewElementSetURL %>" type="button">
+							<%= LanguageUtil.get(request, "new-element-set") %>
+						</a>
+					</div>
+				</c:if>
 			</c:otherwise>
 		</c:choose>
 	</aui:form>

@@ -119,17 +119,19 @@ SearchContainer<?> ddmFormAdminDisplaySearchContainer = ddmFormAdminDisplayConte
 					title='<%= LanguageUtil.get(request, "there-are-no-forms-yet") %>'
 				/>
 
-				<portlet:renderURL var="addNewFormURL">
-					<portlet:param name="mvcRenderCommandName" value="/admin/edit_form_instance" />
-					<portlet:param name="redirect" value="<%= currentURL %>" />
-					<portlet:param name="groupId" value="<%= String.valueOf(themeDisplay.getScopeGroupId()) %>" />
-				</portlet:renderURL>
+				<c:if test="<%= formInstancePermissionCheckerHelper.isShowAddButton() %>">
+					<portlet:renderURL var="addNewFormURL">
+						<portlet:param name="mvcRenderCommandName" value="/admin/edit_form_instance" />
+						<portlet:param name="redirect" value="<%= currentURL %>" />
+						<portlet:param name="groupId" value="<%= String.valueOf(themeDisplay.getScopeGroupId()) %>" />
+					</portlet:renderURL>
 
-				<div class="text-center">
-					<a class="btn btn-secondary" href="<%= addNewFormURL %>" type="button">
-						<%= LanguageUtil.get(request, "new-form") %>
-					</a>
-				</div>
+					<div class="text-center">
+						<a class="btn btn-secondary" href="<%= addNewFormURL %>" type="button">
+							<%= LanguageUtil.get(request, "new-form") %>
+						</a>
+					</div>
+				</c:if>
 			</c:otherwise>
 		</c:choose>
 	</aui:form>
