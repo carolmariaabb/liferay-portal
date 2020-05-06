@@ -202,9 +202,15 @@ definition {
 	}
 
 	macro viewNoForms {
+		AssertElementPresent(locator1 = "Message#EMPTY_INFO_TAGLIB");
+		
 		AssertTextEquals(
-			locator1 = "Message#EMPTY_INFO",
-			value1 = "There are no forms. Click on the plus button to add the first one.");
+			locator1 = "Message#EMPTY_INFO_TAGLIB_TITLE",
+			value1 = "There are no forms yet.");
+
+		AssertTextEquals(
+			locator1 = "Message#EMPTY_INFO_TAGLIB_DESCRIPTION",
+			value1 = "Create and publish a form to start collecting data.");
 	}
 
 	macro viewRadioEntry {
