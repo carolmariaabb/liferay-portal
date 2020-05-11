@@ -46,7 +46,7 @@ class ShareFormModal extends Component {
 	}
 
 	render() {
-		const {spritemap} = this.props;
+		const {emailAddressesURL, spritemap} = this.props;
 
 		return (
 			<div class="share-form-modal">
@@ -73,6 +73,9 @@ class ShareFormModal extends Component {
 								<div class="popover-body">
 									{
 										<Email
+											emailAddressesURL={
+												emailAddressesURL
+											}
 											localizedName={
 												this.props.localizedName
 											}
@@ -112,6 +115,14 @@ class ShareFormModal extends Component {
 }
 
 ShareFormModal.PROPS = {
+
+	/**
+	 * @default undefined
+	 * @instance
+	 * @memberof ShareFormModal
+	 * @type {!string}
+	 */
+	emailAddressesURL: Config.string(),
 
 	/**
 	 * @default undefined
