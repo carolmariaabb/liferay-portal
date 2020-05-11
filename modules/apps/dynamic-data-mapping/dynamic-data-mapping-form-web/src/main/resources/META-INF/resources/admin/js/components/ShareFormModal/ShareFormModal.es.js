@@ -153,6 +153,22 @@ ShareFormModal.PROPS = {
 	 * @memberof ShareFormModal
 	 * @type {!string}
 	 */
+	portletNamespace: Config.string(),
+
+	/**
+	 * @default undefined
+	 * @instance
+	 * @memberof ShareFormModal
+	 * @type {!string}
+	 */
+	shareFormLinkURL: Config.string(),
+
+	/**
+	 * @default undefined
+	 * @instance
+	 * @memberof ShareFormModal
+	 * @type {!string}
+	 */
 	spritemap: Config.string(),
 
 	/**
