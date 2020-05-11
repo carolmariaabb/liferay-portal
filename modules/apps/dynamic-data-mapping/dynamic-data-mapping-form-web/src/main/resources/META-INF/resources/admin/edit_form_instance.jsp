@@ -219,6 +219,8 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 							rolesURL: '<%= rolesURL %>',
 							rules: <%= serializedDDMFormRules %>,
 							saved: <%= formInstance != null %>,
+							shareFormLinkURL:
+								'<%= ddmFormAdminDisplayContext.getShareFormLinkURL() %>',
 							showPublishAlert: <%= ddmFormAdminDisplayContext.isShowPublishAlert() %>,
 							spritemap: Liferay.DDM.FormSettings.spritemap,
 							strings: Liferay.DDM.FormSettings.strings,
