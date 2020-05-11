@@ -13,6 +13,7 @@
  */
 
 import ClayModal from 'clay-modal';
+import {makeFetch} from 'dynamic-data-mapping-form-renderer/js/util/fetch.es';
 import dom from 'metal-dom';
 import {EventHandler} from 'metal-events';
 import Component, {Config} from 'metal-jsx';
@@ -33,6 +34,7 @@ class ShareFormModal extends Component {
 
 	created() {
 		this._eventHandler = new EventHandler();
+		this._fetchEmailAddresses();
 	}
 
 	disposeInternal() {
@@ -46,6 +48,7 @@ class ShareFormModal extends Component {
 
 	render() {
 		const {spritemap} = this.props;
+		const {emailAddresses} = this.state;
 
 		return (
 			<div class="share-form-modal">
@@ -72,6 +75,7 @@ class ShareFormModal extends Component {
 								<div class="popover-body">
 									{
 										<Email
+											emailAddresses={emailAddresses}
 											localizedName={
 												this.props.localizedName
 											}
@@ -105,12 +109,44 @@ class ShareFormModal extends Component {
 		);
 	}
 
+	_fetchEmailAddresses() {
+		const {emailAddressesURL} = this.props;
+
+		makeFetch({
+			method: 'GET',
+			url: emailAddressesURL,
+		})
+			.then((responseData) => {
+				if (!this.isDisposed()) {
+					this.setState({
+						emailAddresses: responseData.map((data) => {
+							return {
+								label: data.emailAddress,
+								value: data.emailAddress,
+							};
+						}),
+					});
+				}
+			})
+			.catch((error) => {
+				throw new Error(error);
+			});
+	}
+
 	_handleShareButtonClicked() {
 		this.open();
 	}
 }
 
 ShareFormModal.PROPS = {
+
+	/**
+	 * @default undefined
+	 * @instance
+	 * @memberof ShareFormModal
+	 * @type {!string}
+	 */
+	emailAddressesURL: Config.string(),
 
 	/**
 	 * @default undefined
@@ -135,6 +171,17 @@ ShareFormModal.PROPS = {
 	 * @type {!string}
 	 */
 	url: Config.string(),
+};
+
+ShareFormModal.STATE = {
+
+	/**
+	 * @default undefined
+	 * @instance
+	 * @memberof ShareFormModal
+	 * @type {!array}
+	 */
+	emailAddresses: Config.array(),
 };
 
 export default ShareFormModal;
