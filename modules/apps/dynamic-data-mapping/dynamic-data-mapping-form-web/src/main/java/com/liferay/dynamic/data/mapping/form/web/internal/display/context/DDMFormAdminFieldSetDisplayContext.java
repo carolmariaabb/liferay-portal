@@ -175,7 +175,7 @@ public class DDMFormAdminFieldSetDisplayContext
 
 	@Override
 	public List<DropdownItem> getEmptyResultMessageActionItemsDropdownItems() {
-		if (!_fieldSetPermissionCheckerHelper.isShowAddButton()) {
+		if (!_fieldSetPermissionCheckerHelper.isShowAddButton() || isSearch()) {
 			return null;
 		}
 
