@@ -17,15 +17,11 @@
 <%@ include file="/admin/init.jsp" %>
 
 <%
-String displayStyle = ddmFormAdminDisplayContext.getDisplayStyle();
-
 PortletURL portletURL = ddmFormAdminDisplayContext.getPortletURL();
 
 portletURL.setParameter("displayStyle", displayStyle);
 
 FieldSetPermissionCheckerHelper fieldSetPermissionCheckerHelper = ddmFormAdminDisplayContext.getPermissionCheckerHelper();
-
-SearchContainer<?> ddmFormAdminDisplaySearchContainer = ddmFormAdminDisplayContext.getSearch();
 %>
 
 <clay:container
