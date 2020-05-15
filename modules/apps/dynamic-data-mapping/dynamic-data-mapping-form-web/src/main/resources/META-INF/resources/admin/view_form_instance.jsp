@@ -118,7 +118,7 @@ SearchContainer<?> ddmFormAdminDisplaySearchContainer = ddmFormAdminDisplayConte
 					actionDropdownItems="<%= isSearch ? null : ddmFormAdminDisplayContext.getEmptyResultMessageActionItemsDropdownItems() %>"
 					animationType="<%= isSearch ? EmptyResultMessageKeys.AnimationType.SUCCESS : EmptyResultMessageKeys.AnimationType.EMPTY %>"
 					buttonCssClass="secondary"
-					description='<%= isSearch ? "" : LanguageUtil.get(request, "create-and-publish-a-form") %>'
+					description='<%= isSearch ? "" : LanguageUtil.get(request, "click-on-the-plus-button-to-add-the-first-one") %>'
 					title='<%= isSearch ? LanguageUtil.get(request, "no-forms-were-found") : LanguageUtil.get(request, "there-are-no-forms") %>'
 				/>
 			</c:otherwise>
