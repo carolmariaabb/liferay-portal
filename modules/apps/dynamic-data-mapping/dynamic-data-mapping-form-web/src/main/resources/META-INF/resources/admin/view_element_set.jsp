@@ -32,10 +32,10 @@ FieldSetPermissionCheckerHelper fieldSetPermissionCheckerHelper = ddmFormAdminDi
 		<aui:input name="deleteStructureIds" type="hidden" />
 
 		<c:choose>
-			<c:when test="<%= ddmFormAdminDisplaySearchContainer.hasResults() %>">
+			<c:when test="<%= ddmFormAdminDisplayContext.hasResults() %>">
 				<liferay-ui:search-container
 					id="structure"
-					searchContainer="<%= ddmFormAdminDisplaySearchContainer %>"
+					searchContainer="<%= ddmFormAdminDisplayContext.getSearch() %>"
 				>
 					<liferay-ui:search-container-row
 						className="com.liferay.dynamic.data.mapping.model.DDMStructure"
@@ -107,17 +107,12 @@ FieldSetPermissionCheckerHelper fieldSetPermissionCheckerHelper = ddmFormAdminDi
 				</liferay-ui:search-container>
 			</c:when>
 			<c:otherwise>
-
-				<%
-				boolean isSearch = ddmFormAdminDisplaySearchContainer.isSearch();
-				%>
-
 				<liferay-frontend:empty-result-message
-					actionDropdownItems="<%= isSearch ? null : ddmFormAdminDisplayContext.getEmptyResultMessageActionItemsDropdownItems() %>"
-					animationType="<%= isSearch ? EmptyResultMessageKeys.AnimationType.SUCCESS : EmptyResultMessageKeys.AnimationType.EMPTY %>"
+					actionDropdownItems="<%= ddmFormAdminDisplayContext.getEmptyResultMessageActionItemsDropdownItems() %>"
+					animationType="<%= ddmFormAdminDisplayContext.getEmptyResultMessageAnimationType() %>"
 					buttonCssClass="secondary"
-					description='<%= isSearch ? "" : LanguageUtil.get(request, "click-on-the-plus-button-to-add-the-first-one") %>'
-					title='<%= isSearch ? LanguageUtil.get(request, "no-element-sets-were-found") : LanguageUtil.get(request, "there-are-no-element-sets") %>'
+					description="<%= ddmFormAdminDisplayContext.getEmptyResultMessageDescription() %>"
+					title="<%= ddmFormAdminDisplayContext.getEmptyResultsMessage() %>"
 				/>
 			</c:otherwise>
 		</c:choose>

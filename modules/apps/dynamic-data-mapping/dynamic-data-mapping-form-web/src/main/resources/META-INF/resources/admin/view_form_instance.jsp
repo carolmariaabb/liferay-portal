@@ -30,11 +30,11 @@ FormInstancePermissionCheckerHelper formInstancePermissionCheckerHelper = ddmFor
 		<aui:input name="deleteFormInstanceIds" type="hidden" />
 
 		<c:choose>
-			<c:when test="<%= ddmFormAdminDisplaySearchContainer.hasResults() %>">
+			<c:when test="<%= ddmFormAdminDisplayContext.hasResults() %>">
 				<liferay-ui:search-container
 					id="<%= ddmFormAdminDisplayContext.getSearchContainerId() %>"
 					rowChecker="<%= new EmptyOnClickRowChecker(renderResponse) %>"
-					searchContainer="<%= ddmFormAdminDisplaySearchContainer %>"
+					searchContainer="<%= ddmFormAdminDisplayContext.getSearch() %>"
 				>
 					<liferay-ui:search-container-row
 						className="com.liferay.dynamic.data.mapping.model.DDMFormInstance"
@@ -106,17 +106,12 @@ FormInstancePermissionCheckerHelper formInstancePermissionCheckerHelper = ddmFor
 				</liferay-ui:search-container>
 			</c:when>
 			<c:otherwise>
-
-				<%
-				boolean isSearch = ddmFormAdminDisplaySearchContainer.isSearch();
-				%>
-
 				<liferay-frontend:empty-result-message
-					actionDropdownItems="<%= isSearch ? null : ddmFormAdminDisplayContext.getEmptyResultMessageActionItemsDropdownItems() %>"
-					animationType="<%= isSearch ? EmptyResultMessageKeys.AnimationType.SUCCESS : EmptyResultMessageKeys.AnimationType.EMPTY %>"
+					actionDropdownItems="<%= ddmFormAdminDisplayContext.getEmptyResultMessageActionItemsDropdownItems() %>"
+					animationType="<%= ddmFormAdminDisplayContext.getEmptyResultMessageAnimationType() %>"
 					buttonCssClass="secondary"
-					description='<%= isSearch ? "" : LanguageUtil.get(request, "click-on-the-plus-button-to-add-the-first-one") %>'
-					title='<%= isSearch ? LanguageUtil.get(request, "no-forms-were-found") : LanguageUtil.get(request, "there-are-no-forms") %>'
+					description="<%= ddmFormAdminDisplayContext.getEmptyResultMessageDescription() %>"
+					title="<%= ddmFormAdminDisplayContext.getEmptyResultsMessage() %>"
 				/>
 			</c:otherwise>
 		</c:choose>
