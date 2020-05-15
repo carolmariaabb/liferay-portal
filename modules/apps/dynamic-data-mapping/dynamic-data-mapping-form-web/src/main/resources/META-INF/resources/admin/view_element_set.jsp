@@ -117,7 +117,7 @@ SearchContainer<?> ddmFormAdminDisplaySearchContainer = ddmFormAdminDisplayConte
 				%>
 
 				<liferay-frontend:empty-result-message
-					actionDropdownItems="<%= isSearch ? null : ddmFormAdminDisplayContext.getAddButtonDropdownItems() %>"
+					actionDropdownItems="<%= isSearch ? null : ddmFormAdminDisplayContext.getEmptyResultMessageActionItemsDropdownItems() %>"
 					animationType="<%= isSearch ? EmptyResultMessageKeys.AnimationType.SUCCESS : EmptyResultMessageKeys.AnimationType.EMPTY %>"
 					buttonCssClass="secondary"
 					description='<%= isSearch ? "" : LanguageUtil.get(request, "create-and-save-an-element-set") %>'

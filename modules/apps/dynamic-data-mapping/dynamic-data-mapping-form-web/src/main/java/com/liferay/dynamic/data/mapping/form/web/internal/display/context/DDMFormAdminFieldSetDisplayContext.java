@@ -139,24 +139,13 @@ public class DDMFormAdminFieldSetDisplayContext
 	}
 
 	@Override
-	public List<DropdownItem> getAddButtonDropdownItems() {
-		if (!_fieldSetPermissionCheckerHelper.isShowAddButton()) {
-			return null;
-		}
-
-		return DropdownItemListBuilder.add(
-			getDropdownItem()
-		).build();
-	}
-
-	@Override
 	public CreationMenu getCreationMenu() {
 		if (!_fieldSetPermissionCheckerHelper.isShowAddButton()) {
 			return null;
 		}
 
 		return CreationMenuBuilder.addPrimaryDropdownItem(
-			getDropdownItem()
+			getAddElementSetDropdownItem()
 		).build();
 	}
 
@@ -182,6 +171,17 @@ public class DDMFormAdminFieldSetDisplayContext
 		}
 
 		return _structure;
+	}
+
+	@Override
+	public List<DropdownItem> getEmptyResultMessageActionItemsDropdownItems() {
+		if (!_fieldSetPermissionCheckerHelper.isShowAddButton()) {
+			return null;
+		}
+
+		return DropdownItemListBuilder.add(
+			getAddElementSetDropdownItem()
+		).build();
 	}
 
 	@Override
@@ -363,6 +363,28 @@ public class DDMFormAdminFieldSetDisplayContext
 			createDDMFormRenderingContext(pageContext, renderRequest));
 	}
 
+	protected UnsafeConsumer<DropdownItem, Exception>
+		getAddElementSetDropdownItem() {
+
+		return dropdownItem -> {
+			HttpServletRequest httpServletRequest =
+				PortalUtil.getHttpServletRequest(renderRequest);
+
+			ThemeDisplay themeDisplay =
+				(ThemeDisplay)httpServletRequest.getAttribute(
+					WebKeys.THEME_DISPLAY);
+
+			dropdownItem.setHref(
+				renderResponse.createRenderURL(), "mvcRenderCommandName",
+				"/admin/edit_element_set", "redirect",
+				PortalUtil.getCurrentURL(httpServletRequest), "groupId",
+				String.valueOf(themeDisplay.getScopeGroupId()));
+
+			dropdownItem.setLabel(
+				LanguageUtil.get(httpServletRequest, "new-element-set"));
+		};
+	}
+
 	protected OrderByComparator<DDMStructure> getDDMStructureOrderByComparator(
 		String orderByCol, String orderByType) {
 
@@ -385,27 +407,6 @@ public class DDMFormAdminFieldSetDisplayContext
 		}
 
 		return orderByComparator;
-	}
-
-	@Override
-	protected UnsafeConsumer<DropdownItem, Exception> getDropdownItem() {
-		return dropdownItem -> {
-			HttpServletRequest httpServletRequest =
-				PortalUtil.getHttpServletRequest(renderRequest);
-
-			ThemeDisplay themeDisplay =
-				(ThemeDisplay)httpServletRequest.getAttribute(
-					WebKeys.THEME_DISPLAY);
-
-			dropdownItem.setHref(
-				renderResponse.createRenderURL(), "mvcRenderCommandName",
-				"/admin/edit_element_set", "redirect",
-				PortalUtil.getCurrentURL(httpServletRequest), "groupId",
-				String.valueOf(themeDisplay.getScopeGroupId()));
-
-			dropdownItem.setLabel(
-				LanguageUtil.get(httpServletRequest, "new-element-set"));
-		};
 	}
 
 	protected void setFieldSetsSearchResults(FieldSetSearch fieldSetSearch) {
