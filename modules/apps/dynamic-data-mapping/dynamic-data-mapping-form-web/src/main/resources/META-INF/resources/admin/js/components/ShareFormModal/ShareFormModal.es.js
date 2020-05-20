@@ -56,7 +56,7 @@ class ShareFormModal extends Component {
 	}
 
 	render() {
-		const {spritemap} = this.props;
+		const {spritemap, url} = this.props;
 		const {emailAddresses} = this.state;
 
 		return (
@@ -69,12 +69,7 @@ class ShareFormModal extends Component {
 									{Liferay.Language.get('link')}
 								</div>
 								<div class="popover-body">
-									{
-										<Link
-											spritemap={spritemap}
-											url={this.props.url}
-										/>
-									}
+									{<Link spritemap={spritemap} url={url} />}
 								</div>
 							</div>
 							<div class="share-form-modal-item">
@@ -90,6 +85,7 @@ class ShareFormModal extends Component {
 											}
 											ref="emailRef"
 											spritemap={spritemap}
+											url={url}
 										/>
 									}
 								</div>
@@ -123,7 +119,7 @@ class ShareFormModal extends Component {
 	}
 
 	submitEmailContent() {
-		const {portletNamespace, shareFormLinkURL, url} = this.props;
+		const {portletNamespace, shareFormLinkURL} = this.props;
 		const {emailContent} = this.refs.shareFormModalRef.refs.emailRef.state;
 		const {addresses} = emailContent;
 
@@ -137,7 +133,6 @@ class ShareFormModal extends Component {
 				.join(','),
 			[`${portletNamespace}message`]: emailContent.message,
 			[`${portletNamespace}subject`]: emailContent.subject,
-			[`${portletNamespace}url`]: url,
 		};
 
 		makeFetch({
