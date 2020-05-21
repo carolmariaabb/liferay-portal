@@ -587,9 +587,13 @@ public class DDMFormAdminDisplayContext {
 	}
 
 	public String getFormLocalizedName() throws PortalException {
-		JSONObject jsonObject = jsonFactory.createJSONObject();
+		return getFormLocalizedName(_ddmFormInstance);
+	}
 
-		DDMFormInstance formInstance = getDDMFormInstance();
+	public String getFormLocalizedName(DDMFormInstance formInstance)
+		throws PortalException {
+
+		JSONObject jsonObject = jsonFactory.createJSONObject();
 
 		if (formInstance == null) {
 			jsonObject.put(getDefaultLanguageId(), "");
@@ -931,16 +935,20 @@ public class DDMFormAdminDisplayContext {
 			getFormLayoutURL(formAdminRequestHelper.getThemeDisplay(), false);
 	}
 
-	public String getShareFormInstanceURL() {
+	public String getShareFormInstanceURL() throws PortalException {
+		return getShareFormInstanceURL(_ddmFormInstance);
+	}
+
+	public String getShareFormInstanceURL(DDMFormInstance formInstance) {
 		PortletURL shareFormInstanceURL = renderResponse.createActionURL();
 
 		shareFormInstanceURL.setParameter(
 			ActionRequest.ACTION_NAME, "/admin/share_form_instance");
 
-		if (_ddmFormInstance != null) {
+		if (formInstance != null) {
 			shareFormInstanceURL.setParameter(
 				"formInstanceId",
-				String.valueOf(_ddmFormInstance.getFormInstanceId()));
+				String.valueOf(formInstance.getFormInstanceId()));
 		}
 
 		return shareFormInstanceURL.toString();
