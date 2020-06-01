@@ -200,6 +200,16 @@ public class DDMFormAdminDisplayContext {
 		).build();
 	}
 
+	public String getAutocompleteUserURL() {
+		LiferayPortletURL autocompleteUserURL =
+			(LiferayPortletURL)renderResponse.createResourceURL();
+
+		autocompleteUserURL.setCopyCurrentRenderParameters(false);
+		autocompleteUserURL.setResourceID("/admin/autocomplete_user");
+
+		return autocompleteUserURL.toString();
+	}
+
 	public int getAutosaveInterval() {
 		return _ddmFormWebConfiguration.autosaveInterval();
 	}
@@ -587,9 +597,13 @@ public class DDMFormAdminDisplayContext {
 	}
 
 	public String getFormLocalizedName() throws PortalException {
-		JSONObject jsonObject = jsonFactory.createJSONObject();
+		return getFormLocalizedName(_ddmFormInstance);
+	}
 
-		DDMFormInstance formInstance = getDDMFormInstance();
+	public String getFormLocalizedName(DDMFormInstance formInstance)
+		throws PortalException {
+
+		JSONObject jsonObject = jsonFactory.createJSONObject();
 
 		if (formInstance == null) {
 			jsonObject.put(getDefaultLanguageId(), "");
@@ -932,29 +946,22 @@ public class DDMFormAdminDisplayContext {
 	}
 
 	public String getShareFormInstanceURL() {
+		return getShareFormInstanceURL(_ddmFormInstance);
+	}
+
+	public String getShareFormInstanceURL(DDMFormInstance formInstance) {
 		PortletURL shareFormInstanceURL = renderResponse.createActionURL();
 
 		shareFormInstanceURL.setParameter(
 			ActionRequest.ACTION_NAME, "/admin/share_form_instance");
 
-		if (_ddmFormInstance != null) {
+		if (formInstance != null) {
 			shareFormInstanceURL.setParameter(
 				"formInstanceId",
-				String.valueOf(_ddmFormInstance.getFormInstanceId()));
+				String.valueOf(formInstance.getFormInstanceId()));
 		}
 
 		return shareFormInstanceURL.toString();
-	}
-
-	public String getSharingUserAutocompleteURL() {
-		LiferayPortletURL sharingUserAutocompleteURL =
-			(LiferayPortletURL)renderResponse.createResourceURL();
-
-		sharingUserAutocompleteURL.setCopyCurrentRenderParameters(false);
-		sharingUserAutocompleteURL.setResourceID(
-			"/admin/sharing_user_autocomplete");
-
-		return sharingUserAutocompleteURL.toString();
 	}
 
 	public String getSortingURL() throws Exception {
