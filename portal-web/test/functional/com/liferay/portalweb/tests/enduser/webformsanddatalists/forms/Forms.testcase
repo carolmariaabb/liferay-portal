@@ -1801,6 +1801,8 @@ definition {
 
 		LexiconEntry.viewActiveDisplayStyle(displayStyle = "table");
 
+		Navigator.openURL();
+
 		GlobalMenu.gotoPortlet(
 			category = "Configuration",
 			panel = "Control Panel",
@@ -1810,6 +1812,8 @@ definition {
 			configurationCategory = "Forms",
 			configurationName = "Forms",
 			configurationScope = "Site Scope");
+
+		Pause(locator1 = "2000");
 
 		FormFields.viewSelectOption(
 			fieldName = "Default Display View",
@@ -1821,12 +1825,16 @@ definition {
 
 		SystemSettings.saveConfiguration();
 
+		Navigator.openURL();
+
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
 			panel = "Site Administration",
 			portlet = "Forms");
 
 		LexiconEntry.viewActiveDisplayStyle(displayStyle = "list");
+
+		Navigator.openURL();
 
 		GlobalMenu.gotoPortlet(
 			category = "Configuration",
@@ -1838,7 +1846,11 @@ definition {
 			configurationName = "Forms",
 			configurationScope = "Site Scope");
 
+		Pause(locator1 = "1000");
+
 		SystemSettings.resetConfiguration(configurationName = "Forms");
+
+		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
 			category = "Content &amp; Data",
