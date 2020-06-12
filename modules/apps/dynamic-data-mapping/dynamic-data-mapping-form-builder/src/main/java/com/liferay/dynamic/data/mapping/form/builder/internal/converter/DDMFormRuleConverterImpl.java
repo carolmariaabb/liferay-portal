@@ -139,7 +139,9 @@ public class DDMFormRuleConverterImpl implements SPIDDMFormRuleConverter {
 	}
 
 	protected String convertOperand(SPIDDMFormRuleCondition.Operand operand) {
-		if (Objects.equals("field", operand.getType())) {
+		String operandType = operand.getType();
+
+		if (Objects.equals("field", operandType)) {
 			return String.format(
 				_FUNCTION_CALL_UNARY_EXPRESSION_FORMAT, "getValue",
 				StringUtil.quote(operand.getValue()));
@@ -147,8 +149,12 @@ public class DDMFormRuleConverterImpl implements SPIDDMFormRuleConverter {
 
 		String value = operand.getValue();
 
-		if (isNumericConstant(operand.getType())) {
+		if (isNumericConstant(operandType)) {
 			return value;
+		}
+
+		if (operandType.equals("string")) {
+			return StringUtil.quote(value);
 		}
 
 		String[] values = StringUtil.split(value);
@@ -161,7 +167,7 @@ public class DDMFormRuleConverterImpl implements SPIDDMFormRuleConverter {
 		).map(
 			trimOperation.andThen(quoteOperation)
 		).collect(
-			getCollector(operand.getType())
+			getCollector(operandType)
 		);
 	}
 
