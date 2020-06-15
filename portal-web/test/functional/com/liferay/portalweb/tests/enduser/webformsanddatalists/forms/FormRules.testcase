@@ -39,7 +39,7 @@ definition {
 	@description = "This is a use case for LPS-70446."
 	@priority = "5"
 	test ConfigureAutofillRule {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		property test.name.skip.portal.instance = "FormRules#ConfigureAutofillRule";
 		var portalURL = PropsUtil.get("portal.url");
 
@@ -148,7 +148,7 @@ definition {
 	@priority = "5"
 	test ConfigureCalculateRule {
 		property test.name.skip.portal.instance = "FormRules#ConfigureCalculateRule";
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		var portalURL = PropsUtil.get("portal.url");
 
 		Navigator.openURL();
@@ -255,7 +255,7 @@ definition {
 	@priority = "5"
 	test ConfigureRequireRule {
 		property test.name.skip.portal.instance = "FormRules#ConfigureRequireRule";
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		var portalURL = PropsUtil.get("portal.url");
 
 		Navigator.openURL();
@@ -463,7 +463,7 @@ definition {
 	@priority = "4"
 	test ConfigureUserBelongsToRule {
 		property test.name.skip.portal.instance = "FormRules#ConfigureUserBelongsToRule";
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		Navigator.openURL();
 
 		GlobalMenu.gotoPortlet(
@@ -633,7 +633,7 @@ definition {
 	@priority = "5"
 	test EditRule {
 		property test.name.skip.portal.instance = "FormRules#EditRule";
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
@@ -715,7 +715,7 @@ definition {
 	@priority = "4"
 	test UseIsNotEmptyRuleToShowField {
 		property test.name.skip.portal.instance = "FormRules#UseIsNotEmptyRuleToShowField";
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		Navigator.openURL();
 
@@ -813,7 +813,7 @@ definition {
 	@description = "This is a use case for LPS-73332."
 	@priority = "2"
 	test ViewExistingFormRuleIsNotCopiedToNewForm {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 
 		Navigator.openURL();
 
@@ -876,7 +876,7 @@ definition {
 	@priority = "2"
 	test ViewPredefinedValueCanBeUsedToRequireAnotherField {
 		property test.name.skip.portal.instance = "FormRules#ViewPredefinedValueCanBeUsedToRequireAnotherField";
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
@@ -963,7 +963,7 @@ definition {
 	@priority = "2"
 	test ViewPreviousFormRuleIsCopiedToNewDuplicatedForm {
 		property test.name.skip.portal.instance = "FormRules#ViewPreviousFormRuleIsCopiedToNewDuplicatedForm";
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
@@ -1034,7 +1034,7 @@ definition {
 	@description = "This is a use case for LPS-69733."
 	@priority = "2"
 	test ViewRuleConditionOperatorFieldOptions {
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		property test.name.skip.portal.instance = "FormRules#ViewRuleConditionOperatorFieldOptions";
 		Navigator.openURL();
 
@@ -1070,7 +1070,7 @@ definition {
 	@priority = "3"
 	test ViewShowRuleActivationAfterInputtingUnrelatedField {
 		property test.name.skip.portal.instance = "FormRules#ViewShowRuleActivationAfterInputtingUnrelatedField";
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(

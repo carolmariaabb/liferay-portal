@@ -316,7 +316,7 @@ definition {
 	@priority = "5"
 	test ViewDataRetrievedForGuestUser {
 		property test.name.skip.portal.instance = "FormsDataProvider#ViewDataRetrievedForGuestUser";
-		property portal.acceptance = "true";
+		property portal.acceptance = "quarantine";
 		var portalURL = PropsUtil.get("portal.url");
 
 		Navigator.openURL();
