@@ -174,13 +174,20 @@ public class TextDDMFormFieldTypeReportProcessor
 		return fieldJSONObject;
 	}
 
+	@Reference(unbind = "-")
+	public void setDDMFormInstanceRecordLocalService(
+		DDMFormInstanceRecordLocalService ddmFormInstanceRecordLocalService) {
+
+		this.ddmFormInstanceRecordLocalService =
+			ddmFormInstanceRecordLocalService;
+	}
+
 	protected String getValue(DDMFormFieldValue ddmFormFieldValue) {
 		Value value = ddmFormFieldValue.getValue();
 
 		return value.getString(value.getDefaultLocale());
 	}
 
-	@Reference
 	protected DDMFormInstanceRecordLocalService
 		ddmFormInstanceRecordLocalService;
 

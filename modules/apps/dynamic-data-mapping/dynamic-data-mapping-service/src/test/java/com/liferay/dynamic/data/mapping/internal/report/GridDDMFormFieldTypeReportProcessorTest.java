@@ -51,8 +51,9 @@ public class GridDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 
 	@Before
 	public void setUp() throws Exception {
-		_gridDDMFormFieldTypeReportProcessor.ddmFormInstanceRecordLocalService =
-			_ddmFormInstanceRecordLocalService;
+		_gridDDMFormFieldTypeReportProcessor.
+			setDDMFormInstanceRecordLocalService(
+				_ddmFormInstanceRecordLocalService);
 
 		_mockDDMFormInstanceRecord();
 
