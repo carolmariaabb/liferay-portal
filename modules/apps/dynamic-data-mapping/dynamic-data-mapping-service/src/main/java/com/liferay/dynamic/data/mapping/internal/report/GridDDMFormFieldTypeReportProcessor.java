@@ -91,7 +91,7 @@ public class GridDDMFormFieldTypeReportProcessor
 		}
 
 		DDMFormInstanceRecord ddmFormInstanceRecord =
-			ddmFormInstanceRecordLocalService.getDDMFormInstanceRecord(
+			_ddmFormInstanceRecordLocalService.getDDMFormInstanceRecord(
 				formInstanceRecordId);
 
 		DDMFormInstance ddmFormInstance =
@@ -132,9 +132,12 @@ public class GridDDMFormFieldTypeReportProcessor
 		return fieldJSONObject;
 	}
 
-	@Reference
-	protected DDMFormInstanceRecordLocalService
-		ddmFormInstanceRecordLocalService;
+	@Reference(unbind = "-")
+	public void setDDMFormInstanceRecordLocalService(
+		DDMFormInstanceRecordLocalService ddmFormInstanceRecordLocalService) {
+
+		_ddmFormInstanceRecordLocalService = ddmFormInstanceRecordLocalService;
+	}
 
 	private JSONArray _getOptionValuesJSONArray(
 		DDMFormField ddmFormField, String propertyName) {
@@ -152,5 +155,9 @@ public class GridDDMFormFieldTypeReportProcessor
 
 		return jsonArray;
 	}
+
+	@Reference
+	private DDMFormInstanceRecordLocalService
+		_ddmFormInstanceRecordLocalService;
 
 }
