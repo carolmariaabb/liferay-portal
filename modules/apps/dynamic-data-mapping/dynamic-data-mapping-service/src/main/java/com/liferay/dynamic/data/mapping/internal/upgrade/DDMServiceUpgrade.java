@@ -57,6 +57,12 @@ import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormValuesDeserializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormValuesSerializer;
+import com.liferay.dynamic.data.mapping.service.DDMContentLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceRecordVersionLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceReportLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.util.DDM;
 import com.liferay.expando.kernel.service.ExpandoRowLocalService;
 import com.liferay.expando.kernel.service.ExpandoTableLocalService;
@@ -329,6 +335,16 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 			"3.7.1", "3.7.2",
 			new com.liferay.dynamic.data.mapping.internal.upgrade.v3_7_2.
 				UpgradeSchema());
+
+		registry.register(
+			"3.7.2", "3.7.3",
+			new com.liferay.dynamic.data.mapping.internal.upgrade.v3_7_3.
+				UpgradeDDMFormInstanceReport(
+					_ddmContentLocalService, _ddmFormInstanceLocalService,
+					_ddmFormInstanceRecordLocalService,
+					_ddmFormInstanceRecordVersionLocalService,
+					_ddmFormInstanceReportLocalService,
+					_ddmStructureLocalService));
 	}
 
 	@Activate
@@ -380,6 +396,9 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 	@Reference
 	private DDM _ddm;
 
+	@Reference
+	private DDMContentLocalService _ddmContentLocalService;
+
 	private ServiceTrackerMap<String, DDMDataProviderSettingsProvider>
 		_ddmDataProviderSettingsProviderServiceTracker;
 
@@ -387,7 +406,25 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 	private DDMDataProviderTracker _ddmDataProviderTracker;
 
 	@Reference
+	private DDMFormInstanceLocalService _ddmFormInstanceLocalService;
+
+	@Reference
+	private DDMFormInstanceRecordLocalService
+		_ddmFormInstanceRecordLocalService;
+
+	@Reference
+	private DDMFormInstanceRecordVersionLocalService
+		_ddmFormInstanceRecordVersionLocalService;
+
+	@Reference
+	private DDMFormInstanceReportLocalService
+		_ddmFormInstanceReportLocalService;
+
+	@Reference
 	private DDMFormLayoutDeserializer _ddmFormLayoutDeserializer;
+
+	@Reference
+	private DDMStructureLocalService _ddmStructureLocalService;
 
 	@Reference
 	private DLFileEntryLocalService _dlFileEntryLocalService;
