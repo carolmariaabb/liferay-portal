@@ -105,9 +105,8 @@ export const dedupValue = (fields, value, id) => {
  * 1. If the current value is null, use the label
  * 2. If the current label is null, use the string Option
  */
-export const normalizeValue = (fields, currentField) => {
-	const {label, value: prevValue} = currentField;
-	let value = prevValue ? prevValue : label;
+export const normalizeValue = (fields, currentValue, currentField) => {
+	let value = currentValue ? currentValue : currentField.label;
 
 	if (!value) {
 		value = Liferay.Language.get('option');

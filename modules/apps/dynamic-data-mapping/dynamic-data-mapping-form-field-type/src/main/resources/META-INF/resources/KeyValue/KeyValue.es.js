@@ -17,7 +17,6 @@ import React, {useRef} from 'react';
 
 import {FieldBase} from '../FieldBase/ReactFieldBase.es';
 import Text from '../Text/Text.es';
-import {useSyncValue} from '../hooks/useSyncValue.es';
 
 const KeyValue = ({disabled, onChange, value, ...otherProps}) => (
 	<div className="active form-text key-value-editor">
@@ -41,7 +40,7 @@ const KeyValue = ({disabled, onChange, value, ...otherProps}) => (
 
 const Main = ({
 	generateKeyword: initialGenerateKeyword = true,
-	keyword: initialKeyword,
+	keyword,
 	keywordReadOnly,
 	name,
 	onBlur,
@@ -58,8 +57,6 @@ const Main = ({
 	visible,
 	...otherProps
 }) => {
-	const [keyword, setKeyword] = useSyncValue(initialKeyword);
-
 	const generateKeywordRef = useRef(initialGenerateKeyword);
 
 	return (
@@ -103,7 +100,6 @@ const Main = ({
 
 					generateKeywordRef.current = false;
 					onKeywordChange(event, value, false);
-					setKeyword(value);
 				}}
 				value={keyword}
 			/>

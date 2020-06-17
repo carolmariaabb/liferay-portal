@@ -27,7 +27,7 @@ import {
 	compose,
 	dedupValue,
 	isOptionValueGenerated,
-	normalizeFields,
+	normalizeValue,
 	random,
 } from './util.es';
 
@@ -197,6 +197,9 @@ const Options = ({
 				id
 			);
 		}
+		else if (property === 'value') {
+			value = normalizeValue(fields, value, fields[index]);
+		}
 
 		return [fields, index, property, value];
 	};
@@ -230,10 +233,6 @@ const Options = ({
 		return [fields, index, property, value];
 	};
 
-	const normalize = (fields) => {
-		return [normalizeFields(fields)];
-	};
-
 	const handleDelete = (fields, index) => {
 		fields.splice(index, 1);
 
@@ -258,7 +257,6 @@ const Options = ({
 	};
 
 	const composedAdd = compose(clone, dedup, add, set);
-	const composedBlur = compose(clone, normalize, set);
 	const composedChange = compose(clone, dedup, change, set);
 	const composedDelete = compose(clone, handleDelete, set);
 	const composedMove = compose(clone, move, set);
@@ -282,7 +280,6 @@ const Options = ({
 					>
 						{children({
 							defaultOptionRef,
-							handleBlur: composedBlur,
 							handleField: !(fields.length - 1 === index)
 								? composedChange.bind(this, index)
 								: composedAdd.bind(this, index),
@@ -316,13 +313,7 @@ const Main = ({
 				onChange={(value) => onChange({}, value)}
 				value={value}
 			>
-				{({
-					defaultOptionRef,
-					handleBlur,
-					handleField,
-					index,
-					option,
-				}) => (
+				{({defaultOptionRef, handleField, index, option}) => (
 					<KeyValue
 						generateKeyword={option.generateKeyword}
 						keyword={option.value}
@@ -330,7 +321,7 @@ const Main = ({
 							defaultLanguageId !== editingLanguageId
 						}
 						name={`option${index}`}
-						onBlur={handleBlur}
+						onBlur={() => {}}
 						onChange={(event) =>
 							handleField('label', event.target.value)
 						}
@@ -340,7 +331,7 @@ const Main = ({
 								defaultOptionRef.current = false;
 							}
 						}}
-						onKeywordBlur={handleBlur}
+						onKeywordBlur={() => {}}
 						onKeywordChange={(event, value, generate) => {
 							handleField('generateKeyword', generate);
 							handleField('value', value);
