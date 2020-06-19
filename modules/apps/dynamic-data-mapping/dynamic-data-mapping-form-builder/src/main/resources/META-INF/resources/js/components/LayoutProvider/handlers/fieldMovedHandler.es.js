@@ -12,10 +12,11 @@
  * details.
  */
 
-import {FormSupport} from 'dynamic-data-mapping-form-renderer';
+import {FormSupport, PagesVisitor} from 'dynamic-data-mapping-form-renderer';
 
 import {FIELD_TYPE_FIELDSET} from '../../../util/constants.es';
 import {getParentField} from '../../../util/fieldSupport.es';
+import {updateField} from '../util/settingsContext.es';
 import {addField} from './fieldAddedHandler.es';
 import handleFieldDeleted from './fieldDeletedHandler.es';
 import handleSectionAdded from './sectionAddedHandler.es';
@@ -105,7 +106,16 @@ export default (props, state, event) => {
 		pages: mergedState.pages,
 		parentFieldName: targetParentFieldName,
 	});
-	const {pages} = addedState;
+
+	const visitor = new PagesVisitor(addedState.pages);
+
+	const pages = visitor.mapFields((field) => {
+		const rows = field.rows ? FormSupport.removeEmptyRows([field], 0) : [];
+
+		field = updateField(props, field, 'rows', rows);
+
+		return field;
+	});
 
 	return {
 		...addedState,
