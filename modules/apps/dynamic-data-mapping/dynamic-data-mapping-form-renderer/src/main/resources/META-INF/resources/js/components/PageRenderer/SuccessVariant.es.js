@@ -14,7 +14,8 @@
 
 import {ClayButtonWithIcon} from '@clayui/button';
 import {ClayDropDownWithItems} from '@clayui/drop-down';
-import React, {useState} from 'react';
+import {usePrevious} from 'frontend-js-react-web';
+import React, {useEffect, useState} from 'react';
 
 import {EVENT_TYPES, usePage} from '../../hooks/usePage.es';
 import {setValue} from '../../util/i18n.es';
@@ -78,19 +79,36 @@ export const Page = ({page}) => {
 	const {successPageSettings} = page;
 	const {editingLanguageId} = store;
 
+	const defaultLanguageId = themeDisplay.getLanguageId();
+	const prevEditingLanguageId = usePrevious(editingLanguageId);
+
 	const {initialBody, initialTitle} = {
 		initialBody:
 			(successPageSettings.body &&
-				successPageSettings.body[editingLanguageId]) ||
+				(successPageSettings.body[editingLanguageId] ||
+					successPageSettings.body[defaultLanguageId])) ||
 			'',
 		initialTitle:
 			(successPageSettings.title &&
-				successPageSettings.title[editingLanguageId]) ||
+				(successPageSettings.title[editingLanguageId] ||
+					successPageSettings.title[defaultLanguageId])) ||
 			'',
 	};
 
 	const [body, setBody] = useState(initialBody);
 	const [title, setTitle] = useState(initialTitle);
+
+	useEffect(() => {
+		if (prevEditingLanguageId !== editingLanguageId) {
+			setBody(initialBody);
+			setTitle(initialTitle);
+		}
+	}, [
+		editingLanguageId, 
+		initialBody, 
+		initialTitle, 
+		prevEditingLanguageId
+	]);
 
 	const onChange = (event, setting) => {
 		dispatch({
