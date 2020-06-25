@@ -57,12 +57,12 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		<clay:container-fluid
 			cssClass="autosave-bar toolbar"
 		>
-			<div class="navbar-form navbar-form-autofit navbar-overlay toolbar-group-content">
+			<div class="autosave-feedback-container navbar-form navbar-form-autofit navbar-overlay toolbar-group-content">
 				<span class="autosave-feedback management-bar-text" id="<portlet:namespace />autosaveMessage"></span>
 			</div>
 
 			<ul class="navbar-nav toolbar-group-field">
-				<li class="nav-item">
+				<li class="nav-item pr-2">
 					<c:choose>
 						<c:when test="<%= disableCopyButton %>">
 							<button class="btn btn-secondary btn-sm ddm-btn-disabled lfr-ddm-share-url-button share-form-icon" data-original-title="<liferay-ui:message key="share" />" id="<portlet:namespace />publishIcon" title="<%= disableCopyButton ? LanguageUtil.get(request, "publish-the-form-to-get-its-shareable-link") : "" %>" type="button">
@@ -76,17 +76,17 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 						</c:otherwise>
 					</c:choose>
 				</li>
-				<li class="nav-item">
-					<button class="btn btn-secondary btn-sm lfr-ddm-preview-button nav-btn">
+				<li class="nav-item pr-2">
+					<button class="btn btn-secondary btn-sm lfr-ddm-preview-button">
 						<%= LanguageUtil.get(request, "preview") %>
 					</button>
 				</li>
-				<li class="nav-item">
-					<button class="btn btn-secondary btn-sm lfr-ddm-save-button nav-btn">
+				<li class="nav-item pl-2 pr-2">
+					<button class="btn btn-secondary btn-sm lfr-ddm-save-button">
 						<%= LanguageUtil.get(request, "save") %>
 					</button>
 				</li>
-				<li class="nav-item">
+				<li class="nav-item pr-2">
 					<button class="btn btn-primary btn-sm lfr-ddm-publish-button">
 						<%= ddmFormAdminDisplayContext.isFormPublished() ? LanguageUtil.get(request, "unpublish") : LanguageUtil.get(request, "publish") %>
 					</button>
