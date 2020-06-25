@@ -36,7 +36,6 @@ import {EventHandler} from 'metal-events';
 import Component from 'metal-jsx';
 import {Config} from 'metal-state';
 
-import PreviewButton from './components/PreviewButton/PreviewButton.es';
 import PublishButton from './components/PublishButton/PublishButton.es';
 import ShareFormModal from './components/ShareFormModal/ShareFormModal.es';
 import AutoSave from './util/AutoSave.es';
@@ -190,6 +189,11 @@ class Form extends Component {
 				'click',
 				this._handlePreviewButtonClicked.bind(this)
 			),
+			dom.on(
+				'.lfr-ddm-save-button',
+				'click',
+				this._handleSaveButtonClicked.bind(this)
+			)
 		);
 
 		const shareURLButton = document.querySelector(
@@ -481,13 +485,6 @@ class Form extends Component {
 										.publishFormInstanceURL
 								}
 							/>
-							<button
-								class="btn btn-secondary ddm-button"
-								data-onclick="_handleSaveButtonClicked"
-								ref="saveButton"
-							>
-								{saveButtonLabel}
-							</button>
 						</div>
 					)}
 
