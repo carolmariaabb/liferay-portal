@@ -973,10 +973,10 @@ class Form extends Component {
 			`#${namespace}managementToolbar`
 		);
 		const formBasicInfo = document.querySelector('.ddm-form-basic-info');
-		const formBuilderButtons = document.querySelector(
-			'.ddm-form-builder-buttons'
-		);
+		const previewButton = document.querySelector('.lfr-ddm-preview-button');
+		const publishButton = document.querySelector('.lfr-ddm-publish-button');
 		const publishIcon = document.querySelector('.publish-icon');
+		const saveButton = document.querySelector('.lfr-ddm-save-button');
 		const shareURLButton = document.querySelector(
 			'.lfr-ddm-share-url-button'
 		);
@@ -987,7 +987,6 @@ class Form extends Component {
 		if (show) {
 			managementToolbar.classList.remove('hide');
 			formBasicInfo.classList.remove('hide');
-			formBuilderButtons.classList.remove('hide');
 
 			if (publishIcon) {
 				publishIcon.classList.remove('hide');
@@ -1001,6 +1000,10 @@ class Form extends Component {
 				shareURLButton.classList.remove('hide');
 			}
 
+			previewButton.classList.remove('hide');
+			publishButton.classList.remove('hide');
+			saveButton.classList.remove('hide');
+
 			if (defaultLanguageId === editingLanguageId) {
 				this.showAddButton();
 			}
@@ -1011,7 +1014,6 @@ class Form extends Component {
 		else {
 			managementToolbar.classList.add('hide');
 			formBasicInfo.classList.add('hide');
-			formBuilderButtons.classList.add('hide');
 
 			if (publishIcon) {
 				publishIcon.classList.add('hide');
@@ -1021,7 +1023,11 @@ class Form extends Component {
 				translationManager.classList.add('hide');
 			}
 
+			previewButton.classList.add('hide');
+			publishButton.classList.add('hide');
 			shareURLButton.classList.add('hide');
+			saveButton.classList.add('hide');
+
 			this.hideAddButton();
 		}
 	}
