@@ -87,6 +87,11 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 					</button>
 				</li>
 				<li class="nav-item">
+					<button class="btn btn-primary btn-sm lfr-ddm-publish-button">
+						<%= ddmFormAdminDisplayContext.isFormPublished() ? LanguageUtil.get(request, "unpublish") : LanguageUtil.get(request, "publish") %>
+					</button>
+				</li>
+				<li class="nav-item">
 					<button class="btn btn-primary btn-sm lfr-ddm-add-field lfr-ddm-plus-button nav-btn nav-btn-monospaced" id="addFieldButton">
 						<svg class="lexicon-icon">
 							<use xlink:href="<%= ddmFormAdminDisplayContext.getLexiconIconsPath() %>plus" />
