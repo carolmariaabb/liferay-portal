@@ -184,7 +184,12 @@ class Form extends Component {
 				'.forms-navigation-bar li',
 				'click',
 				this._handleFormNavClicked
-			)
+			),
+			dom.on(
+				'.lfr-ddm-preview-button',
+				'click',
+				this._handlePreviewButtonClicked.bind(this)
+			),
 		);
 
 		const shareURLButton = document.querySelector(
@@ -483,11 +488,6 @@ class Form extends Component {
 							>
 								{saveButtonLabel}
 							</button>
-							<PreviewButton
-								namespace={namespace}
-								resolvePreviewURL={this._resolvePreviewURL}
-								spritemap={spritemap}
-							/>
 						</div>
 					)}
 
@@ -603,6 +603,20 @@ class Form extends Component {
 		else {
 			this.openSidebar();
 		}
+	}
+
+	_handlePreviewButtonClicked() {
+		return this._resolvePreviewURL()
+			.then((previewURL) => {
+				window.open(previewURL, '_blank');
+
+				return previewURL;
+			})
+			.catch(() => {
+				Notifications.showError(
+					Liferay.Language.get('your-request-failed-to-complete')
+				);
+			});
 	}
 
 	_createEditor(name) {
