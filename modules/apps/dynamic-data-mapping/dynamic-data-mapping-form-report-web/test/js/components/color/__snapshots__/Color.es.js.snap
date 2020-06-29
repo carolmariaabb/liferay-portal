@@ -1,0 +1,22 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`List renders 1`] = `
+<DocumentFragment>
+  <div
+    class="color row"
+  >
+    <div
+      class="col-md-1"
+    >
+      <div
+        class="color-viewer"
+      />
+    </div>
+    <div
+      class="color-text"
+    >
+      #2BA676
+    </div>
+  </div>
+</DocumentFragment>
+`;
