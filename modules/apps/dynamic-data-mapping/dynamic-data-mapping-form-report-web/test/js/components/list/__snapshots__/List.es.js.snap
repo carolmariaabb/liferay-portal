@@ -27,3 +27,111 @@ exports[`List renders 1`] = `
   </div>
 </DocumentFragment>
 `;
+
+exports[`List renders color list 1`] = `
+<DocumentFragment>
+  <div
+    class="field-list"
+  >
+    <ul
+      class="entries-list"
+    >
+      <li>
+        <div
+          class="color row"
+        >
+          <div
+            class="col-md-1"
+          >
+            <div
+              class="color-viewer"
+              style="background-color: rgb(127, 38, 255);"
+            />
+          </div>
+          <div
+            class="color-text"
+          >
+            7F26FF
+          </div>
+        </div>
+      </li>
+      <li>
+        <div
+          class="color row"
+        >
+          <div
+            class="col-md-1"
+          >
+            <div
+              class="color-viewer"
+              style="background-color: rgb(43, 166, 118);"
+            />
+          </div>
+          <div
+            class="color-text"
+          >
+            2BA676
+          </div>
+        </div>
+      </li>
+      <li>
+        <div
+          class="color row"
+        >
+          <div
+            class="col-md-1"
+          >
+            <div
+              class="color-viewer"
+              style="background-color: rgb(203, 203, 203);"
+            />
+          </div>
+          <div
+            class="color-text"
+          >
+            CBCBCB
+          </div>
+        </div>
+      </li>
+      <li>
+        <div
+          class="color row"
+        >
+          <div
+            class="col-md-1"
+          >
+            <div
+              class="color-viewer"
+              style="background-color: rgb(255, 33, 160);"
+            />
+          </div>
+          <div
+            class="color-text"
+          >
+            FF21A0
+          </div>
+        </div>
+      </li>
+      <li>
+        <div
+          class="color row"
+        >
+          <div
+            class="col-md-1"
+          >
+            <div
+              class="color-viewer"
+              style="background-color: rgb(255, 13, 13);"
+            />
+          </div>
+          <div
+            class="color-text"
+          >
+            FF0D0D
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</DocumentFragment>
+`;

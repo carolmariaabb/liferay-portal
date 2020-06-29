@@ -36,6 +36,22 @@ describe('List', () => {
 		expect(asFragment()).toMatchSnapshot();
 	});
 
+	it('renders color list', () => {
+		const colorProps = {
+			...props,
+			data: ['7F26FF', '2BA676', 'CBCBCB', 'FF21A0', 'FF0D0D'],
+			type: 'color',
+		};
+
+		const {asFragment, container} = render(<List {...colorProps} />);
+
+		const colorText = container.querySelectorAll('.color-text');
+
+		expect(colorText.length).toBe(5);
+
+		expect(asFragment()).toMatchSnapshot();
+	});
+
 	it('shows a button to see all entries when there are more than 5 entries', () => {
 		const {container} = render(<List {...props} totalEntries={6} />);
 
