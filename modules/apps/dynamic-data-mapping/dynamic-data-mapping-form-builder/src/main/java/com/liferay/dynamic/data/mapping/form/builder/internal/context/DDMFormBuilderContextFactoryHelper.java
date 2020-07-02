@@ -14,7 +14,6 @@
 
 package com.liferay.dynamic.data.mapping.form.builder.internal.context;
 
-import com.liferay.dynamic.data.mapping.constants.DDMPortletKeys;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
@@ -49,7 +48,6 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
-import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -353,13 +351,8 @@ public class DDMFormBuilderContextFactoryHelper {
 
 		return HashMapBuilder.<String, Object>put(
 			"activeNavItem",
-			() -> {
-				String portletNamespace = PortalUtil.getPortletNamespace(
-					DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM_ADMIN);
-
-				return ParamUtil.getInteger(
-					_httpServletRequest, portletNamespace + "activeNavItem");
-			}
+			ParamUtil.getInteger(
+				_httpServletRequest, _portletNamespace + "activeNavItem")
 		).put(
 			"pages",
 			() -> {
