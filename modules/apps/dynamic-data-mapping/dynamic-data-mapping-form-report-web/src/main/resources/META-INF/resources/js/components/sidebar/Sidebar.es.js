@@ -98,6 +98,16 @@ export default () => {
 	const {field, isOpen} = useContext(SidebarContext);
 
 	const ref = useRef();
+
+	useEffect(() => {
+		if (isOpen) {
+			ref.current.classList.add('open');
+		}
+		else {
+			ref.current.classList.remove('open');
+		}
+	}, [isOpen, field]);
+
 	return (
 		<>
 			{isOpen && <div className="sidebar-backdrop"></div>}
