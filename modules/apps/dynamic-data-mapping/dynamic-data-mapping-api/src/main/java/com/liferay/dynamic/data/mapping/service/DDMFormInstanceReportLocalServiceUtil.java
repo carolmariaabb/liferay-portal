@@ -109,6 +109,10 @@ public class DDMFormInstanceReportLocalServiceUtil {
 		return getService().deleteDDMFormInstanceReport(formInstanceReportId);
 	}
 
+	public static void deleteFormInstanceReports() {
+		getService().deleteFormInstanceReports();
+	}
+
 	/**
 	 * @throws PortalException
 	 */

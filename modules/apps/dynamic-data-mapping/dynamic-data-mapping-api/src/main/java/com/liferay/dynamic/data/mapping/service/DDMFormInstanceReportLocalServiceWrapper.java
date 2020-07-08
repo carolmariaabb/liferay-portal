@@ -114,6 +114,11 @@ public class DDMFormInstanceReportLocalServiceWrapper
 			formInstanceReportId);
 	}
 
+	@Override
+	public void deleteFormInstanceReports() {
+		_ddmFormInstanceReportLocalService.deleteFormInstanceReports();
+	}
+
 	/**
 	 * @throws PortalException
 	 */
