@@ -71,6 +71,11 @@ public class DDMFormInstanceReportLocalServiceImpl
 	}
 
 	@Override
+	public void deleteFormInstanceReports() {
+		ddmFormInstanceReportPersistence.removeAll();
+	}
+
+	@Override
 	public DDMFormInstanceReport getFormInstanceReportByFormInstanceId(
 			long formInstanceId)
 		throws PortalException {
