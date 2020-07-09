@@ -44,7 +44,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.KeyValuePair;
-import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -57,8 +56,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Marcellus Tavares
@@ -259,7 +256,7 @@ public class DDMFormFieldTemplateContextFactory {
 		}
 
 		if (Validator.isNotNull(
-			parentDDMFormField.getProperty("ddmStructureId"))) {
+				parentDDMFormField.getProperty("ddmStructureId"))) {
 
 			DDMForm ddmForm = _getDDMForm(
 				GetterUtil.getLong(
@@ -806,19 +803,6 @@ public class DDMFormFieldTemplateContextFactory {
 			ddmFormFieldTemplateContext, changedProperties, true);
 	}
 
-	private Stream<Map<String, Object>> _getColumnsStream(
-		Map<String, Object> row) {
-
-		if (!row.containsKey("columns")) {
-			Stream.empty();
-		}
-
-		List<Map<String, Object>> columns = (List<Map<String, Object>>)row.get(
-			"columns");
-
-		return columns.stream();
-	}
-
 	private DDMFormPagesTemplateContextFactory
 		_createDDMFormPagesTemplateContextFactory(
 			DDMForm ddmForm, DDMFormField ddmFormField) {
@@ -879,52 +863,6 @@ public class DDMFormFieldTemplateContextFactory {
 			ddmStructureId);
 
 		return ddmStructure.getDefaultDDMStructureLayoutId();
-	}
-
-	private Stream<Map<String, Object>> _getFieldsStream(
-		Map<String, Object> column) {
-
-		if (!column.containsKey("fields")) {
-			Stream.empty();
-		}
-
-		List<Map<String, Object>> fields =
-			(List<Map<String, Object>>)column.get("fields");
-
-		return fields.stream();
-	}
-
-	private List<Map<String, Object>> _getNestedFieldsContext(
-		List<Object> pages) {
-
-		if (ListUtil.isEmpty(pages)) {
-			return new ArrayList<>();
-		}
-
-		Stream<Object> stream = pages.stream();
-
-		return stream.flatMap(
-			this::_getRowsStream
-		).flatMap(
-			this::_getColumnsStream
-		).flatMap(
-			this::_getFieldsStream
-		).collect(
-			Collectors.toList()
-		);
-	}
-
-	private Stream<Map<String, Object>> _getRowsStream(Object page) {
-		Map<String, Object> pageContext = (Map<String, Object>)page;
-
-		if (!pageContext.containsKey("rows")) {
-			Stream.empty();
-		}
-
-		List<Map<String, Object>> rows =
-			(List<Map<String, Object>>)pageContext.get("rows");
-
-		return rows.stream();
 	}
 
 	private boolean _isFieldSetField(DDMFormField ddmFormField) {
