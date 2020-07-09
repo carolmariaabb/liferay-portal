@@ -178,10 +178,13 @@ public class DDMFormFieldTemplateContextFactory {
 			ddmFormFieldTemplateContext, changedProperties, ddmFormField,
 			ddmFormFieldValue);
 
-		setDDMFormFieldTemplateContextNestedTemplateContexts(
-			ddmFormFieldTemplateContext,
-			createNestedDDMFormFieldTemplateContext(
-				ddmFormFieldValue, ddmFormFieldParameterName));
+		if (_isFieldSetField(ddmFormField)) {
+			setDDMFormFieldTemplateContextNestedTemplateContexts(
+				ddmFormFieldTemplateContext,
+				createNestedDDMFormFieldTemplateContext(
+					ddmFormField, ddmFormFieldValue,
+					ddmFormFieldParameterName));
+		}
 
 		// Contributed template parameters
 
@@ -234,6 +237,7 @@ public class DDMFormFieldTemplateContextFactory {
 	}
 
 	protected List<Object> createNestedDDMFormFieldTemplateContext(
+		DDMFormField parentDDMFormField,
 		DDMFormFieldValue parentDDMFormFieldValue,
 		String parentDDMFormFieldParameterName) {
 
@@ -252,6 +256,31 @@ public class DDMFormFieldTemplateContextFactory {
 			nestedDDMFormFieldTemplateContext.addAll(
 				createDDMFormFieldTemplateContexts(
 					nestedDDMFormFieldValues, parentDDMFormFieldParameterName));
+		}
+
+		if (Validator.isNotNull(
+			parentDDMFormField.getProperty("ddmStructureId"))) {
+
+			DDMForm ddmForm = _getDDMForm(
+				GetterUtil.getLong(
+					parentDDMFormField.getProperty("ddmStructureId")));
+
+			DDMFormPagesTemplateContextFactory
+				ddmFormPagesTemplateContextFactory =
+					_createDDMFormPagesTemplateContextFactory(
+						ddmForm, parentDDMFormField);
+
+			for (DDMFormField ddmFormField : ddmForm.getDDMFormFields()) {
+				String ddmFormFieldName = ddmFormField.getName();
+
+				if (!nestedDDMFormFieldValuesMap.containsKey(
+						ddmFormFieldName)) {
+
+					nestedDDMFormFieldTemplateContext.addAll(
+						ddmFormPagesTemplateContextFactory.
+							createFieldTemplateContext(ddmFormFieldName));
+				}
+			}
 		}
 
 		return nestedDDMFormFieldTemplateContext;
@@ -372,11 +401,6 @@ public class DDMFormFieldTemplateContextFactory {
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext =
 			createDDDMFormFieldRenderingContext(
 				changedProperties, ddmFormFieldTemplateContext);
-
-		if (_isFieldSetField(ddmFormField)) {
-			_setDDMFormFieldFieldSetTemplateContextContributedParameters(
-				ddmFormField, ddmFormFieldRenderingContext);
-		}
 
 		Map<String, Object> contributedParameters =
 			ddmFormFieldTemplateContextContributor.getParameters(
@@ -795,6 +819,31 @@ public class DDMFormFieldTemplateContextFactory {
 		return columns.stream();
 	}
 
+	private DDMFormPagesTemplateContextFactory
+		_createDDMFormPagesTemplateContextFactory(
+			DDMForm ddmForm, DDMFormField ddmFormField) {
+
+		DDMFormPagesTemplateContextFactory ddmFormPagesTemplateContextFactory =
+			new DDMFormPagesTemplateContextFactory(
+				ddmForm,
+				_getDDMFormLayout(
+					GetterUtil.getLong(
+						ddmFormField.getProperty("ddmStructureLayoutId"),
+						_getDefaultDDMFormLayoutId(
+							GetterUtil.getLong(
+								ddmFormField.getProperty("ddmStructureId"))))),
+				_ddmFormRenderingContext, _ddmStructureLayoutLocalService,
+				_ddmStructureLocalService);
+
+		ddmFormPagesTemplateContextFactory.setDDMFormEvaluator(
+			_ddmFormEvaluator);
+		ddmFormPagesTemplateContextFactory.setDDMFormFieldTypeServicesTracker(
+			_ddmFormFieldTypeServicesTracker);
+		ddmFormPagesTemplateContextFactory.create();
+
+		return ddmFormPagesTemplateContextFactory;
+	}
+
 	private DDMForm _getDDMForm(long ddmStructureId) {
 		try {
 			return _ddmStructureLocalService.getStructureDDMForm(
@@ -884,42 +933,6 @@ public class DDMFormFieldTemplateContextFactory {
 		}
 
 		return false;
-	}
-
-	private void _setDDMFormFieldFieldSetTemplateContextContributedParameters(
-		DDMFormField ddmFormField,
-		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
-
-		if (Validator.isNotNull(ddmFormField.getProperty("ddmStructureId"))) {
-			DDMFormPagesTemplateContextFactory
-				ddmFormPagesTemplateContextFactory =
-					new DDMFormPagesTemplateContextFactory(
-						_getDDMForm(
-							GetterUtil.getLong(
-								ddmFormField.getProperty("ddmStructureId"))),
-						_getDDMFormLayout(
-							GetterUtil.getLong(
-								ddmFormField.getProperty(
-									"ddmStructureLayoutId"),
-								_getDefaultDDMFormLayoutId(
-									GetterUtil.getLong(
-										ddmFormField.getProperty(
-											"ddmStructureId"))))),
-						_ddmFormRenderingContext,
-						_ddmStructureLayoutLocalService,
-						_ddmStructureLocalService);
-
-			ddmFormPagesTemplateContextFactory.setDDMFormEvaluator(
-				_ddmFormEvaluator);
-			ddmFormPagesTemplateContextFactory.
-				setDDMFormFieldTypeServicesTracker(
-					_ddmFormFieldTypeServicesTracker);
-
-			ddmFormFieldRenderingContext.setProperty(
-				"nestedFields",
-				_getNestedFieldsContext(
-					ddmFormPagesTemplateContextFactory.create()));
-		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
