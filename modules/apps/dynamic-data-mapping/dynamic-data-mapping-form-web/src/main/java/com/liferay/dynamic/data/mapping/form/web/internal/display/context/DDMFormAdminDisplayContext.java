@@ -1114,8 +1114,11 @@ public class DDMFormAdminDisplayContext {
 
 		DDMForm ddmForm = DDMFormFactory.create(DDMFormInstanceSettings.class);
 
-		ddmForm.addAvailableLocale(themeDisplay.getLocale());
-		ddmForm.setDefaultLocale(themeDisplay.getLocale());
+		Locale defaultLocale = LocaleUtil.fromLanguageId(
+			getDefaultLanguageId());
+
+		ddmForm.addAvailableLocale(defaultLocale);
+		ddmForm.setDefaultLocale(defaultLocale);
 
 		if (formInstanceId > 0) {
 			Map<String, DDMFormField> ddmFormFieldsMap =

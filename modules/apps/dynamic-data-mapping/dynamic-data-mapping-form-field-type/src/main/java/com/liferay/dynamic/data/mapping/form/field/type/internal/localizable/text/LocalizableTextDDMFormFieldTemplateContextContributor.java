@@ -25,10 +25,12 @@ import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.util.HashMap;
@@ -60,10 +62,10 @@ public class LocalizableTextDDMFormFieldTemplateContextContributor
 
 		Map<String, Object> parameters = new HashMap<>();
 
+		DDMForm ddmForm = ddmFormField.getDDMForm();
+
 		if (ddmFormFieldRenderingContext.isReturnFullContext()) {
 			parameters.put("availableLocales", getAvailableLocalesJSONArray());
-
-			DDMForm ddmForm = ddmFormField.getDDMForm();
 
 			JSONObject localeJSONObject = getLocaleJSONObject(
 				ddmForm.getDefaultLocale());
@@ -80,8 +82,7 @@ public class LocalizableTextDDMFormFieldTemplateContextContributor
 				getTooltip(ddmFormField, ddmFormFieldRenderingContext));
 		}
 
-		String predefinedValue = getPredefinedValue(
-			ddmFormField, ddmFormFieldRenderingContext);
+		String predefinedValue = getPredefinedValue(ddmForm, ddmFormField);
 
 		if (predefinedValue != null) {
 			parameters.put("predefinedValue", predefinedValue);
@@ -148,8 +149,7 @@ public class LocalizableTextDDMFormFieldTemplateContextContributor
 	}
 
 	protected String getPredefinedValue(
-		DDMFormField ddmFormField,
-		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
+		DDMForm ddmForm, DDMFormField ddmFormField) {
 
 		LocalizedValue localizedValue = ddmFormField.getPredefinedValue();
 
@@ -157,8 +157,14 @@ public class LocalizableTextDDMFormFieldTemplateContextContributor
 			return null;
 		}
 
-		return localizedValue.getString(
-			ddmFormFieldRenderingContext.getLocale());
+		Locale locale = ddmForm.getDefaultLocale();
+
+		String value = localizedValue.getString(locale);
+
+		return LanguageUtil.get(
+			ResourceBundleUtil.getBundle(
+				"content.Language", locale, getClass()),
+			value, value);
 	}
 
 	protected String getTooltip(
