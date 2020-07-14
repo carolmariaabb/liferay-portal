@@ -45,7 +45,9 @@ import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.util.DDMFormValuesMerger;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -326,7 +328,25 @@ public class DDMFormDisplayContext {
 		return ddmFormInstanceSettings.redirectURL();
 	}
 
-	public String getSubmitLabel() throws PortalException {
+	public String getSubmitLabel() throws JSONException, PortalException {
+		DDMFormInstance ddmFormInstance = getFormInstance();
+
+		if (ddmFormInstance == null) {
+			return null;
+		}
+
+		DDMFormInstanceSettings ddmFormInstanceSettings =
+			ddmFormInstance.getSettingsModel();
+
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
+			ddmFormInstanceSettings.submitLabel());
+
+		String submitLabel = jsonObject.getString(getDefaultLanguageId());
+
+		if (Validator.isNotNull(submitLabel)) {
+			return submitLabel;
+		}
+
 		ResourceBundle resourceBundle = getResourceBundle(
 			getLocale(
 				PortalUtil.getHttpServletRequest(_renderRequest),
