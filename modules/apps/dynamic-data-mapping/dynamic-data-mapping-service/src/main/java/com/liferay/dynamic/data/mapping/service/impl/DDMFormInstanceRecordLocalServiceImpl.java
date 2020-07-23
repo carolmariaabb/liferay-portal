@@ -65,6 +65,7 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
+import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -158,11 +159,9 @@ public class DDMFormInstanceRecordLocalServiceImpl
 		if (serviceContext.getWorkflowAction() ==
 				WorkflowConstants.ACTION_PUBLISH) {
 
-			WorkflowHandlerRegistryUtil.startWorkflowInstance(
-				user.getCompanyId(), groupId, userId,
-				DDMFormInstanceRecord.class.getName(),
-				ddmFormInstanceRecordVersion.getFormInstanceRecordVersionId(),
-				ddmFormInstanceRecordVersion, serviceContext);
+			_startWorkflowInstance(
+				user.getCompanyId(), ddmFormInstanceRecordVersion, groupId,
+				serviceContext, userId);
 
 			if (isEmailNotificationEnabled(ddmFormInstance)) {
 				_ddmFormEmailNotificationSender.sendEmailNotification(
@@ -477,11 +476,9 @@ public class DDMFormInstanceRecordLocalServiceImpl
 		if (serviceContext.getWorkflowAction() ==
 				WorkflowConstants.ACTION_PUBLISH) {
 
-			WorkflowHandlerRegistryUtil.startWorkflowInstance(
-				user.getCompanyId(), ddmFormInstanceRecord.getGroupId(), userId,
-				DDMFormInstanceRecord.class.getName(),
-				ddmFormInstanceRecordVersion.getFormInstanceRecordVersionId(),
-				ddmFormInstanceRecordVersion, serviceContext);
+			_startWorkflowInstance(
+				user.getCompanyId(), ddmFormInstanceRecordVersion,
+				ddmFormInstanceRecord.getGroupId(), serviceContext, userId);
 
 			if (isEmailNotificationEnabled(ddmFormInstance)) {
 				_ddmFormEmailNotificationSender.sendEmailNotification(
@@ -990,6 +987,24 @@ public class DDMFormInstanceRecordLocalServiceImpl
 		searchContext.setStart(start);
 
 		return searchContext;
+	}
+
+	private void _startWorkflowInstance(
+		long companyId,
+		DDMFormInstanceRecordVersion ddmFormInstanceRecordVersion, long groupId,
+		ServiceContext serviceContext, long userId) {
+
+		TransactionCommitCallbackUtil.registerCallback(
+			() -> {
+				WorkflowHandlerRegistryUtil.startWorkflowInstance(
+					companyId, groupId, userId,
+					DDMFormInstanceRecord.class.getName(),
+					ddmFormInstanceRecordVersion.
+						getFormInstanceRecordVersionId(),
+					ddmFormInstanceRecordVersion, serviceContext);
+
+				return null;
+			});
 	}
 
 	private static final String[] _SELECTED_FIELD_NAMES = {
