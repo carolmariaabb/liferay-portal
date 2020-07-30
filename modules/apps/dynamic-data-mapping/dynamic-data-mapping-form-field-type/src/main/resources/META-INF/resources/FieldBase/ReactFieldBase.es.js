@@ -52,6 +52,28 @@ const getDefaultRows = (nestedFields) => {
 	});
 };
 
+const FieldProperties = ({required, tooltip}) => {
+	return (
+		<>
+			{required && (
+				<span className="reference-mark">
+					<ClayIcon symbol="asterisk" />
+				</span>
+			)}
+
+			{tooltip && (
+				<span className="ddm-tooltip">
+					<ClayIcon
+						data-tooltip-align="right"
+						symbol="question-circle-full"
+						title={tooltip}
+					/>
+				</span>
+			)}
+		</>
+	);
+};
+
 function FieldBase({
 	children,
 	displayErrors,
@@ -68,6 +90,7 @@ function FieldBase({
 	showLabel = true,
 	tip,
 	tooltip,
+	type,
 	valid,
 	visible,
 }) {
@@ -89,6 +112,13 @@ function FieldBase({
 		return languageValues;
 	}, [localizedValue, editingLanguageId, name]);
 	const repeatedIndex = useMemo(() => getRepeatedIndex(name), [name]);
+
+	const showLegend =
+		type &&
+		(type === 'checkbox_multiple' ||
+			type === 'grid' ||
+			type === 'paragraph' ||
+			type === 'radio');
 
 	return (
 		<ClayTooltipProvider>
@@ -138,36 +168,41 @@ function FieldBase({
 					</div>
 				)}
 
-				{((label && showLabel) ||
-					required ||
-					tooltip ||
-					repeatable) && (
-					<label
-						className={classNames({
-							'ddm-empty': !showLabel && !required,
-							'ddm-label': showLabel || required,
-						})}
-						htmlFor={id ? id : name}
-					>
-						{label && showLabel && label}
+				{showLegend &&
+					((label && showLabel) ||
+						required ||
+						tooltip ||
+						repeatable) && (
+						<legend className="lfr-ddm-legend">
+							{label && showLabel && label}
 
-						{required && (
-							<span className="reference-mark">
-								<ClayIcon symbol="asterisk" />
-							</span>
-						)}
+							<FieldProperties
+								required={required}
+								tooltip={tooltip}
+							/>
+						</legend>
+					)}
 
-						{tooltip && (
-							<span className="ddm-tooltip">
-								<ClayIcon
-									data-tooltip-align="right"
-									symbol="question-circle-full"
-									title={tooltip}
-								/>
-							</span>
-						)}
-					</label>
-				)}
+				{!showLegend &&
+					((label && showLabel) ||
+						required ||
+						tooltip ||
+						repeatable) && (
+						<label
+							className={classNames({
+								'ddm-empty': !showLabel && !required,
+								'ddm-label': showLabel || required,
+							})}
+							htmlFor={id ? id : name}
+						>
+							{label && showLabel && label}
+
+							<FieldProperties
+								required={required}
+								tooltip={tooltip}
+							/>
+						</label>
+					)}
 
 				{children}
 
