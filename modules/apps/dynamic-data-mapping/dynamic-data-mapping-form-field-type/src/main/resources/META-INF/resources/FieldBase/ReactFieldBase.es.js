@@ -44,6 +44,7 @@ function FieldBase({
 	children,
 	displayErrors,
 	errorMessage,
+	id,
 	label,
 	localizedValue = {},
 	name,
@@ -129,17 +130,24 @@ function FieldBase({
 					required ||
 					tooltip ||
 					repeatable) && (
-					<p
+					<label
 						className={classNames({
 							'ddm-empty': !showLabel && !required,
 							'ddm-label': showLabel,
 						})}
+						htmlFor={id ? id : name}
 					>
 						{label && showLabel && label}
 
 						{required && (
 							<span className="reference-mark">
 								<ClayIcon symbol="asterisk" />
+							</span>
+						)}
+
+						{required && (
+							<span className="sr-only">
+								{Liferay.Language.get('required')}
 							</span>
 						)}
 
@@ -152,7 +160,7 @@ function FieldBase({
 								/>
 							</span>
 						)}
-					</p>
+					</label>
 				)}
 
 				{children}
