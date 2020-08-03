@@ -27,7 +27,8 @@ import numeral from 'numeral';
 
 import ellipsize from './ellipsize.es';
 
-const _MAX_NUMBER_LENGTH = 10;
+const _MAX_DELIMITED_NUMBER_LENGTH = 10;
+const _MAX_INTEGER_PART_LENGTH = 15;
 
 function getDelimiter(key, defaultValue) {
 	const delimiter = Liferay.Language.get(key);
@@ -59,9 +60,23 @@ export function formatNumber(number, delimit) {
 
 	const formattedDecimal = formattedNumberParts[1];
 
-	const formattedInteger = numeral(
-		parseInt(formattedNumberParts[0], 10)
-	).format('0[,]0');
+	let formattedInteger = formattedNumberParts[0];
+
+	if (formattedInteger.length > _MAX_INTEGER_PART_LENGTH) {
+		return ellipsize(
+			numeral(
+				parseInt(
+					formattedInteger.substring(0, _MAX_INTEGER_PART_LENGTH),
+					10
+				)
+			).format('0[,]0'),
+			delimit ? _MAX_DELIMITED_NUMBER_LENGTH : _MAX_INTEGER_PART_LENGTH
+		);
+	}
+
+	formattedInteger = numeral(parseInt(formattedNumberParts[0], 10)).format(
+		'0[,]0'
+	);
 
 	formattedNumber =
 		formattedInteger +
@@ -69,8 +84,11 @@ export function formatNumber(number, delimit) {
 			? getDelimiter('decimal-delimiter', '.') + formattedDecimal
 			: '');
 
-	if (delimit && formattedNumber.length > _MAX_NUMBER_LENGTH) {
-		formattedNumber = ellipsize(formattedNumber, _MAX_NUMBER_LENGTH);
+	if (delimit && formattedNumber.length > _MAX_DELIMITED_NUMBER_LENGTH) {
+		formattedNumber = ellipsize(
+			formattedNumber,
+			_MAX_DELIMITED_NUMBER_LENGTH
+		);
 	}
 
 	return formattedNumber;
