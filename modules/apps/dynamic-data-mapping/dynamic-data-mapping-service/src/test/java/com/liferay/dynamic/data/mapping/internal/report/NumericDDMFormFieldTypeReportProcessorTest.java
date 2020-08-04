@@ -253,6 +253,64 @@ public class NumericDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 		_assertSummaryPropertyValue("4", summaryJSONObject, "sum");
 	}
 
+	@Test
+	public void testProcessDDMFormInstanceReportWithLongFieldValue()
+		throws Exception {
+
+		// LPS-118317
+
+		DDMFormFieldValue ddmFormFieldValue = _mockDDMFormFieldValue(
+			"field1", "99999999999999999999999999999999999999999");
+
+		long formInstanceRecordId = 0;
+
+		_mockDDMFormInstanceRecord(formInstanceRecordId);
+
+		JSONObject processedFieldJSONObject =
+			_numericDDMFormFieldTypeReportProcessor.process(
+				ddmFormFieldValue,
+				JSONUtil.put(
+					"summary",
+					JSONUtil.put(
+						"average", "1"
+					).put(
+						"max", "1"
+					).put(
+						"min", "1"
+					).put(
+						"sum", "1"
+					)
+				).put(
+					"totalEntries", 1
+				).put(
+					"type", DDMFormFieldType.NUMERIC
+				).put(
+					"values",
+					JSONUtil.put(
+						JSONUtil.put(
+							"formInstanceRecordId", 1
+						).put(
+							"value", "1"
+						))
+				),
+				formInstanceRecordId,
+				DDMFormInstanceReportConstants.EVENT_ADD_RECORD_VERSION);
+
+		JSONObject summaryJSONObject = processedFieldJSONObject.getJSONObject(
+			"summary");
+
+		_assertSummaryPropertyValue(
+			"50000000000000000000000000000000000000000", summaryJSONObject,
+			"average");
+		_assertSummaryPropertyValue(
+			"99999999999999999999999999999999999999999", summaryJSONObject,
+			"max");
+		_assertSummaryPropertyValue("1", summaryJSONObject, "min");
+		_assertSummaryPropertyValue(
+			"100000000000000000000000000000000000000000", summaryJSONObject,
+			"sum");
+	}
+
 	private void _assertSummaryPropertyValue(
 		String expected, JSONObject summaryJSONObject, String key) {
 
