@@ -32,6 +32,8 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
+import java.math.BigDecimal;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -117,13 +119,13 @@ public class NumericDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 				JSONUtil.put(
 					"summary",
 					JSONUtil.put(
-						"average", 3
+						"average", "3"
 					).put(
-						"max", 5
+						"max", "5"
 					).put(
-						"min", 1
+						"min", "1"
 					).put(
-						"sum", 15
+						"sum", "15"
 					)
 				).put(
 					"totalEntries", 5
@@ -164,10 +166,10 @@ public class NumericDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 		JSONObject summaryJSONObject = processedFieldJSONObject.getJSONObject(
 			"summary");
 
-		Assert.assertEquals(3, summaryJSONObject.getInt("average"));
-		Assert.assertEquals(5, summaryJSONObject.getInt("max"));
-		Assert.assertEquals(1, summaryJSONObject.getInt("min"));
-		Assert.assertEquals(12, summaryJSONObject.getInt("sum"));
+		_assertSummaryPropertyValue("3", summaryJSONObject, "average");
+		_assertSummaryPropertyValue("5", summaryJSONObject, "max");
+		_assertSummaryPropertyValue("1", summaryJSONObject, "min");
+		_assertSummaryPropertyValue("12", summaryJSONObject, "sum");
 	}
 
 	@Test
@@ -195,10 +197,10 @@ public class NumericDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 		JSONObject summaryJSONObject = processedFieldJSONObject.getJSONObject(
 			"summary");
 
-		Assert.assertEquals(1, summaryJSONObject.getInt("average"));
-		Assert.assertEquals(1, summaryJSONObject.getInt("max"));
-		Assert.assertEquals(1, summaryJSONObject.getInt("min"));
-		Assert.assertEquals(1, summaryJSONObject.getInt("sum"));
+		_assertSummaryPropertyValue("1", summaryJSONObject, "average");
+		_assertSummaryPropertyValue("1", summaryJSONObject, "max");
+		_assertSummaryPropertyValue("1", summaryJSONObject, "min");
+		_assertSummaryPropertyValue("1", summaryJSONObject, "sum");
 	}
 
 	@Test
@@ -218,13 +220,13 @@ public class NumericDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 				JSONUtil.put(
 					"summary",
 					JSONUtil.put(
-						"average", 1
+						"average", "1"
 					).put(
-						"max", 1
+						"max", "1"
 					).put(
-						"min", 1
+						"min", "1"
 					).put(
-						"sum", 1
+						"sum", "1"
 					)
 				).put(
 					"totalEntries", 1
@@ -245,10 +247,23 @@ public class NumericDDMFormFieldTypeReportProcessorTest extends PowerMockito {
 		JSONObject summaryJSONObject = processedFieldJSONObject.getJSONObject(
 			"summary");
 
-		Assert.assertEquals(2, summaryJSONObject.getInt("average"));
-		Assert.assertEquals(3, summaryJSONObject.getInt("max"));
-		Assert.assertEquals(1, summaryJSONObject.getInt("min"));
-		Assert.assertEquals(4, summaryJSONObject.getInt("sum"));
+		_assertSummaryPropertyValue("2", summaryJSONObject, "average");
+		_assertSummaryPropertyValue("3", summaryJSONObject, "max");
+		_assertSummaryPropertyValue("1", summaryJSONObject, "min");
+		_assertSummaryPropertyValue("4", summaryJSONObject, "sum");
+	}
+
+	private void _assertSummaryPropertyValue(
+		String expected, JSONObject summaryJSONObject, String key) {
+
+		BigDecimal expectedBigDecimal = new BigDecimal(expected);
+
+		BigDecimal actualBigDecimal = new BigDecimal(
+			summaryJSONObject.getString(key));
+
+		if (expectedBigDecimal.compareTo(actualBigDecimal) != 0) {
+			Assert.fail();
+		}
 	}
 
 	private DDMFormInstanceRecord _createDDMFormInstanceRecord(
