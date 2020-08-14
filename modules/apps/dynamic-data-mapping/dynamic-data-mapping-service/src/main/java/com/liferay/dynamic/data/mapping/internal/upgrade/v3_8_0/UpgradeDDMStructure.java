@@ -193,10 +193,9 @@ public class UpgradeDDMStructure extends UpgradeProcess {
 
 			try (ResultSet rs = ps1.executeQuery()) {
 				while (rs.next()) {
-					String structureVersionDefinition = rs.getString(
-						"definition");
+					String definition = rs.getString("definition");
 
-					ps2.setString(1, structureVersionDefinition);
+					ps2.setString(1, definition);
 
 					long structureId = rs.getLong("structureId");
 
