@@ -383,7 +383,7 @@ class LayoutProvider extends Component {
 							fieldName,
 						};
 
-						this.refs.existingRuleModal.show();
+						this.refs.existingRuleModal.visible = true;
 					}
 					else {
 						this.dispatch('fieldDeleted', {activePage, fieldName});

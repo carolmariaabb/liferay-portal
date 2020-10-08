@@ -589,13 +589,15 @@ class Sidebar extends Component {
 		if (RulesSupport.findRuleByFieldName(fieldName, rules)) {
 			const dropdown = document.querySelector('.dropdown-menu.show');
 
-			dropdown.classList.remove('show');
+			if (dropdown) {
+				dropdown.classList.remove('show');
+			}
 
 			this.refs.changeFieldTypeRuleModal.data = {
 				newFieldType,
 			};
 
-			this.refs.changeFieldTypeRuleModal.show();
+			this.refs.changeFieldTypeRuleModal.visible = true;
 		}
 		else {
 			this.changeFieldType(newFieldType);
@@ -789,13 +791,15 @@ class Sidebar extends Component {
 						'.dropdown-menu.show'
 					);
 
-					dropdown.classList.remove('show');
+					if (dropdown) {
+						dropdown.classList.remove('show');
+					}
 
 					this.refs.deleteFieldRuleModal.data = {
 						fieldName,
 					};
 
-					this.refs.deleteFieldRuleModal.show();
+					this.refs.deleteFieldRuleModal.visible = true;
 				}
 				else {
 					this._deleteField(fieldName);

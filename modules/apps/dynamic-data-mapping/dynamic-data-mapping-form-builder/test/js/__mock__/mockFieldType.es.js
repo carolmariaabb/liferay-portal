@@ -15,6 +15,7 @@
 export default {
 	dataSourceType: 'manual',
 	description: 'Single line or multiline text area.',
+	fieldName: 'TextField',
 	group: 'basic',
 	icon: 'text',
 	initialConfig_: {

@@ -238,30 +238,84 @@ describe('Sidebar', () => {
 		);
 	});
 
-	it('emits the fieldDeleted event when the delete field option is clicked on the sidebar settings', () => {
-		component = new SidebarWithContextMock({
-			...defaultSidebarConfig,
-			editingLanguageId: 'en_US',
-			focusedField: mockFieldType,
-			portletNamespace: 'portletNamespace',
-			rules: [],
+	describe('Delete field', () => {
+		it('emits the fieldDeleted event when the delete field option is clicked on the sidebar settings', () => {
+			component = new SidebarWithContextMock({
+				...defaultSidebarConfig,
+				editingLanguageId: 'en_US',
+				focusedField: mockFieldType,
+				portletNamespace: 'portletNamespace',
+				rules: [],
+			});
+
+			const data = {
+				item: {
+					settingsItem: 'delete-field',
+				},
+			};
+			const spy = jest.spyOn(component, 'emit');
+
+			component.open();
+			component._handleElementSettingsClicked({data});
+
+			expect(spy).toHaveBeenCalled();
+			expect(component.context.dispatch).toHaveBeenCalledWith(
+				'fieldDeleted',
+				expect.anything()
+			);
 		});
 
-		const data = {
-			item: {
-				settingsItem: 'delete-field',
-			},
-		};
-		const spy = jest.spyOn(component, 'emit');
+		it('shows confirmation modal when deleting field that belongs to rules', () => {
+			const {fieldName} = mockFieldType;
 
-		component.open();
-		component._handleElementSettingsClicked({data});
+			const rules = [
+				{
+					actions: [],
+					conditions: [
+						{
+							operands: [
+								{
+									type: 'field',
+									value: fieldName,
+								},
+							],
+						},
+					],
+				},
+			];
 
-		expect(spy).toHaveBeenCalled();
-		expect(component.context.dispatch).toHaveBeenCalledWith(
-			'fieldDeleted',
-			expect.anything()
-		);
+			component = new SidebarWithContextMock({
+				...defaultSidebarConfig,
+				editingLanguageId: 'en_US',
+				focusedField: mockFieldType,
+				portletNamespace: 'portletNamespace',
+				rules,
+			});
+
+			const {deleteFieldRuleModal} = component.refs;
+
+			expect(deleteFieldRuleModal.visible).toEqual(false);
+
+			component.open();
+			component._handleElementSettingsClicked({
+				data: {
+					item: {
+						settingsItem: 'delete-field',
+					},
+				},
+			});
+
+			expect(deleteFieldRuleModal.visible).toEqual(true);
+
+			deleteFieldRuleModal.emit('clickButton', {
+				target: document.querySelector('.btn.btn-primary'),
+			});
+
+			expect(component.context.dispatch).toHaveBeenCalledWith(
+				'fieldDeleted',
+				expect.anything()
+			);
+		});
 	});
 
 	describe('fieldChangesCanceled(state, event)', () => {
@@ -609,6 +663,58 @@ describe('Sidebar', () => {
 
 			component.open();
 			component.changeFieldType('checkbox');
+
+			expect(component.context.dispatch).toHaveBeenCalledWith(
+				'focusedFieldEvaluationEnded',
+				expect.anything()
+			);
+		});
+
+		it('shows confirmation modal when changing field type of a field that belongs to rules', () => {
+			const {fieldName} = mockFieldType;
+
+			const rules = [
+				{
+					actions: [],
+					conditions: [
+						{
+							operands: [
+								{
+									type: 'field',
+									value: fieldName,
+								},
+							],
+						},
+					],
+				},
+			];
+
+			component = new SidebarWithContextMock({
+				...defaultSidebarConfig,
+				editingLanguageId: 'en_US',
+				focusedField: mockFieldType,
+				portletNamespace: 'portletNamespace',
+				rules,
+			});
+
+			const {changeFieldTypeRuleModal} = component.refs;
+
+			expect(changeFieldTypeRuleModal.visible).toEqual(false);
+
+			component.open();
+			component._handleChangeFieldTypeItemClicked({
+				data: {
+					item: {
+						name: 'checkbox',
+					},
+				},
+			});
+
+			expect(changeFieldTypeRuleModal.visible).toEqual(true);
+
+			changeFieldTypeRuleModal.emit('clickButton', {
+				target: document.querySelector('.btn.btn-primary'),
+			});
 
 			expect(component.context.dispatch).toHaveBeenCalledWith(
 				'focusedFieldEvaluationEnded',
