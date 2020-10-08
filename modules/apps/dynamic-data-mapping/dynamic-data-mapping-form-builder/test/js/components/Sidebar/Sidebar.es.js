@@ -244,6 +244,7 @@ describe('Sidebar', () => {
 			editingLanguageId: 'en_US',
 			focusedField: mockFieldType,
 			portletNamespace: 'portletNamespace',
+			rules: [],
 		});
 
 		const data = {
