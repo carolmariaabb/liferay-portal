@@ -352,10 +352,40 @@ class Sidebar extends Component {
 							type: 'button',
 						},
 					]}
-					ref={'existingRuleModal'}
+					ref={'deleteFieldRuleModal'}
 					size={'lg'}
 					title={Liferay.Language.get(
 						'delete-field-with-rule-applied'
+					)}
+				/>
+				<ClayModal
+					body={Liferay.Language.get(
+						'a-rule-is-applied-to-this-field-by-changing-its-type'
+					)}
+					elementClasses={'lfr-ddm-forms-delete-rule'}
+					events={{
+						clickButton: this._handleChangeFieldTypeModalButtonClicked.bind(
+							this
+						),
+					}}
+					footerButtons={[
+						{
+							alignment: 'right',
+							label: Liferay.Language.get('cancel'),
+							style: 'secondary',
+							type: 'close',
+						},
+						{
+							alignment: 'right',
+							label: Liferay.Language.get('change-field-type'),
+							style: 'primary',
+							type: 'button',
+						},
+					]}
+					ref={'changeFieldTypeRuleModal'}
+					size={'lg'}
+					title={Liferay.Language.get(
+						'change-field-type-with-rule-applied'
 					)}
 				/>
 			</div>
@@ -553,8 +583,27 @@ class Sidebar extends Component {
 
 	_handleChangeFieldTypeItemClicked({data}) {
 		const newFieldType = data.item.name;
+		const {fieldName} = this.props.focusedField;
+		const {rules} = this.props;
+	
+		if (RulesSupport.findRuleByFieldName(fieldName, rules)) {
+			this.refs.changeFieldTypeRuleModal.data = {
+				newFieldType,
+			};
+	
+			this.refs.changeFieldTypeRuleModal.show();
+		}
+		else {
+			this.changeFieldType(newFieldType);
+		}
+	}
 
-		this.changeFieldType(newFieldType);
+	_handleChangeFieldTypeModalButtonClicked(event) {
+		const {newFieldType} = this.refs.changeFieldTypeRuleModal.data;
+
+		if (event.target.classList.contains('btn-primary')) {
+			this.changeFieldType(newFieldType);
+		}
 	}
 
 	_handleCloseButtonClicked() {
@@ -562,7 +611,7 @@ class Sidebar extends Component {
 	}
 
 	_handleDeleteFieldModalButtonClicked(event) {
-		const {fieldName} = this.refs.existingRuleModal.data;
+		const {fieldName} = this.refs.deleteFieldRuleModal.data;
 
 		if (event.target.classList.contains('btn-primary')) {
 			this._deleteField(fieldName);
@@ -732,11 +781,11 @@ class Sidebar extends Component {
 				const {rules} = this.props;
 
 				if (RulesSupport.findRuleByFieldName(fieldName, rules)) {
-					this.refs.existingRuleModal.data = {
+					this.refs.deleteFieldRuleModal.data = {
 						fieldName,
 					};
 
-					this.refs.existingRuleModal.show();
+					this.refs.deleteFieldRuleModal.show();
 				}
 				else {
 					this._deleteField(fieldName);
