@@ -128,6 +128,48 @@ exports[`Sidebar closes the sidebar in edition mode 1`] = `
       </div>
     </div>
   </div>
+  <div class="fade modal lfr-ddm-forms-delete-rule" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">delete-field-with-rule-applied</div>
+        </div>
+        <div class="modal-body">a-rule-is-applied-to-this-field</div>
+        <div class="modal-footer">
+          <div class="modal-item-first">
+            <div class="btn-group"></div>
+          </div>
+          <div class="modal-item-last">
+            <div class="btn-group">
+              <div class="btn-group-item"><button class="btn close-modal btn-secondary" type="button">cancel</button></div>
+              <div class="btn-group-item"><button class="btn btn-primary" type="button">delete</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fade modal lfr-ddm-forms-delete-rule" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">change-field-type-with-rule-applied</div>
+        </div>
+        <div class="modal-body">a-rule-is-applied-to-this-field-by-changing-its-type</div>
+        <div class="modal-footer">
+          <div class="modal-item-first">
+            <div class="btn-group"></div>
+          </div>
+          <div class="modal-item-last">
+            <div class="btn-group">
+              <div class="btn-group-item"><button class="btn close-modal btn-secondary" type="button">cancel</button></div>
+              <div class="btn-group-item"><button class="btn btn-primary" type="button">change-field-type</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 `;
 
@@ -279,6 +321,48 @@ exports[`Sidebar renders a Sidebar with fieldTypes 1`] = `
             <div class="btn-group">
               <div class="btn-group-item"><button class="btn close-modal btn-secondary" type="button">dismiss</button></div>
               <div class="btn-group-item"><button class="btn btn-primary" type="button">yes-cancel</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fade modal lfr-ddm-forms-delete-rule" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">delete-field-with-rule-applied</div>
+        </div>
+        <div class="modal-body">a-rule-is-applied-to-this-field</div>
+        <div class="modal-footer">
+          <div class="modal-item-first">
+            <div class="btn-group"></div>
+          </div>
+          <div class="modal-item-last">
+            <div class="btn-group">
+              <div class="btn-group-item"><button class="btn close-modal btn-secondary" type="button">cancel</button></div>
+              <div class="btn-group-item"><button class="btn btn-primary" type="button">delete</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="fade modal lfr-ddm-forms-delete-rule" role="dialog" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title">change-field-type-with-rule-applied</div>
+        </div>
+        <div class="modal-body">a-rule-is-applied-to-this-field-by-changing-its-type</div>
+        <div class="modal-footer">
+          <div class="modal-item-first">
+            <div class="btn-group"></div>
+          </div>
+          <div class="modal-item-last">
+            <div class="btn-group">
+              <div class="btn-group-item"><button class="btn close-modal btn-secondary" type="button">cancel</button></div>
+              <div class="btn-group-item"><button class="btn btn-primary" type="button">change-field-type</button></div>
             </div>
           </div>
         </div>
