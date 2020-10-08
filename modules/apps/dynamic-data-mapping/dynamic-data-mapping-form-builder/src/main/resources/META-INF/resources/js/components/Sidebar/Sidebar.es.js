@@ -585,12 +585,16 @@ class Sidebar extends Component {
 		const newFieldType = data.item.name;
 		const {fieldName} = this.props.focusedField;
 		const {rules} = this.props;
-	
+
 		if (RulesSupport.findRuleByFieldName(fieldName, rules)) {
+			const dropdown = document.querySelector('.dropdown-menu.show');
+
+			dropdown.classList.remove('show');
+
 			this.refs.changeFieldTypeRuleModal.data = {
 				newFieldType,
 			};
-	
+
 			this.refs.changeFieldTypeRuleModal.show();
 		}
 		else {
@@ -781,6 +785,12 @@ class Sidebar extends Component {
 				const {rules} = this.props;
 
 				if (RulesSupport.findRuleByFieldName(fieldName, rules)) {
+					const dropdown = document.querySelector(
+						'.dropdown-menu.show'
+					);
+
+					dropdown.classList.remove('show');
+
 					this.refs.deleteFieldRuleModal.data = {
 						fieldName,
 					};
