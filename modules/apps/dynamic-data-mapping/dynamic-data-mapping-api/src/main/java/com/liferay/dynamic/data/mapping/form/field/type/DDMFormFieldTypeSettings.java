@@ -52,7 +52,7 @@ public interface DDMFormFieldTypeSettings {
 	)
 	public String dataType();
 
-	@DDMFormField(label = "%field-reference", required = true)
+	@DDMFormField(label = "%field-reference")
 	public String fieldReference();
 
 	@DDMFormField(label = "%field-name", required = true)
