@@ -94,23 +94,26 @@ const refreshFields = (
 	options
 ) => {
 	const refreshedFields = [
-		...options.map((option) => ({
-			generateKeyword: generateOptionValueUsingOptionLabel
-				? isOptionValueGenerated(
-						defaultLanguageId,
-						editingLanguageId,
-						options,
-						option
-				  )
-				: false,
-			...option,
-			value: option.value
-				? option.value
-				: getDefaultOptionValue(
-						generateOptionValueUsingOptionLabel,
-						option.label
-				  ),
-		})),
+		...options.map((option) => {
+			const optionValue = getDefaultOptionValue(
+				generateOptionValueUsingOptionLabel,
+				option.label
+			);
+
+			return {
+				generateKeyword: generateOptionValueUsingOptionLabel
+					? isOptionValueGenerated(
+							defaultLanguageId,
+							editingLanguageId,
+							options,
+							option
+					  )
+					: false,
+				...option,
+				reference: option.reference ? option.reference : optionValue,
+				value: option.value ? option.value : optionValue,
+			};
+		}),
 		{
 			generateKeyword: generateOptionValueUsingOptionLabel,
 			...initialOption,
