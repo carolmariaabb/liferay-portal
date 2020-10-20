@@ -14,7 +14,7 @@
 
 import {ClayCheckbox} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 
 import {FieldBase} from '../FieldBase/ReactFieldBase.es';
 
@@ -29,6 +29,10 @@ const Switcher = ({
 	spritemap,
 }) => {
 	const [checked, setChecked] = useState(initialChecked);
+
+	useEffect(() => {
+		setChecked(initialChecked);
+	}, [initialChecked]);
 
 	return (
 		<label className="ddm-toggle-switch toggle-switch">
