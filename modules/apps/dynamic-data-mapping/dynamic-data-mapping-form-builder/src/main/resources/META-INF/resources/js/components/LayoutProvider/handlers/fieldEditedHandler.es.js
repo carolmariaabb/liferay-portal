@@ -93,12 +93,21 @@ export const updatePages = (props, pages, previousFieldName, newField) => {
 export const updateState = (props, state, propertyName, propertyValue) => {
 	const {activePage, focusedField, pages, rules} = state;
 	const {fieldName: previousFocusedFieldName} = focusedField;
-	const newFocusedField = updateField(
+	let newFocusedField = updateField(
 		props,
 		focusedField,
 		propertyName,
 		propertyValue
 	);
+	
+	if(propertyName === 'validation' && propertyValue.enableValidation) {
+		newFocusedField = updateField(
+			props,
+			focusedField,
+			"required",
+			true
+		);
+	}
 
 	const newPages = updatePages(
 		props,
