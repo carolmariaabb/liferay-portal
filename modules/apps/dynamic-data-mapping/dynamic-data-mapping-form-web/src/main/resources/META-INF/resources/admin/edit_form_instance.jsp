@@ -158,7 +158,21 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 			</clay:container-fluid>
 		</div>
 
-		<div id="<portlet:namespace />-container"></div>
+		<c:choose>
+			<c:when test="<%= FFDDMFormWebConfigurationUtil.useDataEngineTaglib() %>">
+				<div class="container-fluid-1280 ddm-form-data-layout-builder">
+					<liferay-data-engine:data-layout-builder
+						componentId='<%= liferayPortletResponse.getNamespace() + "forms" %>'
+						contentType="forms"
+						dataDefinitionId="<%= formInstanceId %>"
+						namespace="<%= liferayPortletResponse.getNamespace() %>"
+					/>
+				</div>
+			</c:when>
+			<c:otherwise>
+				<div id="<portlet:namespace />-container"></div>
+			</c:otherwise>
+		</c:choose>
 	</aui:form>
 
 	<clay:container-fluid
@@ -251,6 +265,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 							showPublishAlert: <%= ddmFormAdminDisplayContext.isShowPublishAlert() %>,
 							spritemap: Liferay.DDM.FormSettings.spritemap,
 							strings: Liferay.DDM.FormSettings.strings,
+							useDataEngineTaglib: <%= FFDDMFormWebConfigurationUtil.useDataEngineTaglib() %>,
 							view: 'formBuilder',
 						},
 						'#<portlet:namespace />-container'

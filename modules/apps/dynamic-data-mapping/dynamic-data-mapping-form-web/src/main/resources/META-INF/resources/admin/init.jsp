@@ -37,6 +37,7 @@ page import="com.liferay.dynamic.data.mapping.exception.StructureDefinitionExcep
 page import="com.liferay.dynamic.data.mapping.exception.StructureLayoutException" %><%@
 page import="com.liferay.dynamic.data.mapping.exception.StructureNameException" %><%@
 page import="com.liferay.dynamic.data.mapping.form.web.internal.FormInstanceFieldSettingsException" %><%@
+page import="com.liferay.dynamic.data.mapping.form.web.internal.configuration.FFDDMFormWebConfigurationUtil" %><%@
 page import="com.liferay.dynamic.data.mapping.form.web.internal.display.context.DDMFormAdminDisplayContext" %><%@
 page import="com.liferay.dynamic.data.mapping.form.web.internal.display.context.DDMFormViewFormInstanceRecordsDisplayContext" %><%@
 page import="com.liferay.dynamic.data.mapping.form.web.internal.display.context.util.FieldSetPermissionCheckerHelper" %><%@
