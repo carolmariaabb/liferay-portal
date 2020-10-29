@@ -384,7 +384,9 @@ class Form extends Component {
 	}
 
 	openSidebar() {
-		this.refs.sidebar.open();
+		if (this.refs.sidebar) {
+			this.refs.sidebar.open();
+		}
 	}
 
 	preventCopyAndPaste(event, limit) {
@@ -433,6 +435,7 @@ class Form extends Component {
 			rules,
 			shareFormInstanceURL,
 			spritemap,
+			useDataEngineTaglib,
 			view,
 		} = this.props;
 		const {saveButtonLabel} = this.state;
@@ -451,54 +454,60 @@ class Form extends Component {
 
 		return (
 			<div class={'ddm-form-builder'}>
-				<LayoutProviderTag {...storeProps}>
-					{this.isFormBuilderView() && (
-						<RuleBuilder
-							dataProviderInstanceParameterSettingsURL={
-								dataProviderInstanceParameterSettingsURL
-							}
-							dataProviderInstancesURL={dataProviderInstancesURL}
+				{!useDataEngineTaglib && (
+					<LayoutProviderTag {...storeProps}>
+						{this.isFormBuilderView() && (
+							<RuleBuilder
+								dataProviderInstanceParameterSettingsURL={
+									dataProviderInstanceParameterSettingsURL
+								}
+								dataProviderInstancesURL={
+									dataProviderInstancesURL
+								}
+								fieldTypes={fieldTypes}
+								functionsMetadata={functionsMetadata}
+								functionsURL={functionsURL}
+								groupId={groupId}
+								portletNamespace={namespace}
+								ref="ruleBuilder"
+								rolesURL={rolesURL}
+								rules={rules}
+								spritemap={spritemap}
+								visible={this.isShowRuleBuilder()}
+							/>
+						)}
+
+						<ComposedFormBuilder
+							fieldSets={fieldSets}
 							fieldTypes={fieldTypes}
-							functionsMetadata={functionsMetadata}
-							functionsURL={functionsURL}
 							groupId={groupId}
 							portletNamespace={namespace}
-							ref="ruleBuilder"
-							rolesURL={rolesURL}
+							ref="formBuilder"
 							rules={rules}
 							spritemap={spritemap}
-							visible={this.isShowRuleBuilder()}
+							view={view}
+							visible={
+								!this.isShowRuleBuilder() &&
+								!this.isShowReport()
+							}
 						/>
-					)}
 
-					<ComposedFormBuilder
-						fieldSets={fieldSets}
-						fieldTypes={fieldTypes}
-						groupId={groupId}
-						portletNamespace={namespace}
-						ref="formBuilder"
-						rules={rules}
-						spritemap={spritemap}
-						view={view}
-						visible={
-							!this.isShowRuleBuilder() && !this.isShowReport()
-						}
-					/>
-
-					<Sidebar
-						defaultLanguageId={defaultLanguageId}
-						editingLanguageId={editingLanguageId}
-						fieldSetDefinitionURL={fieldSetDefinitionURL}
-						fieldSets={fieldSets}
-						fieldTypes={fieldTypes}
-						portletNamespace={namespace}
-						ref="sidebar"
-						spritemap={spritemap}
-						visible={
-							!this.isShowRuleBuilder() && !this.isShowReport()
-						}
-					/>
-				</LayoutProviderTag>
+						<Sidebar
+							defaultLanguageId={defaultLanguageId}
+							editingLanguageId={editingLanguageId}
+							fieldSetDefinitionURL={fieldSetDefinitionURL}
+							fieldSets={fieldSets}
+							fieldTypes={fieldTypes}
+							portletNamespace={namespace}
+							ref="sidebar"
+							spritemap={spritemap}
+							visible={
+								!this.isShowRuleBuilder() &&
+								!this.isShowReport()
+							}
+						/>
+					</LayoutProviderTag>
+				)}
 
 				<div class="container-fluid-1280">
 					{!this.isFormBuilderView() && (
@@ -611,7 +620,7 @@ class Form extends Component {
 	}
 
 	_handleAddFieldButtonClicked() {
-		if (this.isShowRuleBuilder()) {
+		if (this.isShowRuleBuilder() && this.refs.ruleBuilder) {
 			this.refs.ruleBuilder.showRuleCreation();
 
 			this.hideAddButton();
@@ -756,6 +765,12 @@ class Form extends Component {
 			.querySelector('.forms-navigation-bar li > .active')
 			.classList.remove('active');
 		navLink.classList.add('active');
+
+		let navItemIndex = Number(navItem.dataset.navItemIndex);
+
+		if (this.props.useDataEngineTaglib && navItemIndex >= 1) {
+			navItemIndex += 1;
+		}
 
 		this.setState({
 			activeNavItem: navItemIndex,
@@ -992,6 +1007,9 @@ class Form extends Component {
 	_toggleFormBuilder(show) {
 		const {namespace} = this.props;
 
+		const ddmFormDataLayoutBuilder = document.querySelector(
+			'.ddm-form-data-layout-builder'
+		);
 		const managementToolbar = document.querySelector(
 			`#${namespace}managementToolbar`
 		);
@@ -1009,6 +1027,10 @@ class Form extends Component {
 				`${namespace}activeNavItem`,
 				NAV_ITEMS.FORM
 			);
+
+			if (ddmFormDataLayoutBuilder) {
+				ddmFormDataLayoutBuilder.classList.remove('hide');
+			}
 
 			managementToolbar.classList.remove('hide');
 			formBasicInfo.classList.remove('hide');
@@ -1028,6 +1050,10 @@ class Form extends Component {
 			this.showAddButton();
 		}
 		else {
+			if (ddmFormDataLayoutBuilder) {
+				ddmFormDataLayoutBuilder.classList.add('hide');
+			}
+
 			managementToolbar.classList.add('hide');
 			formBasicInfo.classList.add('hide');
 
@@ -1065,6 +1091,14 @@ class Form extends Component {
 			);
 
 			formReport.classList.remove('hide');
+
+			const ddmFormDataLayoutBuilder = document.querySelector(
+				'.ddm-form-data-layout-builder'
+			);
+
+			if (ddmFormDataLayoutBuilder) {
+				ddmFormDataLayoutBuilder.classList.add('hide');
+			}
 		}
 		else {
 			formReport.classList.add('hide');
@@ -1090,7 +1124,7 @@ class Form extends Component {
 			managementToolbar.classList.add('hide');
 		}
 
-		if (this.refs.ruleBuilder.isViewMode()) {
+		if (this.refs.ruleBuilder && this.refs.ruleBuilder.isViewMode()) {
 			this.showAddButton();
 		}
 		else {
