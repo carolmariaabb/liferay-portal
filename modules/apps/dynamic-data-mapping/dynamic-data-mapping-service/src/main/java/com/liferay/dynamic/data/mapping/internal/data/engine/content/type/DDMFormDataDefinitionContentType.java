@@ -17,6 +17,8 @@ package com.liferay.dynamic.data.mapping.internal.data.engine.content.type;
 import com.liferay.data.engine.content.type.DataDefinitionContentType;
 import com.liferay.dynamic.data.mapping.constants.DDMConstants;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.util.Portal;
 
 import org.osgi.service.component.annotations.Component;
@@ -50,6 +52,14 @@ public class DDMFormDataDefinitionContentType
 	@Override
 	public String getPortletResourceName() {
 		return DDMConstants.RESOURCE_NAME;
+	}
+
+	@Override
+	public boolean hasPortletPermission(
+			PermissionChecker permissionChecker, long groupId, String actionId)
+		throws PortalException {
+
+		return true;
 	}
 
 	@Reference
