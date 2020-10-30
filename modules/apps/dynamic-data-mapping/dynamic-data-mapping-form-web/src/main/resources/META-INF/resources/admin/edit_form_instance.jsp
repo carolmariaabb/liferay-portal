@@ -117,7 +117,7 @@ editDDMStructureURL.setParameter("mvcPath", "/admin/edit_form_instance.jsp");
 	</nav>
 
 	<aui:form action="<%= editDDMStructureURL.toString() %>" cssClass="ddm-form-builder-form" enctype="multipart/form-data" method="post" name="editForm" onSubmit='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "saveDDMStructure();" %>'>
-		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
+		<aui:input name="redirect" type="hidden" value="<%= PortalUtil.getCurrentURL(request) %>" />
 		<aui:input name="formInstanceId" type="hidden" value="<%= formInstanceId %>" />
 		<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
 		<aui:input name="ddmStructureId" type="hidden" value="<%= ddmStructureId %>" />
@@ -166,24 +166,17 @@ editDDMStructureURL.setParameter("mvcPath", "/admin/edit_form_instance.jsp");
 			</clay:container-fluid>
 		</div>
 
-		<c:choose>
-			<c:when test="<%= FFDDMFormWebConfigurationUtil.useDataEngineTaglib() %>">
-				<div class="container-fluid-1280 ddm-form-data-layout-builder">
-					<liferay-data-engine:data-layout-builder
-						componentId='<%= liferayPortletResponse.getNamespace() + "forms" %>'
-						contentType="forms"
-						dataDefinitionId="<%= ddmStructureId %>"
-						groupId="<%= groupId %>"
-						namespace="<%= liferayPortletResponse.getNamespace() %>"
-					/>
+		<div id="<portlet:namespace />-container"></div>
 
-					<aui:button cssClass="btn-sm mr-3" type="submit" value="Save" />
-				</div>
-			</c:when>
-			<c:otherwise>
-				<div id="<portlet:namespace />-container"></div>
-			</c:otherwise>
-		</c:choose>
+		<liferay-data-engine:data-layout-builder
+			componentId='<%= liferayPortletResponse.getNamespace() + "forms" %>'
+			contentType="forms"
+			dataDefinitionId="<%= ddmStructureId %>"
+			groupId="<%= groupId %>"
+			namespace="<%= liferayPortletResponse.getNamespace() %>"
+		/>
+
+		<aui:button cssClass="btn-sm mr-3" type="submit" value="Save" />
 	</aui:form>
 
 	<clay:container-fluid

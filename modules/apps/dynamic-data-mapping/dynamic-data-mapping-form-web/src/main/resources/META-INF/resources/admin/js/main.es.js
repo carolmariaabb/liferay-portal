@@ -454,60 +454,56 @@ class Form extends Component {
 
 		return (
 			<div class={'ddm-form-builder'}>
-				{!useDataEngineTaglib && (
-					<LayoutProviderTag {...storeProps}>
-						{this.isFormBuilderView() && (
-							<RuleBuilder
-								dataProviderInstanceParameterSettingsURL={
-									dataProviderInstanceParameterSettingsURL
-								}
-								dataProviderInstancesURL={
-									dataProviderInstancesURL
-								}
-								fieldTypes={fieldTypes}
-								functionsMetadata={functionsMetadata}
-								functionsURL={functionsURL}
-								groupId={groupId}
-								portletNamespace={namespace}
-								ref="ruleBuilder"
-								rolesURL={rolesURL}
-								rules={rules}
-								spritemap={spritemap}
-								visible={this.isShowRuleBuilder()}
-							/>
-						)}
-
-						<ComposedFormBuilder
-							fieldSets={fieldSets}
+				{/* {!useDataEngineTaglib && ( */}
+				<LayoutProviderTag {...storeProps}>
+					{this.isFormBuilderView() && (
+						<RuleBuilder
+							dataProviderInstanceParameterSettingsURL={
+								dataProviderInstanceParameterSettingsURL
+							}
+							dataProviderInstancesURL={dataProviderInstancesURL}
 							fieldTypes={fieldTypes}
+							functionsMetadata={functionsMetadata}
+							functionsURL={functionsURL}
 							groupId={groupId}
 							portletNamespace={namespace}
-							ref="formBuilder"
+							ref="ruleBuilder"
+							rolesURL={rolesURL}
 							rules={rules}
 							spritemap={spritemap}
-							view={view}
-							visible={
-								!this.isShowRuleBuilder() &&
-								!this.isShowReport()
-							}
+							visible={this.isShowRuleBuilder()}
 						/>
+					)}
 
-						<Sidebar
-							defaultLanguageId={defaultLanguageId}
-							editingLanguageId={editingLanguageId}
-							fieldSetDefinitionURL={fieldSetDefinitionURL}
-							fieldSets={fieldSets}
-							fieldTypes={fieldTypes}
-							portletNamespace={namespace}
-							ref="sidebar"
-							spritemap={spritemap}
-							visible={
-								!this.isShowRuleBuilder() &&
-								!this.isShowReport()
-							}
-						/>
-					</LayoutProviderTag>
-				)}
+					<ComposedFormBuilder
+						fieldSets={fieldSets}
+						fieldTypes={fieldTypes}
+						groupId={groupId}
+						portletNamespace={namespace}
+						ref="formBuilder"
+						rules={rules}
+						spritemap={spritemap}
+						view={view}
+						visible={
+							!this.isShowRuleBuilder() && !this.isShowReport()
+						}
+					/>
+
+					<Sidebar
+						defaultLanguageId={defaultLanguageId}
+						editingLanguageId={editingLanguageId}
+						fieldSetDefinitionURL={fieldSetDefinitionURL}
+						fieldSets={fieldSets}
+						fieldTypes={fieldTypes}
+						portletNamespace={namespace}
+						ref="sidebar"
+						spritemap={spritemap}
+						visible={
+							!this.isShowRuleBuilder() && !this.isShowReport()
+						}
+					/>
+				</LayoutProviderTag>
+				{/* )} */}
 
 				<div class="container-fluid-1280">
 					{!this.isFormBuilderView() && (

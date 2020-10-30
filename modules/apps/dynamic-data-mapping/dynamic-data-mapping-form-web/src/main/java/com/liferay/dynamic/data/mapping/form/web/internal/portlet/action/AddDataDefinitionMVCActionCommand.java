@@ -19,8 +19,22 @@ import com.liferay.data.engine.rest.dto.v2_0.DataLayout;
 import com.liferay.data.engine.rest.resource.exception.DataDefinitionValidationException;
 import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionResource;
 import com.liferay.dynamic.data.mapping.constants.DDMPortletKeys;
+import com.liferay.dynamic.data.mapping.form.builder.context.DDMFormContextDeserializer;
+import com.liferay.dynamic.data.mapping.form.builder.context.DDMFormContextDeserializerRequest;
+import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
+import com.liferay.dynamic.data.mapping.model.DDMFormInstanceSettings;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.service.DDMFormInstanceLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
+import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.portlet.LiferayPortletURL;
+import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseTransactionalMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
+import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextFactory;
 import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -29,8 +43,10 @@ import com.liferay.portal.kernel.util.WebKeys;
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eudaldo Alonso
@@ -75,6 +91,26 @@ public class AddDataDefinitionMVCActionCommand
 		return false;
 	}
 
+	protected DDMFormInstance addFormInstance(
+			PortletRequest portletRequest, long ddmStructureId)
+		throws Exception {
+
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			DDMFormInstance.class.getName(), portletRequest);
+
+		DDMStructure ddmStructure = ddmStructureLocalService.fetchDDMStructure(
+			ddmStructureId);
+
+		DDMFormValues settingsDDMFormValues = getSettingsDDMFormValues(
+			portletRequest);
+
+		return ddmFormInstanceLocalService.addFormInstance(
+			ddmStructure.getUserId(), ddmStructure.getGroupId(),
+			ddmStructure.getStructureId(), ddmStructure.getNameMap(),
+			ddmStructure.getDescriptionMap(), settingsDDMFormValues,
+			serviceContext);
+	}
+
 	@Override
 	protected void doTransactionalCommand(
 			ActionRequest actionRequest, ActionResponse actionResponse)
@@ -98,8 +134,22 @@ public class AddDataDefinitionMVCActionCommand
 			DataLayout.toDTO(ParamUtil.getString(actionRequest, "dataLayout")));
 
 		try {
-			dataDefinitionResource.postSiteDataDefinitionByContentType(
-				groupId, "forms", dataDefinition);
+			DataDefinition newDataDefinition =
+				dataDefinitionResource.postSiteDataDefinitionByContentType(
+					groupId, "forms", dataDefinition);
+
+			DDMFormInstance ddmFormInstance = addFormInstance(
+				actionRequest, newDataDefinition.getId());
+
+			LiferayPortletURL portletURL = PortletURLFactoryUtil.create(
+				actionRequest, themeDisplay.getPpid(),
+				PortletRequest.RENDER_PHASE);
+
+			portletURL.setParameter(
+				"formInstanceId",
+				String.valueOf(ddmFormInstance.getFormInstanceId()));
+
+			actionRequest.setAttribute(WebKeys.REDIRECT, portletURL.toString());
 		}
 		catch (DataDefinitionValidationException
 					dataDefinitionValidationException) {
@@ -108,5 +158,30 @@ public class AddDataDefinitionMVCActionCommand
 				actionRequest, dataDefinitionValidationException.getClass());
 		}
 	}
+
+	protected DDMFormValues getSettingsDDMFormValues(
+			PortletRequest portletRequest)
+		throws PortalException {
+
+		String settingsContext = ParamUtil.getString(
+			portletRequest, "serializedSettingsContext");
+
+		return ddmFormTemplateContextToDDMFormValues.deserialize(
+			DDMFormContextDeserializerRequest.with(
+				DDMFormFactory.create(DDMFormInstanceSettings.class),
+				settingsContext));
+	}
+
+	@Reference
+	protected DDMFormInstanceLocalService ddmFormInstanceLocalService;
+
+	@Reference(
+		target = "(dynamic.data.mapping.form.builder.context.deserializer.type=formValues)"
+	)
+	protected DDMFormContextDeserializer<DDMFormValues>
+		ddmFormTemplateContextToDDMFormValues;
+
+	@Reference
+	protected DDMStructureLocalService ddmStructureLocalService;
 
 }
