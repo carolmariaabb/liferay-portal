@@ -21,7 +21,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.user.associated.data.anonymizer.UADAnonymizer;
 import com.liferay.user.associated.data.constants.UserAssociatedDataPortletKeys;
 import com.liferay.user.associated.data.display.UADDisplay;
-import com.liferay.user.associated.data.web.internal.util.UADAnonymizerHelper;
+import com.liferay.user.associated.data.util.UADAnonymizerHelper;
 
 import java.util.List;
 

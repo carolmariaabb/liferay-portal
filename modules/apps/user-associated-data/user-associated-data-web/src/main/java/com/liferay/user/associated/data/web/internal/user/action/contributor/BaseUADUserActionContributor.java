@@ -21,7 +21,7 @@ import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.user.associated.data.constants.UserAssociatedDataPortletKeys;
-import com.liferay.user.associated.data.web.internal.util.UADAnonymizerHelper;
+import com.liferay.user.associated.data.util.UADAnonymizerHelper;
 import com.liferay.users.admin.user.action.contributor.BaseUserActionContributor;
 
 import java.util.Objects;

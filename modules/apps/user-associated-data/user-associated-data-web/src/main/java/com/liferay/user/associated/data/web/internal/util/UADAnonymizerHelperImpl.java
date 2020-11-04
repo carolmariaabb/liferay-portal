@@ -28,6 +28,7 @@ import com.liferay.portal.kernel.util.HashMapDictionary;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.user.associated.data.util.UADAnonymizerHelper;
 import com.liferay.user.associated.data.web.internal.configuration.AnonymousUserConfiguration;
 import com.liferay.user.associated.data.web.internal.configuration.AnonymousUserConfigurationRetriever;
 
@@ -45,16 +46,19 @@ import org.osgi.service.component.annotations.Reference;
  * @author Drew Brokke
  */
 @Component(immediate = true, service = UADAnonymizerHelper.class)
-public class UADAnonymizerHelper {
+public class UADAnonymizerHelperImpl implements UADAnonymizerHelper {
 
+	@Override
 	public User getAnonymousUser() throws Exception {
 		return _getAnonymousUser(CompanyThreadLocal.getCompanyId());
 	}
 
+	@Override
 	public User getAnonymousUser(long companyId) throws Exception {
 		return _getAnonymousUser(companyId);
 	}
 
+	@Override
 	public boolean isAnonymousUser(User user) {
 		try {
 			User anonymousUser = getAnonymousUser(user.getCompanyId());
