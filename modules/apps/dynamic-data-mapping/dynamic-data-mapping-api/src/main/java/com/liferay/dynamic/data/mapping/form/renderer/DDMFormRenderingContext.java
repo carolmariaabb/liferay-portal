@@ -53,6 +53,10 @@ public class DDMFormRenderingContext {
 		return _ddmStructureLayoutId;
 	}
 
+	public long getFormInstanceId() {
+		return _formInstanceId;
+	}
+
 	public long getGroupId() {
 		return _groupId;
 	}
@@ -83,6 +87,10 @@ public class DDMFormRenderingContext {
 
 	public String getSubmitLabel() {
 		return _submitLabel;
+	}
+
+	public long getUserId() {
+		return _userId;
 	}
 
 	public boolean isReadOnly() {
@@ -127,6 +135,10 @@ public class DDMFormRenderingContext {
 
 	public void setDDMStructureLayoutId(long ddmStructureLayoutId) {
 		_ddmStructureLayoutId = ddmStructureLayoutId;
+	}
+
+	public void setFormInstanceId(long formInstanceId) {
+		_formInstanceId = formInstanceId;
 	}
 
 	public void setGroupId(long groupId) {
@@ -185,6 +197,10 @@ public class DDMFormRenderingContext {
 		_submitLabel = submitLabel;
 	}
 
+	public void setUserId(long userId) {
+		_userId = userId;
+	}
+
 	public void setViewMode(boolean viewMode) {
 		_properties.put("viewMode", viewMode);
 	}
@@ -193,6 +209,7 @@ public class DDMFormRenderingContext {
 	private String _containerId;
 	private DDMFormValues _ddmFormValues;
 	private long _ddmStructureLayoutId;
+	private long _formInstanceId;
 	private long _groupId;
 	private HttpServletRequest _httpServletRequest;
 	private HttpServletResponse _httpServletResponse;
@@ -205,5 +222,6 @@ public class DDMFormRenderingContext {
 	private boolean _showRequiredFieldsWarning = true;
 	private boolean _showSubmitButton = true;
 	private String _submitLabel;
+	private long _userId;
 
 }
