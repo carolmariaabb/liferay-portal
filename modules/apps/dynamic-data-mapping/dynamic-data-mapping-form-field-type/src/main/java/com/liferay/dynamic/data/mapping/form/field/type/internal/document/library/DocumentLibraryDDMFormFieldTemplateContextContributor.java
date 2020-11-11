@@ -122,8 +122,10 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 		parameters.put("folderId", folderId);
 
 		parameters.put(
+			"allowGuestUsers",
+			GetterUtil.getBoolean(ddmFormField.getProperty("allowGuestUsers")));
+		parameters.put(
 			"groupId", ddmFormFieldRenderingContext.getProperty("groupId"));
-
 		parameters.put(
 			"itemSelectorAuthToken",
 			getItemSelectorAuthToken(httpServletRequest));
