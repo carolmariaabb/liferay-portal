@@ -14,7 +14,9 @@
 
 package com.liferay.dynamic.data.mapping.form.field.type.internal.document.library;
 
+import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppService;
+import com.liferay.dynamic.data.mapping.constants.DDMFormConstants;
 import com.liferay.dynamic.data.mapping.constants.DDMPortletKeys;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTemplateContextContributor;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
@@ -28,9 +30,12 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Repository;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactory;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
+import com.liferay.portal.kernel.portletfilerepository.PortletFileRepositoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
+import com.liferay.portal.kernel.repository.model.Folder;
 import com.liferay.portal.kernel.security.auth.AuthTokenUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
@@ -84,7 +89,10 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 				ddmFormFieldRenderingContext.getValue());
 
 			if ((valueJSONObject != null) && (valueJSONObject.length() > 0)) {
-				FileEntry fileEntry = getFileEntry(valueJSONObject);
+				FileEntry fileEntry = getFileEntry(
+					GetterUtil.getLong(ddmFormFieldRenderingContext.getProperty("groupId")),
+					GetterUtil.getLong(ddmFormFieldRenderingContext.getProperty("formInstanceId")),
+					valueJSONObject);
 
 				parameters.put("fileEntryTitle", getFileEntryTitle(fileEntry));
 				parameters.put(
@@ -146,7 +154,9 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 		return themeDisplay.getLocale();
 	}
 
-	protected FileEntry getFileEntry(JSONObject valueJSONObject) {
+	protected FileEntry getFileEntry(
+		long groupId, long formInstanceId, JSONObject valueJSONObject) {
+
 		try {
 			return dlAppService.getFileEntryByUuidAndGroupId(
 				valueJSONObject.getString("uuid"),
@@ -154,9 +164,27 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 		}
 		catch (PortalException portalException) {
 			_log.error("Unable to retrieve file entry ", portalException);
-
-			return null;
 		}
+
+		try {
+			Repository repository =
+				PortletFileRepositoryUtil.getPortletRepository(
+					groupId, DDMFormConstants.SERVICE_NAME);
+
+			Folder folder = PortletFileRepositoryUtil.getPortletFolder(
+				repository.getRepositoryId(),
+				DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+				String.valueOf(formInstanceId));
+
+			return PortletFileRepositoryUtil.getPortletFileEntry(
+				groupId, folder.getFolderId(),
+				valueJSONObject.getString("name"));
+		}
+		catch (PortalException portalException) {
+			_log.error("Unable to retrieve file entry ", portalException);
+		}
+
+		return null;
 	}
 
 	protected String getFileEntryTitle(FileEntry fileEntry) {
