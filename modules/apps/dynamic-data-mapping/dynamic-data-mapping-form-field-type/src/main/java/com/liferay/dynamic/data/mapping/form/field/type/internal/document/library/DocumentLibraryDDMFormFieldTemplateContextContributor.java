@@ -15,6 +15,7 @@
 package com.liferay.dynamic.data.mapping.form.field.type.internal.document.library;
 
 import com.liferay.document.library.kernel.service.DLAppService;
+import com.liferay.dynamic.data.mapping.constants.DDMPortletKeys;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTemplateContextContributor;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.render.DDMFormFieldRenderingContext;
@@ -27,6 +28,8 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactory;
+import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.auth.AuthTokenUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -44,6 +47,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+
+import javax.portlet.ActionRequest;
+import javax.portlet.PortletURL;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -116,6 +122,10 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 			LanguageUtil.get(getResourceBundle(displayLocale), "select"));
 
 		parameters.put("strings", stringsMap);
+
+		parameters.put(
+			"uploadURL",
+			getUploadURL(httpServletRequest, ddmFormFieldRenderingContext));
 
 		String value = ddmFormFieldRenderingContext.getValue();
 
@@ -243,6 +253,32 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 
 		return new AggregateResourceBundle(
 			moduleResourceBundle, portalResourceBundle);
+	}
+
+	protected String getUploadURL(
+		HttpServletRequest httpServletRequest,
+		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
+
+		RequestBackedPortletURLFactory requestBackedPortletURLFactory =
+			RequestBackedPortletURLFactoryUtil.create(httpServletRequest);
+
+		PortletURL portletURL = requestBackedPortletURLFactory.createActionURL(
+			DDMPortletKeys.DYNAMIC_DATA_MAPPING_FORM);
+
+		portletURL.setParameter(ActionRequest.ACTION_NAME, "uploadFileEntry");
+		portletURL.setParameter(
+			"formInstanceId",
+			String.valueOf(
+				ddmFormFieldRenderingContext.getProperty("formInstanceId")));
+		portletURL.setParameter(
+			"groupId",
+			String.valueOf(
+				ddmFormFieldRenderingContext.getProperty("groupId")));
+		portletURL.setParameter(
+			"userId",
+			String.valueOf(ddmFormFieldRenderingContext.getProperty("userId")));
+
+		return portletURL.toString();
 	}
 
 	protected JSONObject getValueJSONObject(String value) {
