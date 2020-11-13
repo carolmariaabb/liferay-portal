@@ -97,6 +97,27 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributorTest
 	}
 
 	@Test
+	public void testGetParametersShouldContainAllowGuestUsers() {
+		DDMFormField ddmFormField = new DDMFormField(
+			"field", "document_library");
+
+		ddmFormField.setProperty("allowGuestUsers", true);
+
+		DDMFormFieldRenderingContext ddmFormFieldRenderingContext =
+			new DDMFormFieldRenderingContext();
+
+		ddmFormFieldRenderingContext.setHttpServletRequest(
+			createHttpServletRequest());
+
+		DocumentLibraryDDMFormFieldTemplateContextContributor spy = createSpy();
+
+		Map<String, Object> parameters = spy.getParameters(
+			ddmFormField, ddmFormFieldRenderingContext);
+
+		Assert.assertEquals(true, parameters.get("allowGuestUsers"));
+	}
+
+	@Test
 	public void testGetParametersShouldContainFileEntryURL() {
 		DDMFormField ddmFormField = new DDMFormField("field", "numeric");
 
