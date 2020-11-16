@@ -51,4 +51,17 @@ public interface DDMFormWebConfiguration {
 	)
 	public String defaultDisplayView();
 
+	@Meta.AD(
+		deflt = "doc,docx,jpeg,jpg,pdf,png,ppt,pptx,tiff,txt,xls,xlsx",
+		description = "file-extensions-help", name = "file-extensions",
+		required = false
+	)
+	public String fileExtensions();
+
+	@Meta.AD(
+		deflt = "26214400", description = "file-max-size-help",
+		name = "file-max-size", required = false
+	)
+	public long fileMaxSize();
+
 }
