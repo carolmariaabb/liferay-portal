@@ -76,7 +76,11 @@ public class DDMFormUploadFileEntryHandler implements UploadFileEntryHandler {
 
 			String fileName = uploadPortletRequest.getFileName("file");
 
+			_ddmFormUploadValidator.validateFileExtension(fileName);
+
 			file = FileUtil.createTempFile(inputStream);
+
+			_ddmFormUploadValidator.validateFileSize(file, fileName);
 
 			ThemeDisplay themeDisplay =
 				(ThemeDisplay)uploadPortletRequest.getAttribute(
@@ -207,6 +211,9 @@ public class DDMFormUploadFileEntryHandler implements UploadFileEntryHandler {
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
+
+	@Reference
+	private DDMFormUploadValidator _ddmFormUploadValidator;
 
 	@Reference
 	private UserLocalService _userLocalService;
