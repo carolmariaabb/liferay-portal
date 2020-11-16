@@ -18,11 +18,15 @@ import {ClayInput} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import {usePage} from 'dynamic-data-mapping-form-renderer';
 import {
+	convertToFormData,
+	makeFetch,
+} from 'dynamic-data-mapping-form-renderer/js/util/fetch.es';
+import {
 	ItemSelectorDialog,
 	createActionURL,
 	createPortletURL,
 } from 'frontend-js-web';
-import React, {useMemo, useState} from 'react';
+import React, {useMemo, useRef, useState} from 'react';
 
 import {FieldBase} from '../FieldBase/ReactFieldBase.es';
 
@@ -203,6 +207,7 @@ const DocumentLibrary = ({
 };
 
 const Main = ({
+	allowGuestUsers,
 	displayErrors,
 	errorMessage,
 	fileEntryTitle,
@@ -217,12 +222,15 @@ const Main = ({
 	onFocus,
 	placeholder,
 	readOnly,
+	uploadURL,
 	valid,
 	value = '{}',
 	...otherProps
 }) => {
 	const {portletNamespace} = usePage();
 	const [currentValue, setCurrentValue] = useState(value);
+
+	const inputFileRef = useRef();
 
 	const getErrorMessages = (errorMessage, isSignedIn) => {
 		const errorMessages = [errorMessage];
@@ -292,6 +300,37 @@ const Main = ({
 			readOnly={isSignedIn ? readOnly : true}
 			valid={isSignedIn ? valid : false}
 		>
+			{allowGuestUsers && !isSignedIn && (
+				<ClayInput
+					onChange={(event) => {
+						const data = {
+							[`${portletNamespace}file`]: event.target.files[0],
+						};
+
+						makeFetch({
+							body: convertToFormData(data),
+							method: 'POST',
+							url: uploadURL,
+						})
+							.then((response) => {
+								const {error, file} = response;
+
+								if (error) {
+									throw new Error(error.errorMessage);
+								}
+
+								setCurrentValue(JSON.stringify(file));
+
+								onChange(event, JSON.stringify(file));
+							})
+							.catch((error) => {
+								throw new Error(error);
+							});
+					}}
+					ref={inputFileRef}
+					type="file"
+				/>
+			)}
 			<DocumentLibrary
 				fileEntryTitle={fileEntryTitle}
 				fileEntryURL={fileEntryURL}
