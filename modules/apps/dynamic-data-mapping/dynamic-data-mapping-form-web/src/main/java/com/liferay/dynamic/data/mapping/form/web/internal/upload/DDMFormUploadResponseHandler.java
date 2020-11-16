@@ -14,6 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.form.web.internal.upload;
 
+import com.liferay.document.library.kernel.exception.FileExtensionException;
 import com.liferay.document.library.kernel.exception.FileSizeException;
 import com.liferay.dynamic.data.mapping.form.web.internal.configuration.DDMFormWebConfiguration;
 import com.liferay.dynamic.data.mapping.form.web.internal.configuration.activator.DDMFormWebConfigurationActivator;
@@ -49,14 +50,18 @@ public class DDMFormUploadResponseHandler implements UploadResponseHandler {
 
 		String errorMessage = StringPool.BLANK;
 
-		if (portalException instanceof FileSizeException) {
-			ThemeDisplay themeDisplay =
-				(ThemeDisplay)portletRequest.getAttribute(
-					WebKeys.THEME_DISPLAY);
+		ThemeDisplay themeDisplay = (ThemeDisplay)portletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
 
-			DDMFormWebConfiguration ddmFormWebConfiguration =
-				_ddmFormWebConfigurationActivator.getDDMFormWebConfiguration();
+		DDMFormWebConfiguration ddmFormWebConfiguration =
+			_ddmFormWebConfigurationActivator.getDDMFormWebConfiguration();
 
+		if (portalException instanceof FileExtensionException) {
+			errorMessage = themeDisplay.translate(
+				"please-enter-a-file-with-a-valid-extension-x",
+				ddmFormWebConfiguration.fileExtensions());
+		}
+		else if (portalException instanceof FileSizeException) {
 			errorMessage = themeDisplay.translate(
 				"please-enter-a-file-with-a-valid-file-size-no-larger-than-x",
 				LanguageUtil.formatStorageSize(
@@ -69,15 +74,13 @@ public class DDMFormUploadResponseHandler implements UploadResponseHandler {
 
 		JSONObject errorJSONObject = jsonObject.getJSONObject("error");
 
-		jsonObject.put(
+		return jsonObject.put(
 			"error",
 			JSONUtil.put(
 				"errorType", errorJSONObject.getInt("errorType")
 			).put(
 				"message", errorMessage
 			));
-
-		return jsonObject;
 	}
 
 	@Override
