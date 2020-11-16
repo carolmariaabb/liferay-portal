@@ -14,8 +14,11 @@
 
 package com.liferay.dynamic.data.mapping.form.web.internal.upload;
 
+import com.liferay.document.library.kernel.exception.FileSizeException;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.dynamic.data.mapping.constants.DDMActionKeys;
+import com.liferay.dynamic.data.mapping.form.web.internal.configuration.DDMFormWebConfiguration;
+import com.liferay.dynamic.data.mapping.form.web.internal.configuration.activator.DDMFormWebConfigurationActivator;
 import com.liferay.dynamic.data.mapping.form.web.internal.constants.DDMFormConstants;
 import com.liferay.dynamic.data.mapping.form.web.internal.security.permission.resource.DDMFormInstancePermission;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
@@ -54,6 +57,9 @@ import java.util.Locale;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferenceCardinality;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Roberto Díaz
@@ -77,6 +83,8 @@ public class DDMFormUploadFileEntryHandler implements UploadFileEntryHandler {
 			String fileName = uploadPortletRequest.getFileName("file");
 
 			file = FileUtil.createTempFile(inputStream);
+
+			_validateFileSize(fileName, file);
 
 			ThemeDisplay themeDisplay =
 				(ThemeDisplay)uploadPortletRequest.getAttribute(
@@ -136,6 +144,12 @@ public class DDMFormUploadFileEntryHandler implements UploadFileEntryHandler {
 			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
 			DDMFormConstants.DDM_FORM_UPLOADED_FILES_FOLDER_NAME,
 			serviceContext);
+	}
+
+	protected void unsetDDMFormWebConfigurationActivator(
+		DDMFormWebConfigurationActivator ddmFormWebConfigurationActivator) {
+
+		_ddmFormWebConfigurationActivator = null;
 	}
 
 	private User _createDDMFormGuestUser(long companyId)
@@ -203,11 +217,42 @@ public class DDMFormUploadFileEntryHandler implements UploadFileEntryHandler {
 		return user.getUserId();
 	}
 
+	private void _validateFileSize(String fileName, File file)
+		throws FileSizeException {
+
+		if (file == null) {
+			throw new FileSizeException("File is null for " + fileName);
+		}
+
+		DDMFormWebConfiguration ddmFormWebConfiguration =
+			_ddmFormWebConfigurationActivator.getDDMFormWebConfiguration();
+
+		long maxSize = ddmFormWebConfiguration.fileMaxSize();
+
+		long size = file.length();
+
+		if ((maxSize > 0) && (size > maxSize)) {
+			throw new FileSizeException(
+				StringBundler.concat(
+					size, " exceeds the maximum permitted size of ", maxSize,
+					" for file ", fileName));
+		}
+	}
+
 	private static final Log _log = LogFactoryUtil.getLog(
 		DDMFormUploadFileEntryHandler.class);
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
+
+	@Reference(
+		cardinality = ReferenceCardinality.OPTIONAL,
+		policy = ReferencePolicy.DYNAMIC,
+		policyOption = ReferencePolicyOption.GREEDY,
+		unbind = "unsetDDMFormWebConfigurationActivator"
+	)
+	private volatile DDMFormWebConfigurationActivator
+		_ddmFormWebConfigurationActivator;
 
 	@Reference
 	private UserLocalService _userLocalService;
