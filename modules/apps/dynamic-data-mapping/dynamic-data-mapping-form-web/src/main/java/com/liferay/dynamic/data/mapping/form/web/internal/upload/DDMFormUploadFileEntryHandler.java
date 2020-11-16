@@ -14,6 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.form.web.internal.upload;
 
+import com.liferay.document.library.kernel.exception.FileExtensionException;
 import com.liferay.document.library.kernel.exception.FileSizeException;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.dynamic.data.mapping.constants.DDMActionKeys;
@@ -44,6 +45,7 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MimeTypesUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.upload.UploadFileEntryHandler;
@@ -83,6 +85,8 @@ public class DDMFormUploadFileEntryHandler implements UploadFileEntryHandler {
 			String fileName = uploadPortletRequest.getFileName("file");
 
 			file = FileUtil.createTempFile(inputStream);
+
+			_validateFileExtension(fileName);
 
 			_validateFileSize(fileName, file);
 
@@ -215,6 +219,36 @@ public class DDMFormUploadFileEntryHandler implements UploadFileEntryHandler {
 		}
 
 		return user.getUserId();
+	}
+
+	private void _validateFileExtension(String fileName)
+		throws FileExtensionException {
+
+		DDMFormWebConfiguration ddmFormWebConfiguration =
+			_ddmFormWebConfigurationActivator.getDDMFormWebConfiguration();
+
+		String[] fileExtensions = StringUtil.split(
+			ddmFormWebConfiguration.fileExtensions());
+
+		boolean validFileExtension = false;
+
+		for (String fileExtension : fileExtensions) {
+			String fileNameExtension = StringUtil.toLowerCase(
+				FileUtil.getExtension(fileName));
+
+			if (StringUtil.equals(
+					fileNameExtension, StringUtil.toLowerCase(fileExtension))) {
+
+				validFileExtension = true;
+
+				break;
+			}
+		}
+
+		if (!validFileExtension) {
+			throw new FileExtensionException(
+				"Invalid file extension for " + fileName);
+		}
 	}
 
 	private void _validateFileSize(String fileName, File file)
