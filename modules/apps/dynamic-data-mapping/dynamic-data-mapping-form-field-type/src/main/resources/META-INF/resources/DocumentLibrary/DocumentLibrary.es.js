@@ -12,21 +12,22 @@
  * details.
  */
 
+import './DocumentLibrary.scss';
+
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import ClayCard from '@clayui/card';
 import {ClayInput} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
+import ClayProgressBar from '@clayui/progress-bar';
+import axios from 'axios';
 import {usePage} from 'dynamic-data-mapping-form-renderer';
-import {
-	convertToFormData,
-	makeFetch,
-} from 'dynamic-data-mapping-form-renderer/js/util/fetch.es';
+import {convertToFormData} from 'dynamic-data-mapping-form-renderer/js/util/fetch.es';
 import {
 	ItemSelectorDialog,
 	createActionURL,
 	createPortletURL,
 } from 'frontend-js-web';
-import React, {useMemo, useRef, useState} from 'react';
+import React, {useMemo, useState} from 'react';
 
 import {FieldBase} from '../FieldBase/ReactFieldBase.es';
 
@@ -206,10 +207,72 @@ const DocumentLibrary = ({
 	);
 };
 
+const Upload = ({
+	fileEntryTitle = '',
+	fileEntryURL = '',
+	onClearButtonClicked,
+	onUploadSelectButtonClicked,
+	progress,
+	value,
+}) => {
+	const [transformedFileEntryTitle] = useMemo(
+		() =>
+			transformFileEntryProperties({
+				fileEntryTitle,
+				fileEntryURL,
+				value,
+			}),
+		[fileEntryTitle, fileEntryURL, value]
+	);
+
+	return (
+		<div className="liferay-ddm-form-field-document-library">
+			<ClayInput.Group>
+				<ClayInput.GroupItem prepend>
+					<ClayInput
+						type="text"
+						value={transformedFileEntryTitle || ''}
+					/>
+				</ClayInput.GroupItem>
+				<ClayInput.GroupItem append shrink>
+					<label
+						className={
+							'btn btn-secondary select-button' +
+							(transformedFileEntryTitle
+								? ' clear-button-on'
+								: '')
+						}
+						htmlFor="inputFile"
+					>
+						Select
+					</label>
+					<input
+						className="input-file"
+						id="inputFile"
+						onChange={onUploadSelectButtonClicked}
+						type="file"
+					/>
+				</ClayInput.GroupItem>
+				{transformedFileEntryTitle && (
+					<ClayButtonWithIcon
+						aria-label={Liferay.Language.get('unselect-file')}
+						className="clear-button-upload"
+						displayType="secondary"
+						onClick={onClearButtonClicked}
+						symbol="times"
+					/>
+				)}
+			</ClayInput.Group>
+
+			{progress !== 0 && <ClayProgressBar value={progress} />}
+		</div>
+	);
+};
+
 const Main = ({
 	allowGuestUsers,
-	displayErrors,
-	errorMessage,
+	displayErrors: initialDisplayErrors,
+	errorMessage: initialErrorMessage,
 	fileEntryTitle,
 	fileEntryURL,
 	folderId,
@@ -223,19 +286,21 @@ const Main = ({
 	placeholder,
 	readOnly,
 	uploadURL,
-	valid,
+	valid: initialValid,
 	value = '{}',
 	...otherProps
 }) => {
 	const {portletNamespace} = usePage();
 	const [currentValue, setCurrentValue] = useState(value);
-
-	const inputFileRef = useRef();
+	const [errorMessage, setErrorMessage] = useState(initialErrorMessage);
+	const [displayErrors, setDisplayErrors] = useState(initialDisplayErrors);
+	const [valid, setValid] = useState(initialValid);
+	const [progress, setProgress] = useState(0);
 
 	const getErrorMessages = (errorMessage, isSignedIn) => {
 		const errorMessages = [errorMessage];
 
-		if (!isSignedIn) {
+		if (!isSignedIn && !allowGuestUsers) {
 			errorMessages.push(
 				Liferay.Language.get(
 					'you-need-to-be-signed-in-to-edit-this-field'
@@ -288,6 +353,48 @@ const Main = ({
 		itemSelectorDialog.open();
 	};
 
+	const configureErrorMessage = (message) => {
+		const enable = message ? true : false;
+
+		setErrorMessage(message);
+		setDisplayErrors(enable);
+		setValid(!enable);
+	};
+
+	const handleUploadSelectButtonClicked = (event) => {
+		const data = {
+			[`${portletNamespace}file`]: event.target.files[0],
+		};
+
+		axios
+			.post(uploadURL, convertToFormData(data), {
+				onUploadProgress: (event) => {
+					const progress = Math.round(
+						(event.loaded * 100) / event.total
+					);
+
+					setCurrentValue(null);
+
+					setProgress(progress);
+				},
+			})
+			.then((response) => {
+				const {error, file} = response.data;
+
+				if (error) {
+					configureErrorMessage(error.message);
+					setCurrentValue(null);
+					onChange(event, '{}');
+				}
+				else {
+					configureErrorMessage('');
+					setCurrentValue(JSON.stringify(file));
+					onChange(event, JSON.stringify(file));
+				}
+				setProgress(0);
+			});
+	};
+
 	const isSignedIn = Liferay.ThemeDisplay.isSignedIn();
 
 	return (
@@ -300,57 +407,45 @@ const Main = ({
 			readOnly={isSignedIn ? readOnly : true}
 			valid={isSignedIn ? valid : false}
 		>
-			{allowGuestUsers && !isSignedIn && (
-				<ClayInput
-					onChange={(event) => {
-						const data = {
-							[`${portletNamespace}file`]: event.target.files[0],
-						};
-
-						makeFetch({
-							body: convertToFormData(data),
-							method: 'POST',
-							url: uploadURL,
-						})
-							.then((response) => {
-								const {error, file} = response;
-
-								if (error) {
-									throw new Error(error.errorMessage);
-								}
-
-								setCurrentValue(JSON.stringify(file));
-
-								onChange(event, JSON.stringify(file));
-							})
-							.catch((error) => {
-								throw new Error(error);
-							});
+			{allowGuestUsers && !isSignedIn ? (
+				<Upload
+					fileEntryTitle={fileEntryTitle}
+					fileEntryURL={fileEntryURL}
+					id={id}
+					name={name}
+					onClearButtonClicked={(event) => {
+						setCurrentValue(null);
+						onChange(event, '{}');
 					}}
-					ref={inputFileRef}
-					type="file"
+					onUploadSelectButtonClicked={(event) =>
+						handleUploadSelectButtonClicked(event)
+					}
+					portletNamespace={portletNamespace}
+					progress={progress}
+					value={currentValue || ''}
+				/>
+			) : (
+				<DocumentLibrary
+					fileEntryTitle={fileEntryTitle}
+					fileEntryURL={fileEntryURL}
+					id={id}
+					name={name}
+					onClearButtonClicked={(event) => {
+						setCurrentValue(null);
+
+						onChange(event, '{}');
+					}}
+					onSelectButtonClicked={() =>
+						handleSelectButtonClicked({
+							itemSelectorAuthToken,
+							portletNamespace,
+						})
+					}
+					placeholder={placeholder}
+					readOnly={isSignedIn ? readOnly : true}
+					value={currentValue || ''}
 				/>
 			)}
-			<DocumentLibrary
-				fileEntryTitle={fileEntryTitle}
-				fileEntryURL={fileEntryURL}
-				id={id}
-				name={name}
-				onClearButtonClicked={(event) => {
-					setCurrentValue(null);
-
-					onChange(event, '{}');
-				}}
-				onSelectButtonClicked={() =>
-					handleSelectButtonClicked({
-						itemSelectorAuthToken,
-						portletNamespace,
-					})
-				}
-				placeholder={placeholder}
-				readOnly={isSignedIn ? readOnly : true}
-				value={currentValue || ''}
-			/>
 		</FieldBase>
 	);
 };
