@@ -15,6 +15,7 @@
 package com.liferay.dynamic.data.mapping.form.web.internal.upload;
 
 import com.liferay.document.library.kernel.exception.FileExtensionException;
+import com.liferay.document.library.kernel.exception.FileNameException;
 import com.liferay.document.library.kernel.exception.FileSizeException;
 import com.liferay.dynamic.data.mapping.form.web.internal.configuration.DDMFormWebConfiguration;
 import com.liferay.dynamic.data.mapping.form.web.internal.configuration.activator.DDMFormWebConfigurationActivator;
@@ -23,6 +24,9 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.File;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -74,6 +78,14 @@ public class DDMFormUploadValidator {
 		}
 	}
 
+	public void validateFileName(String fileName) throws FileNameException {
+		Matcher matcher = _fileNamePattern.matcher(fileName);
+
+		if (!matcher.matches()) {
+			throw new FileNameException("Invalid file name " + fileName);
+		}
+	}
+
 	public void validateFileSize(File file, String fileName)
 		throws FileSizeException {
 
@@ -99,6 +111,9 @@ public class DDMFormUploadValidator {
 	}
 
 	private static final long _FILE_LENGTH_MB = 1024 * 1024;
+
+	private static final Pattern _fileNamePattern = Pattern.compile(
+		"^[a-zA-Z0-9]{1,200}\\.[a-zA-Z0-9]{1,10}\\b");
 
 	@Reference(
 		cardinality = ReferenceCardinality.OPTIONAL,
