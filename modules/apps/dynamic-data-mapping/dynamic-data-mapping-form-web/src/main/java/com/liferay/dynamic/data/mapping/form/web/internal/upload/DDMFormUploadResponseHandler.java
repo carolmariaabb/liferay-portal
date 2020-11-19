@@ -62,6 +62,10 @@ public class DDMFormUploadResponseHandler implements UploadResponseHandler {
 					_ddmFormUploadValidator.getGuestUploadMaximumFileSize(),
 					themeDisplay.getLocale()));
 		}
+		else {
+			errorMessage = themeDisplay.translate(
+				"an-unexpected-error-occurred-while-saving-your-document");
+		}
 
 		JSONObject jsonObject = _defaultUploadResponseHandler.onFailure(
 			portletRequest, portalException);
