@@ -14,10 +14,13 @@
 
 package com.liferay.dynamic.data.mapping.form.web.internal.upload;
 
+import com.liferay.document.library.kernel.exception.FileExtensionException;
 import com.liferay.document.library.kernel.exception.FileSizeException;
 import com.liferay.dynamic.data.mapping.form.web.internal.configuration.DDMFormWebConfiguration;
 import com.liferay.dynamic.data.mapping.form.web.internal.configuration.activator.DDMFormWebConfigurationActivator;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.util.FileUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import java.io.File;
 
@@ -33,12 +36,42 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
 @Component(service = DDMFormUploadValidator.class)
 public class DDMFormUploadValidator {
 
+	public String[] getGuestUploadFileExtensions() {
+		DDMFormWebConfiguration ddmFormWebConfiguration =
+			_ddmFormWebConfigurationActivator.getDDMFormWebConfiguration();
+
+		return StringUtil.split(
+			ddmFormWebConfiguration.guestUploadFileExtensions());
+	}
+
 	public long getGuestUploadMaximumFileSize() {
 		DDMFormWebConfiguration ddmFormWebConfiguration =
 			_ddmFormWebConfigurationActivator.getDDMFormWebConfiguration();
 
 		return ddmFormWebConfiguration.guestUploadMaximumFileSize() *
 			_FILE_LENGTH_MB;
+	}
+
+	public void validateFileExtension(String fileName)
+		throws FileExtensionException {
+
+		boolean validFileExtension = false;
+
+		for (String guestUploadFileExtension : getGuestUploadFileExtensions()) {
+			if (StringUtil.equalsIgnoreCase(
+					FileUtil.getExtension(fileName),
+					StringUtil.trim(guestUploadFileExtension))) {
+
+				validFileExtension = true;
+
+				break;
+			}
+		}
+
+		if (!validFileExtension) {
+			throw new FileExtensionException(
+				"Invalid file extension for " + fileName);
+		}
 	}
 
 	public void validateFileSize(File file, String fileName)
