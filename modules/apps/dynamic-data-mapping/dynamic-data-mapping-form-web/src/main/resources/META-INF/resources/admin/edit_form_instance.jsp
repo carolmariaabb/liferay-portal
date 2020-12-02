@@ -21,6 +21,8 @@ String redirect = ParamUtil.getString(request, "redirect");
 
 DDMFormInstance formInstance = ddmFormAdminDisplayContext.getDDMFormInstance();
 
+DDMStructure ddmStructure = ddmFormAdminDisplayContext.getDDMStructure();
+
 long formInstanceId = BeanParamUtil.getLong(formInstance, request, "formInstanceId");
 long groupId = BeanParamUtil.getLong(formInstance, request, "groupId", scopeGroupId);
 long ddmStructureId = BeanParamUtil.getLong(formInstance, request, "structureId");
@@ -35,6 +37,17 @@ portletDisplay.setShowBackIcon(true);
 portletDisplay.setURLBack(redirect);
 
 renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-form") : LanguageUtil.get(request, "edit-form"));
+
+PortletURL editDDMStructureURL = renderResponse.createActionURL();
+
+if (ddmStructure == null) {
+	editDDMStructureURL.setParameter(ActionRequest.ACTION_NAME, "/admin/add_data_definition");
+}
+else {
+	editDDMStructureURL.setParameter(ActionRequest.ACTION_NAME, "/admin/update_data_definition");
+}
+
+editDDMStructureURL.setParameter("mvcPath", "/admin/edit_form_instance.jsp");
 %>
 
 <portlet:actionURL name="/dynamic_data_mapping_form/save_form_instance" var="saveFormInstanceURL">
@@ -103,19 +116,8 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		</clay:container-fluid>
 	</nav>
 
-	<clay:container-fluid
-		cssClass="ddm-translation-manager hide"
-	>
-		<liferay-frontend:translation-manager
-			availableLocales="<%= ddmFormAdminDisplayContext.getAvailableLocales() %>"
-			changeableDefaultLanguage="<%= false %>"
-			defaultLanguageId="<%= ddmFormAdminDisplayContext.getDefaultLanguageId() %>"
-			id="translationManager"
-		/>
-	</clay:container-fluid>
-
-	<aui:form action="<%= saveFormInstanceURL %>" cssClass="ddm-form-builder-form" enctype="multipart/form-data" method="post" name="editForm">
-		<aui:input name="redirect" type="hidden" value="<%= redirect %>" />
+	<aui:form action="<%= editDDMStructureURL.toString() %>" cssClass="ddm-form-builder-form" enctype="multipart/form-data" method="post" name="editForm" onSubmit='<%= "event.preventDefault(); " + liferayPortletResponse.getNamespace() + "saveDDMStructure();" %>'>
+		<aui:input name="redirect" type="hidden" value="<%= PortalUtil.getCurrentURL(request) %>" />
 		<aui:input name="formInstanceId" type="hidden" value="<%= formInstanceId %>" />
 		<aui:input name="groupId" type="hidden" value="<%= groupId %>" />
 		<aui:input name="ddmStructureId" type="hidden" value="<%= ddmStructureId %>" />
@@ -123,6 +125,12 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		<aui:input name="description" type="hidden" value="<%= ddmFormAdminDisplayContext.getFormLocalizedDescription() %>" />
 		<aui:input name="serializedFormBuilderContext" type="hidden" value="<%= serializedFormBuilderContext %>" />
 		<aui:input name="serializedSettingsContext" type="hidden" value="" />
+
+		<aui:input name="dataDefinition" type="hidden" />
+		<aui:input name="dataLayout" type="hidden" />
+		<aui:input name="dataDefinitionId" type="hidden" value="<%= ddmStructureId %>" />
+
+		<aui:model-context bean="<%= ddmStructure %>" model="<%= DDMStructure.class %>" />
 
 		<clay:container-fluid>
 			<div class="exception-container">
@@ -159,6 +167,16 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 		</div>
 
 		<div id="<portlet:namespace />-container"></div>
+
+		<liferay-data-engine:data-layout-builder
+			componentId='<%= liferayPortletResponse.getNamespace() + "forms" %>'
+			contentType="forms"
+			dataDefinitionId="<%= ddmStructureId %>"
+			groupId="<%= groupId %>"
+			namespace="<%= liferayPortletResponse.getNamespace() %>"
+		/>
+
+		<aui:button cssClass="btn-sm mr-3" type="submit" value="Save" />
 	</aui:form>
 
 	<clay:container-fluid
@@ -251,6 +269,7 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 							showPublishAlert: <%= ddmFormAdminDisplayContext.isShowPublishAlert() %>,
 							spritemap: Liferay.DDM.FormSettings.spritemap,
 							strings: Liferay.DDM.FormSettings.strings,
+							useDataEngineTaglib: <%= FFDDMFormWebConfigurationUtil.useDataEngineTaglib() %>,
 							view: 'formBuilder',
 						},
 						'#<portlet:namespace />-container'
@@ -357,4 +376,35 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 	};
 
 	Liferay.on('destroyPortlet', clearPortletHandlers);
+</aui:script>
+
+<aui:script>
+	function <portlet:namespace />saveDDMStructure() {
+		Liferay.componentReady('<portlet:namespace />forms').then(function (forms) {
+			var localizedDescription = {};
+			localizedDescription['en_US'] = 'Description';
+
+			var localizedName = {};
+			localizedName['en_US'] = 'Name';
+
+			var formData = forms.getFormData();
+
+			var dataDefinition = formData.definition;
+
+			dataDefinition.description = localizedDescription;
+			dataDefinition.name = localizedName;
+
+			var dataLayout = formData.layout;
+
+			dataLayout.description = localizedDescription;
+			dataLayout.name = localizedName;
+
+			Liferay.Util.postForm(document.<portlet:namespace />editForm, {
+				data: {
+					dataDefinition: JSON.stringify(dataDefinition),
+					dataLayout: JSON.stringify(dataLayout),
+				},
+			});
+		});
+	}
 </aui:script>

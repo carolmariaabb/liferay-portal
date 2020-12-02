@@ -28,6 +28,7 @@ import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormTemplateContextFactory;
 import com.liferay.dynamic.data.mapping.form.values.factory.DDMFormValuesFactory;
 import com.liferay.dynamic.data.mapping.form.web.internal.configuration.DDMFormWebConfiguration;
+import com.liferay.dynamic.data.mapping.form.web.internal.configuration.FFDDMFormWebConfigurationUtil;
 import com.liferay.dynamic.data.mapping.form.web.internal.constants.DDMFormWebKeys;
 import com.liferay.dynamic.data.mapping.form.web.internal.display.context.util.DDMFormAdminRequestHelper;
 import com.liferay.dynamic.data.mapping.form.web.internal.display.context.util.FormInstancePermissionCheckerHelper;
@@ -555,6 +556,7 @@ public class DDMFormAdminDisplayContext {
 					LanguageUtil.get(httpServletRequest, "form"));
 			}
 		).add(
+			() -> !FFDDMFormWebConfigurationUtil.useDataEngineTaglib(),
 			navigationItem -> {
 				navigationItem.putData("action", "showRules");
 
