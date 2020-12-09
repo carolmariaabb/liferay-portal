@@ -26,6 +26,7 @@ const Switcher = ({
 	onChange,
 	required,
 	showLabel,
+	showMaximumRepetitionsInfo,
 	spritemap,
 }) => {
 	const [checked, setChecked] = useState(initialChecked);
@@ -62,6 +63,16 @@ const Switcher = ({
 					</span>
 				)}
 			</span>
+			{checked && showMaximumRepetitionsInfo && (
+				<div>
+					<span className="ddm-tooltip">
+						<ClayIcon symbol="question-circle-full" />
+					</span>
+					{Liferay.Language.get(
+						'for-the-upload-field-the-repeatable-function-is-limited'
+					)}
+				</div>
+			)}
 		</label>
 	);
 };
@@ -109,6 +120,7 @@ const Main = ({
 	required,
 	showAsSwitcher = true,
 	showLabel = true,
+	showMaximumRepetitionsInfo = false,
 	spritemap,
 	value,
 	...otherProps
@@ -132,6 +144,7 @@ const Main = ({
 				onChange={onChange}
 				required={required}
 				showLabel={showLabel}
+				showMaximumRepetitionsInfo={showMaximumRepetitionsInfo}
 				spritemap={spritemap}
 			/>
 		</FieldBase>
