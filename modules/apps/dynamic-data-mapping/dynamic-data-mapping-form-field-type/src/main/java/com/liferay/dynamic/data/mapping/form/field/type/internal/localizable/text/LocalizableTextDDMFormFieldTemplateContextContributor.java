@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -77,6 +78,7 @@ public class LocalizableTextDDMFormFieldTemplateContextContributor
 			parameters.put(
 				"placeholder",
 				getPlaceholder(ddmFormField, ddmFormFieldRenderingContext));
+			parameters.put("placeholderSubmitLabel", getSubmitLabelJSONArray());
 			parameters.put(
 				"tooltip",
 				getTooltip(ddmFormField, ddmFormFieldRenderingContext));
@@ -160,6 +162,39 @@ public class LocalizableTextDDMFormFieldTemplateContextContributor
 
 		return localizedValue.getString(
 			ddmFormFieldRenderingContext.getLocale());
+	}
+
+	protected JSONArray getSubmitLabelJSONArray() {
+		JSONArray jsonArray = jsonFactory.createJSONArray();
+
+		Set<Locale> locales = language.getAvailableLocales();
+
+		Stream<Locale> stream = locales.stream();
+
+		stream.map(
+			this::getSubmitLabelJSONObject
+		).forEach(
+			jsonArray::put
+		);
+
+		return jsonArray;
+	}
+
+	protected JSONObject getSubmitLabelJSONObject(Locale locale) {
+		JSONObject jsonObject = jsonFactory.createJSONObject();
+
+		String languageId = LocaleUtil.toLanguageId(locale);
+
+		jsonObject.put(
+			"icon",
+			StringUtil.toLowerCase(StringUtil.replace(languageId, '_', "-"))
+		).put(
+			"localeId", languageId
+		).put(
+			"localizedLabel", LanguageUtil.get(locale, "assign")
+		);
+
+		return jsonObject;
 	}
 
 	protected String getTooltip(

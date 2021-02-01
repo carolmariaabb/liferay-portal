@@ -154,6 +154,7 @@ const LocalizableText = ({
 	onFieldChanged = () => {},
 	onFieldFocused,
 	placeholder = '',
+	placeholderSubmitLabel = [],
 	predefinedValue = '',
 	readOnly,
 	value,
@@ -168,9 +169,24 @@ const LocalizableText = ({
 		getInitialInternalValue({editingLocale: currentEditingLocale, value})
 	);
 
+	const getLocalizedValue = (defaultLanguageId, placeholderSubmitLabel) => {
+		const placeholderSubmitLabelString = placeholderSubmitLabel.find(
+			(element) => element.localeId === defaultLanguageId.localeId
+		).localizedLabel;
+
+		return placeholderSubmitLabelString;
+	};
+
 	const inputValue = currentInternalValue
 		? currentInternalValue
 		: predefinedValue;
+
+	if (fieldName === 'submitLabel') {
+		placeholder = getLocalizedValue(
+			currentEditingLocale,
+			placeholderSubmitLabel
+		);
+	}
 
 	return (
 		<ClayInput.Group>
@@ -251,6 +267,7 @@ const Main = ({
 	onChange,
 	onFocus,
 	placeholder,
+	placeholderSubmitLabel,
 	predefinedValue,
 	readOnly,
 	value = {},
@@ -272,6 +289,7 @@ const Main = ({
 			onFieldChanged={({event, value}) => onChange(event, value)}
 			onFieldFocused={onFocus}
 			placeholder={placeholder}
+			placeholderSubmitLabel={placeholderSubmitLabel}
 			predefinedValue={predefinedValue}
 			readOnly={readOnly}
 		/>
