@@ -40,19 +40,28 @@ const INITIAL_EDITING_LOCALE = {
 	localeId: themeDisplay.getDefaultLanguageId(),
 };
 
-const AvailableLocaleLabel = ({isDefault, isTranslated}) => {
-	const labelText = isDefault
-		? 'default'
-		: isTranslated
-		? 'translated'
-		: 'not-translated';
+const AvailableLocaleLabel = ({isDefault, isSubmitLabel, isTranslated}) => {
+	let labelText = '';
+
+	if (isSubmitLabel) {
+		labelText = isTranslated ? Liferay.Language.get('customized') : Liferay.Language.get('not-customized');
+	}
+	else {
+		labelText = isDefault
+			? 'default'
+			: isTranslated
+			? 'translated'
+			: 'not-translated';
+	}
 
 	return (
 		<ClayLabel
 			displayType={classNames({
-				info: isDefault,
+				info: isDefault && !isSubmitLabel,
 				success: isTranslated,
-				warning: !isDefault && !isTranslated,
+				warning:
+					(!isDefault && !isTranslated) ||
+					(!isTranslated && isSubmitLabel),
 			})}
 		>
 			{Liferay.Language.get(labelText)}
@@ -63,6 +72,7 @@ const AvailableLocaleLabel = ({isDefault, isTranslated}) => {
 const LocalesDropdown = ({
 	availableLocales,
 	editingLocale,
+	fieldName,
 	onLanguageClicked = () => {},
 }) => {
 	const alignElementRef = useRef(null);
@@ -129,6 +139,11 @@ const LocalesDropdown = ({
 									<ClayLayout.ContentCol containerElement="span">
 										<AvailableLocaleLabel
 											isDefault={isDefault}
+											isSubmitLabel={
+												fieldName === 'submitLabel'
+													? true
+													: false
+											}
 											isTranslated={isTranslated}
 										/>
 									</ClayLayout.ContentCol>
@@ -225,6 +240,7 @@ const LocalizableText = ({
 				<LocalesDropdown
 					availableLocales={availableLocales}
 					editingLocale={currentEditingLocale}
+					fieldName={fieldName}
 					onLanguageClicked={({localeId}) => {
 						const newEditingLocale = availableLocales.find(
 							(availableLocale) =>
