@@ -387,8 +387,10 @@ public class DDMServiceUpgrade implements UpgradeStepRegistrator {
 
 		registry.register("3.9.1", "3.9.2", new DummyUpgradeStep());
 
+		registry.register("3.9.2", "3.10.0", new DummyUpgradeStep());
+
 		registry.register(
-			"3.9.2", "4.0.0",
+			"3.10.0", "4.0.0",
 			new UpgradeDDMField(
 				_jsonFactory, _jsonDDMFormDeserializer,
 				_jsonDDMFormValuesDeserializer));
