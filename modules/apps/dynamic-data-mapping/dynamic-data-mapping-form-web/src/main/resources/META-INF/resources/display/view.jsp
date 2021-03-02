@@ -371,3 +371,47 @@ long formInstanceId = ddmFormDisplayContext.getFormInstanceId();
 		</div>
 	</div>
 </c:if>
+
+<aui:script require="frontend-js-web/liferay/delegate/delegate.es as delegateModule">
+	var delegate = delegateModule.default;
+
+	var submitButtonClickEventHandler = delegate(
+		document.querySelector('#<%= ddmFormDisplayContext.getContainerId() %>'),
+		'click',
+		'.lfr-ddm-form-submit',
+		(event) => {
+			var sessionStatus = Liferay.Session.get('sessionState');
+
+			if (sessionStatus === 'expired') {
+				event.preventDefault();
+
+				Liferay.Util.openModal({
+					bodyHTML:
+						'<liferay-ui:message key="you-need-to-be-signed-in-to-submit-this-form" />',
+					buttons: [
+						{
+							displayType: 'secondary',
+							label: '<liferay-ui:message key="cancel" />',
+							type: 'cancel',
+						},
+						{
+							label: '<liferay-ui:message key="ok" />',
+							onClick: function () {
+								location.href =
+									'<%= ddmFormDisplayContext.getLoginURL() %>';
+							},
+						},
+					],
+					id: '<portlet:namespace />ddmFormSessionExpiredModal',
+					title: '<liferay-ui:message key="your-session-has-expired" />',
+				});
+			}
+		}
+	);
+
+	Liferay.on('destroyPortlet', function removeListener() {
+		submitButtonClickEventHandler.dispose();
+
+		Liferay.detach('destroyPortlet', removeListener);
+	});
+</aui:script>

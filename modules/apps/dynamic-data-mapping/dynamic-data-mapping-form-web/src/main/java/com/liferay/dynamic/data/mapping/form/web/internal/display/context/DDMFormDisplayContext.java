@@ -68,6 +68,7 @@ import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HttpUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -345,6 +346,14 @@ public class DDMFormDisplayContext {
 		return PrefsParamUtil.getLong(
 			_renderRequest.getPreferences(), _renderRequest,
 			"formInstanceRecordId");
+	}
+
+	public String getLoginURL() {
+		ThemeDisplay themeDisplay = getThemeDisplay();
+
+		return HttpUtil.addParameter(
+			themeDisplay.getPathMain() + "/portal/login", "redirect",
+			themeDisplay.getURLCurrent());
 	}
 
 	public String getRedirectURL() throws PortalException {
