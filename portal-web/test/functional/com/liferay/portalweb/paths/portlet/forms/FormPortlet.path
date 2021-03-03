@@ -49,8 +49,18 @@
 	<td></td>
 </tr>
 <tr>
+	<td>MODAL_MESSAGE_EXPIRED_SESSION</td>
+	<td>//div[@class='liferay-modal-body'][contains(text(),'You need to be signed in to submit this form. Click OK if you want to be redirected to the login page.')]</td>
+	<td></td>
+</tr>
+<tr>
 	<td>PORTLET_CONTENT</td>
 	<td>//div[contains(@class,'portlet-content-editable')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>REDIRECT_LOGIN_BUTTON_EXPIRED_SESSION</td>
+	<td>//button[contains(@class,'btn btn-primary')][contains(text(),'OK')]</td>
 	<td></td>
 </tr>
 <tr>

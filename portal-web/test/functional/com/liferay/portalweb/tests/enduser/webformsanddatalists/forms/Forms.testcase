@@ -3162,6 +3162,53 @@ definition {
 		}
 	}
 
+	@description = "This is a use case for LPS-126479."
+	@priority = "4"
+	test SubmitFormWhenSessionExpires {
+		property portal.acceptance = "false";
+		property portal.upstream = "true";
+		property test.name.skip.portal.instance = "Forms#SubmitFormWhenSessionExpires";
+		property web.xml.timeout = "2";
+
+		Navigator.openURL();
+
+		ProductMenu.gotoPortlet(
+			category = "Content &amp; Data",
+			portlet = "Forms");
+
+		FormsAdminNavigator.gotoAddForm();
+
+		Form.addTextField(fieldPositionNumber = "1");
+
+		var textFieldName = FormFields.getFieldName();
+
+		Form.closeSidebar();
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		FormFields.editText(
+			fieldName = "${textFieldName}",
+			fieldValue = "Test");
+
+		Pause(locator1 = "120000");
+
+		AssertTextEquals(
+			locator1 = "Home#ERROR_MESSAGE_EXPIRED_SESSION",
+			value1 = "Danger:Due to inactivity, your session has expired. Please save any data you may have entered before refreshing the page.");
+
+		FormPortlet.clickSubmit();
+
+		FormPortlet.loginAfterSessionExpires();
+
+		FormFields.viewTextValue(
+			fieldName = "${textFieldName}",
+			fieldValue = "Test");
+
+		FormPortlet.submitSuccessfully();
+	}
+
 	@description = "This is a use case for LPS-64798."
 	@priority = "5"
 	test SubmitFormWithAllFieldTypesAndThreePages {

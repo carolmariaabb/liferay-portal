@@ -22,6 +22,22 @@ definition {
 			value1 = "Submit");
 	}
 
+	macro loginAfterSessionExpires {
+		while (IsElementPresent(locator1 = "FormPortlet#MODAL_MESSAGE_EXPIRED_SESSION")) {
+			Click(locator1 = "FormPortlet#REDIRECT_LOGIN_BUTTON_EXPIRED_SESSION");
+		}
+
+		Type.typePause(
+			locator1 = "TextInput#EMAIL_ADDRESS",
+			value1 = "test@liferay.com");
+
+		Type.typePause(
+			locator1 = "TextInput#PASSWORD",
+			value1 = "test");
+
+		Click(locator1 = "Button#SIGN_IN");
+	}
+
 	macro nextPage {
 		AssertClick(
 			locator1 = "Button#NEXT",
