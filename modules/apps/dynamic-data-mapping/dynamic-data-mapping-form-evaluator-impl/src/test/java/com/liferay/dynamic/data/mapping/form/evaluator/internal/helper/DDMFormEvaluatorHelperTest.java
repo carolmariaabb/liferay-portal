@@ -241,6 +241,56 @@ public class DDMFormEvaluatorHelperTest extends PowerMockito {
 	}
 
 	@Test
+	public void testInvalidConfirmationValueWithTextField() throws Exception {
+		DDMForm ddmForm = new DDMForm();
+
+		DDMFormField ddmFormField = createDDMFormField(
+			"field0", "text", FieldConstants.STRING);
+
+		ddmFormField.setProperty(
+			"confirmationErrorMessage",
+			DDMFormValuesTestUtil.createLocalizedValue(
+				"The information does not match", LocaleUtil.US));
+		ddmFormField.setProperty(
+			"confirmationLabel",
+			DDMFormValuesTestUtil.createLocalizedValue(
+				"Confirm Field", LocaleUtil.US));
+		ddmFormField.setProperty("requireConfirmation", true);
+
+		ddmForm.addDDMFormField(ddmFormField);
+
+		DDMFormValues ddmFormValues = DDMFormValuesTestUtil.createDDMFormValues(
+			ddmForm);
+
+		Value localizedValue = new LocalizedValue(LocaleUtil.US);
+
+		localizedValue.addString(LocaleUtil.US, "field value");
+
+		DDMFormFieldValue ddmFormFieldValue =
+			DDMFormValuesTestUtil.createDDMFormFieldValue(
+				"field0_instanceId", "field0", localizedValue);
+
+		ddmFormFieldValue.setConfirmationValue("different field value");
+
+		ddmFormValues.addDDMFormFieldValue(ddmFormFieldValue);
+
+		DDMFormEvaluatorEvaluateResponse ddmFormEvaluatorEvaluateResponse =
+			doEvaluate(ddmForm, ddmFormValues);
+
+		Map<DDMFormEvaluatorFieldContextKey, Map<String, Object>>
+			ddmFormFieldsPropertyChanges =
+				ddmFormEvaluatorEvaluateResponse.
+					getDDMFormFieldsPropertyChanges();
+
+		Map<String, Object> ddmFormFieldPropertyChanges =
+			ddmFormFieldsPropertyChanges.get(
+				new DDMFormEvaluatorFieldContextKey(
+					"field0", "field0_instanceId"));
+
+		Assert.assertFalse((boolean)ddmFormFieldPropertyChanges.get("valid"));
+	}
+
+	@Test
 	public void testJumpPageAction() throws Exception {
 		DDMForm ddmForm = new DDMForm();
 
@@ -1244,6 +1294,53 @@ public class DDMFormEvaluatorHelperTest extends PowerMockito {
 			"The value should be greater than 10.",
 			ddmFormFieldPropertyChanges.get("errorMessage"));
 		Assert.assertFalse((boolean)ddmFormFieldPropertyChanges.get("valid"));
+	}
+
+	@Test
+	public void testValidConfirmationValueWithTextField() throws Exception {
+		DDMForm ddmForm = new DDMForm();
+
+		DDMFormField ddmFormField = createDDMFormField(
+			"field0", "text", FieldConstants.STRING);
+
+		ddmFormField.setProperty(
+			"confirmationErrorMessage",
+			DDMFormValuesTestUtil.createLocalizedValue(
+				"The information does not match", LocaleUtil.US));
+		ddmFormField.setProperty(
+			"confirmationLabel",
+			DDMFormValuesTestUtil.createLocalizedValue(
+				"Confirm Field", LocaleUtil.US));
+		ddmFormField.setProperty("requireConfirmation", true);
+
+		ddmForm.addDDMFormField(ddmFormField);
+
+		DDMFormValues ddmFormValues = DDMFormValuesTestUtil.createDDMFormValues(
+			ddmForm);
+
+		Value localizedValue = new LocalizedValue(LocaleUtil.US);
+
+		localizedValue.addString(LocaleUtil.US, "field value");
+
+		DDMFormFieldValue ddmFormFieldValue =
+			DDMFormValuesTestUtil.createDDMFormFieldValue(
+				"field0_instanceId", "field0", localizedValue);
+
+		ddmFormFieldValue.setConfirmationValue("field value");
+
+		ddmFormValues.addDDMFormFieldValue(ddmFormFieldValue);
+
+		DDMFormEvaluatorEvaluateResponse ddmFormEvaluatorEvaluateResponse =
+			doEvaluate(ddmForm, ddmFormValues);
+
+		Map<DDMFormEvaluatorFieldContextKey, Map<String, Object>>
+			ddmFormFieldsPropertyChanges =
+				ddmFormEvaluatorEvaluateResponse.
+					getDDMFormFieldsPropertyChanges();
+
+		Assert.assertEquals(
+			ddmFormFieldsPropertyChanges.toString(), 0,
+			ddmFormFieldsPropertyChanges.size());
 	}
 
 	@Test
