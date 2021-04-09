@@ -110,6 +110,15 @@ definition {
 			locator1 = "FormFields#COLOR_SWATCH_ITEM");
 	}
 
+	macro editConfirmationFieldText {
+		Pause(locator1 = "1000");
+
+		Type(
+			key_fieldName = "${fieldName}",
+			locator1 = "FormFields#TEXT_CONFIRMATION_FIELD",
+			value1 = "${fieldValue}");
+	}
+
 	macro editDate {
 		Type(
 			key_fieldName = "${fieldName}",
@@ -320,9 +329,14 @@ definition {
 			locator1 = "FormFields#SWITCHER");
 
 		Pause(locator1 = "2000");
+	}
 
-		//FormFields.viewSwitcherChecked(fieldName = "${fieldName}");
+	macro getConfirmationFieldName {
+		Pause(locator1 = "3000");
 
+		var fieldName = selenium.getElementValue("FormFields#FIELD_CONFIRMATION_NAME_EDIT");
+
+		return "${fieldName}";
 	}
 
 	macro getFieldName {
@@ -548,6 +562,23 @@ definition {
 			key_fieldName = "${fieldName}",
 			locator1 = "FormFields#COLOR_FIELD",
 			value1 = "${fieldValue}");
+	}
+
+	macro viewConfirmationFieldTextLabel {
+		FormFields.viewTextLabel(
+			fieldLabel = "${fieldLabel}",
+			fieldName = "${fieldName}");
+
+		if (isSet(fieldHelpText)) {
+			FormFields.viewFieldHelpText(
+				fieldHelpText = "${fieldHelpText}",
+				fieldName = "${fieldName}");
+		}
+
+		AssertElementPresent.assertVisible(
+			key_fieldLabel = "${fieldLabel}",
+			key_fieldName = "${fieldName}",
+			locator1 = "FormFields#TEXT_CONFIRMATION_FIELD");
 	}
 
 	macro viewDateField {
