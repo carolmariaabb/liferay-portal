@@ -38,6 +38,37 @@ public class DDMExpressionFunctionTrackerImpl
 	implements DDMExpressionFunctionTracker {
 
 	@Override
+	public Map<String, DDMExpressionFunction>
+		getDDMExpressionCustomFunctionMap() {
+
+		Map<String, DDMExpressionFunction> ddmExpressionCustomFunctionMap =
+			new HashMap<>();
+
+		for (String functionName :
+				_ddmExpressionCustomFunctionFactoryMap.keySet()) {
+
+			DDMExpressionFunctionFactory ddmExpressionFunctionFactory =
+				_ddmExpressionCustomFunctionFactoryMap.getService(functionName);
+
+			if (ddmExpressionFunctionFactory == null) {
+				continue;
+			}
+
+			DDMExpressionFunction ddmExpressionFunction =
+				ddmExpressionFunctionFactory.create();
+
+			if (!ddmExpressionFunction.isCustomDDMExpressionFunction()) {
+				continue;
+			}
+
+			ddmExpressionCustomFunctionMap.put(
+				ddmExpressionFunction.getName(), ddmExpressionFunction);
+		}
+
+		return ddmExpressionCustomFunctionMap;
+	}
+
+	@Override
 	public Map<String, DDMExpressionFunctionFactory>
 		getDDMExpressionFunctionFactories(Set<String> functionNames) {
 
@@ -86,6 +117,11 @@ public class DDMExpressionFunctionTrackerImpl
 	@Activate
 	protected void activate(BundleContext bundleContext) {
 		_bundleContext = bundleContext;
+
+		_ddmExpressionCustomFunctionFactoryMap =
+			ServiceTrackerMapFactory.openSingleValueMap(
+				bundleContext, DDMExpressionFunctionFactory.class,
+				"ddm.custom.function.name");
 	}
 
 	@Deactivate
@@ -93,9 +129,13 @@ public class DDMExpressionFunctionTrackerImpl
 		if (_ddmExpressionFunctionFactoryMap != null) {
 			_ddmExpressionFunctionFactoryMap.close();
 		}
+
+		_ddmExpressionCustomFunctionFactoryMap.close();
 	}
 
 	private BundleContext _bundleContext;
+	private ServiceTrackerMap<String, DDMExpressionFunctionFactory>
+		_ddmExpressionCustomFunctionFactoryMap;
 	private ServiceTrackerMap<String, DDMExpressionFunctionFactory>
 		_ddmExpressionFunctionFactoryMap;
 
