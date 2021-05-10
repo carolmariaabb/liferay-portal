@@ -14,17 +14,24 @@
 
 package com.liferay.dynamic.data.mapping.form.builder.internal.util;
 
+import com.liferay.dynamic.data.mapping.expression.DDMExpressionFunction;
+import com.liferay.dynamic.data.mapping.expression.DDMExpressionFunctionTracker;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 
+import java.lang.reflect.Method;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -118,6 +125,40 @@ public class DDMExpressionFunctionMetadataHelper {
 		Map<String, List<DDMExpressionFunctionMetadata>>
 			ddmExpressionFunctionsMetadata,
 		ResourceBundle resourceBundle) {
+
+		Map<String, DDMExpressionFunction> ddmExpressionCustomFunctionMap =
+			_ddmExpressionFunctionTracker.getDDMExpressionCustomFunctionMap();
+
+		for (Map.Entry<String, DDMExpressionFunction> entry :
+				ddmExpressionCustomFunctionMap.entrySet()) {
+
+			DDMExpressionFunction ddmExpressionFunction = entry.getValue();
+
+			Class<?> clazz = ddmExpressionFunction.getClass();
+
+			Stream<Method> stream = Arrays.stream(clazz.getDeclaredMethods());
+
+			stream.filter(
+				method ->
+					Objects.equals(method.getName(), "apply") &&
+					Objects.equals(method.getReturnType(), Boolean.class)
+			).forEach(
+				method -> {
+					String[] parameterTypes =
+						new String[method.getParameterCount()];
+
+					Arrays.fill(parameterTypes, _TYPE_TEXT);
+
+					//We need to change it to check if it also accepts numeric type
+
+					addDDMExpressionFunctionMetadata(
+						ddmExpressionFunctionsMetadata,
+						new DDMExpressionFunctionMetadata(
+							entry.getKey(), entry.getKey(), _TYPE_BOOLEAN,
+							parameterTypes));
+				}
+			);
+		}
 
 		addDDMExpressionFunctionMetadata(
 			ddmExpressionFunctionsMetadata,
@@ -227,6 +268,9 @@ public class DDMExpressionFunctionMetadataHelper {
 	private static final String _TYPE_TEXT = "text";
 
 	private static final String _TYPE_USER = "user";
+
+	@Reference
+	private DDMExpressionFunctionTracker _ddmExpressionFunctionTracker;
 
 	@Reference
 	private Portal _portal;
