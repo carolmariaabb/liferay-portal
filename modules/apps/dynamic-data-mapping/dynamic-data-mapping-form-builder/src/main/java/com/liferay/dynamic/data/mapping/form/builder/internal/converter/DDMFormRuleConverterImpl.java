@@ -93,7 +93,8 @@ public class DDMFormRuleConverterImpl implements SPIDDMFormRuleConverter {
 
 		String operator = spiDDMFormRuleCondition.getOperator();
 
-		String functionName = _operatorFunctionNameMap.get(operator);
+		String functionName = _operatorFunctionNameMap.getOrDefault(
+			operator, operator);
 
 		List<SPIDDMFormRuleCondition.Operand> operands =
 			spiDDMFormRuleCondition.getOperands();
