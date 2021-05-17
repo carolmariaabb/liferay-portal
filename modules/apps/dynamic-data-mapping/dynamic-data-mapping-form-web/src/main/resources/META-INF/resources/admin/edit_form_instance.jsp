@@ -212,6 +212,18 @@ renderResponse.setTitle((formInstance == null) ? LanguageUtil.get(request, "new-
 				%>'
 			/>
 		</div>
+
+		<aui:script>
+			var editForm = document.getElementById('<portlet:namespace />editForm');
+
+			if (editForm) {
+				editForm.onkeydown = function (event) {
+					if (event.keyCode === 13 && event.target.type !== 'textarea') {
+						event.preventDefault();
+					}
+				};
+			}
+		</aui:script>
 	</aui:form>
 
 	<clay:container-fluid
