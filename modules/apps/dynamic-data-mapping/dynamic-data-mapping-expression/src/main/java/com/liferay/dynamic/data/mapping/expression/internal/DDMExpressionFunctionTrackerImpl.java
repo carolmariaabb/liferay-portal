@@ -44,14 +44,13 @@ public class DDMExpressionFunctionTrackerImpl
 		Map<String, DDMExpressionFunction> customDDMExpressionFunctions =
 			new HashMap<>();
 
-		if (_ddmExpressionFunctionFactoryMap == null) {
-			_ddmExpressionFunctionFactoryMap =
-				ServiceTrackerMapFactory.openSingleValueMap(
-					_bundleContext, DDMExpressionFunctionFactory.class, "name");
+		if (_serviceTrackerMap == null) {
+			_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
+				_bundleContext, DDMExpressionFunctionFactory.class, "name");
 		}
 
 		for (DDMExpressionFunctionFactory ddmExpressionFunctionFactory :
-				_ddmExpressionFunctionFactoryMap.values()) {
+				_serviceTrackerMap.values()) {
 
 			DDMExpressionFunction ddmExpressionFunction =
 				ddmExpressionFunctionFactory.create();
@@ -74,15 +73,14 @@ public class DDMExpressionFunctionTrackerImpl
 		Map<String, DDMExpressionFunctionFactory>
 			ddmExpressionFunctionFactories = new HashMap<>();
 
-		if (_ddmExpressionFunctionFactoryMap == null) {
-			_ddmExpressionFunctionFactoryMap =
-				ServiceTrackerMapFactory.openSingleValueMap(
-					_bundleContext, DDMExpressionFunctionFactory.class, "name");
+		if (_serviceTrackerMap == null) {
+			_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
+				_bundleContext, DDMExpressionFunctionFactory.class, "name");
 		}
 
 		for (String functionName : functionNames) {
 			DDMExpressionFunctionFactory ddmExpressionFunctionFactory =
-				_ddmExpressionFunctionFactoryMap.getService(functionName);
+				_serviceTrackerMap.getService(functionName);
 
 			if (ddmExpressionFunctionFactory != null) {
 				ddmExpressionFunctionFactories.put(
@@ -120,13 +118,13 @@ public class DDMExpressionFunctionTrackerImpl
 
 	@Deactivate
 	protected void deactivate() {
-		if (_ddmExpressionFunctionFactoryMap != null) {
-			_ddmExpressionFunctionFactoryMap.close();
+		if (_serviceTrackerMap != null) {
+			_serviceTrackerMap.close();
 		}
 	}
 
 	private BundleContext _bundleContext;
 	private ServiceTrackerMap<String, DDMExpressionFunctionFactory>
-		_ddmExpressionFunctionFactoryMap;
+		_serviceTrackerMap;
 
 }
