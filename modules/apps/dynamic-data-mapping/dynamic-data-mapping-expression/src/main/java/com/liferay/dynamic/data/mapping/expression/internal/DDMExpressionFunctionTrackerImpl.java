@@ -38,6 +38,36 @@ public class DDMExpressionFunctionTrackerImpl
 	implements DDMExpressionFunctionTracker {
 
 	@Override
+	public Map<String, DDMExpressionFunction>
+		getCustomDDMExpressionFunctions() {
+
+		Map<String, DDMExpressionFunction> customDDMExpressionFunctions =
+			new HashMap<>();
+
+		if (_ddmExpressionFunctionFactoryMap == null) {
+			_ddmExpressionFunctionFactoryMap =
+				ServiceTrackerMapFactory.openSingleValueMap(
+					_bundleContext, DDMExpressionFunctionFactory.class, "name");
+		}
+
+		for (DDMExpressionFunctionFactory ddmExpressionFunctionFactory :
+				_ddmExpressionFunctionFactoryMap.values()) {
+
+			DDMExpressionFunction ddmExpressionFunction =
+				ddmExpressionFunctionFactory.create();
+
+			if (!ddmExpressionFunction.isCustomDDMExpressionFunction()) {
+				continue;
+			}
+
+			customDDMExpressionFunctions.put(
+				ddmExpressionFunction.getName(), ddmExpressionFunction);
+		}
+
+		return customDDMExpressionFunctions;
+	}
+
+	@Override
 	public Map<String, DDMExpressionFunctionFactory>
 		getDDMExpressionFunctionFactories(Set<String> functionNames) {
 
