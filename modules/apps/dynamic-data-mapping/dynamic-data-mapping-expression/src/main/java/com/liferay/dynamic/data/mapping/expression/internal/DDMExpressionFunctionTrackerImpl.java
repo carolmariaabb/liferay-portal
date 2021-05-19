@@ -71,14 +71,14 @@ public class DDMExpressionFunctionTrackerImpl
 	public Map<String, DDMExpressionFunctionFactory>
 		getDDMExpressionFunctionFactories(Set<String> functionNames) {
 
+		Map<String, DDMExpressionFunctionFactory>
+			ddmExpressionFunctionFactories = new HashMap<>();
+
 		if (_ddmExpressionFunctionFactoryMap == null) {
 			_ddmExpressionFunctionFactoryMap =
 				ServiceTrackerMapFactory.openSingleValueMap(
 					_bundleContext, DDMExpressionFunctionFactory.class, "name");
 		}
-
-		Map<String, DDMExpressionFunctionFactory>
-			ddmExpressionFunctionFactories = new HashMap<>();
 
 		for (String functionName : functionNames) {
 			DDMExpressionFunctionFactory ddmExpressionFunctionFactory =
