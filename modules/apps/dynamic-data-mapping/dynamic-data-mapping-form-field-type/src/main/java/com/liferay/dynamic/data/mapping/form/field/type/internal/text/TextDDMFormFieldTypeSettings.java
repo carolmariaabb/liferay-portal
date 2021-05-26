@@ -101,7 +101,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 								"visibilityExpression", "fieldNamespace",
 								"indexType", "labelAtStructureLevel",
 								"localizable", "nativeField", "readOnly",
-								"dataType", "type", "showLabel", "repeatable",
+								"dataType", "type", "hideField", "showLabel", "repeatable",
 								"requireConfirmation", "direction",
 								"confirmationLabel", "confirmationErrorMessage",
 								"validation", "tooltip"
@@ -190,6 +190,15 @@ public interface TextDDMFormFieldTypeSettings
 		predefinedValue = "singleline", type = "radio"
 	)
 	public String displayStyle();
+	
+	@DDMFormField(
+		label = "%hide-field", 
+		properties = {
+			"showAsSwitcher=true",
+			"tooltip=%enter-text-that-assists-the-user-but-is-not-submitted-as-a-field-value"
+		},
+		visibilityExpression = "FALSE")
+	public boolean hideField();
 
 	@DDMFormField(
 		label = "%searchable", optionLabels = {"%disable", "%keyword", "%text"},
