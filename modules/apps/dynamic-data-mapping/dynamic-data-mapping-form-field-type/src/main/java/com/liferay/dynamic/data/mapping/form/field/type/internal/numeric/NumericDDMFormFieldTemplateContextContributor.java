@@ -70,6 +70,10 @@ public class NumericDDMFormFieldTemplateContextContributor
 		).put(
 			"direction", ddmFormField.getProperty("direction")
 		).put(
+			"hideLabel",
+			GetterUtil.getBoolean(
+				ddmFormField.getProperty("hideLabel"))
+		).put(
 			"placeholder",
 			DDMFormFieldTypeUtil.getPropertyValue(
 				ddmFormField, locale, "placeholder")
