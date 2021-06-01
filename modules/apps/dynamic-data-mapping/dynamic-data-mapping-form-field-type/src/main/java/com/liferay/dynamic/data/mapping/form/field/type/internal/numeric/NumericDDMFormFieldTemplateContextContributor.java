@@ -73,6 +73,18 @@ public class NumericDDMFormFieldTemplateContextContributor
 			"hideField",
 			GetterUtil.getBoolean(ddmFormField.getProperty("hideField"))
 		).put(
+			"inputMaskFormat",
+			() -> {
+				if (!GetterUtil.getBoolean(
+						ddmFormField.getProperty("inputMask"))) {
+
+					return StringPool.BLANK;
+				}
+
+				return DDMFormFieldTypeUtil.getPropertyValue(
+					ddmFormField, locale, "inputMaskFormat");
+			}
+		).put(
 			"placeholder",
 			DDMFormFieldTypeUtil.getPropertyValue(
 				ddmFormField, locale, "placeholder")
