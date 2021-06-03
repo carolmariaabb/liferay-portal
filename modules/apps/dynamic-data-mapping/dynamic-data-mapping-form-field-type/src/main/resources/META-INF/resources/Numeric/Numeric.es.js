@@ -145,7 +145,7 @@ const Numeric = ({
 				disabled={readOnly}
 				id={id}
 				lang={editingLanguageId}
-				name={name}
+				name={inputMaskFormat ? `${name}_masked` : name}
 				onBlur={onBlur}
 				onChange={(event) => {
 					setCurrentValue(event.target.value);
@@ -158,6 +158,14 @@ const Numeric = ({
 				type="text"
 				value={formattedValue}
 			/>
+			{inputMaskFormat && (
+				<input
+					hidden
+					name={name}
+					readOnly
+					value={formattedValue?.replace(/\D/g, '')}
+				/>
+			)}
 		</FieldBase>
 	);
 };
