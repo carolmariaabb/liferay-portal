@@ -188,4 +188,55 @@ describe('Field Numeric', () => {
 			expect(confirmationField.value).toBe('23');
 		});
 	});
+
+	describe('Input Mask toggle', () => {
+		it('applies mask to value', () => {
+			const {container} = render(
+				<Numeric
+					inputMaskFormat="+99 (99) 9999-9999"
+					value="123456789012"
+				/>
+			);
+
+			const input = container.querySelector('input');
+
+			expect(input.value).toBe('+12 (34) 5678-9012');
+		});
+
+		it('applies mask to predefined value', () => {
+			const {container} = render(
+				<Numeric
+					inputMaskFormat="+99 (99) 9999-9999"
+					predefinedValue="123456789012"
+				/>
+			);
+
+			const input = container.querySelector('input');
+
+			expect(input.value).toBe('+12 (34) 5678-9012');
+		});
+
+		it('truncates values over mask digit limit', () => {
+			const {container} = render(
+				<Numeric
+					inputMaskFormat="+99 (099) 9999-9999"
+					value="12345678901234"
+				/>
+			);
+
+			const input = container.querySelector('input');
+
+			expect(input.value).toBe('+12 (345) 6789-0123');
+		});
+
+		xit('ignores optional digits whenever input is less than mandatory', () => {
+			const {container} = render(
+				<Numeric inputMaskFormat="+99 (099) 9999-9999" value="12345" />
+			);
+
+			const input = container.querySelector('input');
+
+			expect(input.value).toBe('+12 (34) 5');
+		});
+	});
 });
