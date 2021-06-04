@@ -73,6 +73,9 @@ public class NumericDDMFormFieldTemplateContextContributor
 			"hideField",
 			GetterUtil.getBoolean(ddmFormField.getProperty("hideField"))
 		).put(
+			"inputMask",
+			GetterUtil.getBoolean(ddmFormField.getProperty("inputMask"))
+		).put(
 			"inputMaskFormat",
 			() -> {
 				if (!GetterUtil.getBoolean(
