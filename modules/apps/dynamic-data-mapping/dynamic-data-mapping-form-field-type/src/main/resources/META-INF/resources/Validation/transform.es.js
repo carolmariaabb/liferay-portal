@@ -32,19 +32,12 @@ const getValidationFromExpression = (validations, validation) => {
 	};
 };
 
-const transformValidations = (
-	initialValidations,
-	initialDataType,
-	ffCustomDDMValidationEnabled
-) => {
+const transformValidations = (initialValidations, initialDataType) => {
 	const dataType =
 		initialDataType === 'double' || initialDataType === 'integer'
 			? 'numeric'
 			: initialDataType;
-	const validations =
-		ffCustomDDMValidationEnabled && initialValidations
-			? initialValidations
-			: VALIDATIONS;
+	const validations = initialValidations ? initialValidations : VALIDATIONS;
 
 	return validations[dataType].map((validation) => {
 		return {
@@ -107,18 +100,13 @@ export const getSelectedValidation = (validations) => {
 export const transformData = ({
 	defaultLanguageId,
 	editingLanguageId,
-	ffCustomDDMValidationEnabled,
 	initialDataType,
 	validation,
 	validations: initialValidations,
 	value,
 }) => {
 	const dataType = validation?.dataType || initialDataType;
-	const validations = transformValidations(
-		initialValidations,
-		dataType,
-		ffCustomDDMValidationEnabled
-	);
+	const validations = transformValidations(initialValidations, dataType);
 	const parsedValidation = getValidation(
 		defaultLanguageId,
 		editingLanguageId,
