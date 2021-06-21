@@ -37,7 +37,10 @@ const transformValidations = (
 	initialDataType,
 	ffCustomDDMValidationEnabled
 ) => {
-	const dataType = initialDataType !== 'string' ? 'numeric' : initialDataType;
+	const dataType =
+		initialDataType === 'double' || initialDataType === 'integer'
+			? 'numeric'
+			: initialDataType;
 	const validations =
 		ffCustomDDMValidationEnabled && initialValidations
 			? initialValidations
