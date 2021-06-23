@@ -12,10 +12,10 @@
  * details.
  */
 
-import {wait} from '@testing-library/dom';
-import {act, cleanup, render} from '@testing-library/react';
+import { wait } from '@testing-library/dom';
+import { act, cleanup, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {PageProvider} from 'data-engine-js-components-web';
+import { PageProvider } from 'data-engine-js-components-web';
 import moment from 'moment';
 import React from 'react';
 
@@ -31,7 +31,7 @@ const defaultDatePickerConfig = {
 };
 
 const DatePickerWithProvider = (props) => (
-	<PageProvider value={{editingLanguageId: 'en_US'}}>
+	<PageProvider value={{ editingLanguageId: 'en_US' }}>
 		<DatePicker {...props} />
 	</PageProvider>
 );
@@ -68,7 +68,7 @@ describe('DatePicker', () => {
 	});
 
 	it('has a helptext', () => {
-		const {container} = render(
+		const { container } = render(
 			<DatePickerWithProvider
 				{...defaultDatePickerConfig}
 				tip="Type something"
@@ -84,7 +84,7 @@ describe('DatePicker', () => {
 	});
 
 	it('has a label', () => {
-		const {container} = render(
+		const { container } = render(
 			<DatePickerWithProvider
 				{...defaultDatePickerConfig}
 				label="label"
@@ -99,7 +99,7 @@ describe('DatePicker', () => {
 	});
 
 	it('has a predefinedValue', () => {
-		const {container} = render(
+		const { container } = render(
 			<DatePickerWithProvider
 				{...defaultDatePickerConfig}
 				predefinedValue="06/02/2020"
@@ -114,7 +114,7 @@ describe('DatePicker', () => {
 	});
 
 	it('expands the datepicker when clicking the calendar icon', async () => {
-		const {container} = render(
+		const { container } = render(
 			<DatePickerWithProvider {...defaultDatePickerConfig} />
 		);
 
@@ -136,7 +136,7 @@ describe('DatePicker', () => {
 	it('fills the input with the current date selected on Date Picker', async () => {
 		const handleFieldEdited = jest.fn();
 
-		const {container, getAllByDisplayValue, getByLabelText} = render(
+		const { container, getAllByDisplayValue, getByLabelText } = render(
 			<DatePickerWithProvider
 				{...defaultDatePickerConfig}
 				onChange={handleFieldEdited}
@@ -169,7 +169,7 @@ describe('DatePicker', () => {
 	it('call the onChange callback with a valid date', async () => {
 		const onChange = jest.fn();
 
-		const {container, getAllByDisplayValue, getByLabelText} = render(
+		const { container, getAllByDisplayValue, getByLabelText } = render(
 			<DatePickerWithProvider
 				{...defaultDatePickerConfig}
 				onChange={onChange}
@@ -190,7 +190,7 @@ describe('DatePicker', () => {
 			jest.runAllTimers();
 		});
 
-		const date = moment().format('MM/DD/YYYY');
+		const date = moment().format('YYYY-MM-DD');
 
 		await wait(() => expect(getAllByDisplayValue(date)).toBeTruthy());
 
@@ -200,7 +200,7 @@ describe('DatePicker', () => {
 	it('fills the input with the current date according to the locale', async () => {
 		const handleFieldEdited = jest.fn();
 
-		const {container, getAllByDisplayValue, getByLabelText} = render(
+		const { container, getAllByDisplayValue, getByLabelText } = render(
 			<DatePickerWithProvider
 				{...defaultDatePickerConfig}
 				locale="ja_JP"
