@@ -146,7 +146,7 @@ public class SelectDDMFormFieldTypeSettingsTest
 
 		actions = ddmFormRule1.getActions();
 
-		Assert.assertEquals(actions.toString(), 11, actions.size());
+		Assert.assertEquals(actions.toString(), 10, actions.size());
 		Assert.assertEquals(
 			"setMultiple('predefinedValue', getValue('multiple'))",
 			actions.get(0));
@@ -183,7 +183,6 @@ public class SelectDDMFormFieldTypeSettingsTest
 			actions.get(8));
 		Assert.assertEquals(
 			"setVisible('requiredErrorMessage', false)", actions.get(9));
-		Assert.assertEquals("setVisible('validation', false)", actions.get(10));
 
 		DDMFormRule ddmFormRule3 = ddmFormRules.get(2);
 
