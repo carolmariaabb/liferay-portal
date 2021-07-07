@@ -34,8 +34,7 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 			actions = {
 				"setOptions('predefinedValue', getValue('options'))",
 				"setRequired('options', true)",
-				"setVisible('requiredErrorMessage', false)",
-				"setVisible('validation', false)"
+				"setVisible('requiredErrorMessage', false)"
 			},
 			condition = "TRUE"
 		)
@@ -69,11 +68,11 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 							size = 12,
 							value = {
 								"name", "fieldReference", "predefinedValue",
-								"visibilityExpression", "validation",
-								"fieldNamespace", "indexType",
-								"labelAtStructureLevel", "localizable",
-								"nativeField", "readOnly", "dataType", "type",
-								"showLabel", "repeatable", "inline"
+								"visibilityExpression", "fieldNamespace",
+								"indexType", "labelAtStructureLevel",
+								"localizable", "nativeField", "readOnly",
+								"dataType", "type", "showLabel", "repeatable",
+								"inline"
 							}
 						)
 					}
