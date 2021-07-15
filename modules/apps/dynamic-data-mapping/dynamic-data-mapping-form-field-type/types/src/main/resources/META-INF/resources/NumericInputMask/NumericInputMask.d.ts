@@ -38,6 +38,12 @@ interface IProps {
 		};
 	}) => void;
 	onFocus: FocusEventHandler<HTMLInputElement>;
+	defaultLanguageId: string;
+	editingLanguageId: string;
+	localizedValue: {
+		[key: string]: any;
+	};
+	localizedValueEdited: boolean;
 }
 export interface ISymbols {
 	decimalSymbol: DecimalSymbol;
