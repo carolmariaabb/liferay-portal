@@ -26,6 +26,11 @@ interface IProps {
 	appendType?: 'prefix' | 'suffix';
 	decimalSymbol: DecimalSymbol[];
 	decimalSymbols: ISelectProps<DecimalSymbol>[];
+	defaultLanguageId: string;
+	editingLanguageId: string;
+	localizedValue: {
+		[key: string]: any;
+	};
 	readOnly: boolean;
 	thousandsSeparator?: ThousandsSeparator[];
 	thousandsSeparators: ISelectProps<ThousandsSeparator>[];

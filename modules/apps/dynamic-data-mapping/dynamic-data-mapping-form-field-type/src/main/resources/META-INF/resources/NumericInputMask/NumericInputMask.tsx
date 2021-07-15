@@ -12,7 +12,7 @@
  * details.
  */
 
-import React, {FocusEventHandler, useMemo, useState} from 'react';
+import React, {FocusEventHandler, useEffect, useMemo, useState} from 'react';
 
 // @ts-ignore
 
@@ -40,6 +40,9 @@ interface IProps {
 	appendType?: 'prefix' | 'suffix';
 	decimalSymbol: DecimalSymbol[];
 	decimalSymbols: ISelectProps<DecimalSymbol>[];
+	defaultLanguageId: string;
+	editingLanguageId: string;
+	localizedValue: {[key: string]: any};
 	readOnly: boolean;
 	thousandsSeparator?: ThousandsSeparator[];
 	thousandsSeparators: ISelectProps<ThousandsSeparator>[];
@@ -67,6 +70,9 @@ const NumericInputMask: React.FC<IProps> = ({
 	appendType: appendTypeInitial,
 	decimalSymbol: decimalSymbolInitial,
 	decimalSymbols: decimalSymbolsProp,
+	defaultLanguageId,
+	editingLanguageId,
+	localizedValue,
 	onBlur,
 	onChange,
 	onFocus,
@@ -99,6 +105,32 @@ const NumericInputMask: React.FC<IProps> = ({
 			};
 		});
 	}, [decimalSymbol, thousandsSeparatorsProp]);
+
+	useEffect(() => {
+		const newLocalizedValue =
+			localizedValue?.[editingLanguageId] ??
+			localizedValue?.[defaultLanguageId];
+
+		const append = newLocalizedValue?.append ?? appendInitial;
+
+		setAppend(append);
+
+		const appendType = newLocalizedValue?.appendType ?? appendTypeInitial;
+
+		setAppendType(appendType);
+
+		const symbols = newLocalizedValue?.symbols;
+
+		const decimalSymbol = symbols?.decimalSymbol ?? decimalSymbolInitial;
+
+		setDecimalSymbol(decimalSymbol);
+
+		const thousandsSeparator =
+			symbols?.thousandsSeparator ?? thousandsSeparatorInitial;
+
+		setThousandsSeparator(thousandsSeparator);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [editingLanguageId, localizedValue]);
 
 	const handleChange = (key: string, value: string | ISymbols) => {
 		onChange({
@@ -214,6 +246,7 @@ const NumericInputMask: React.FC<IProps> = ({
 			/>
 			{append !== '' && (
 				<Radio
+					editingLanguageId={editingLanguageId}
 					inline={false}
 					name="appendType"
 					onBlur={onBlur}
