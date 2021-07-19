@@ -45,6 +45,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.json.JSONFactoryImpl;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoader;
 import com.liferay.portal.kernel.resource.bundle.ResourceBundleLoaderUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -1079,9 +1080,7 @@ public class DDMFormPagesTemplateContextFactoryTest extends PowerMockito {
 	protected void setUpHttpServletRequest() {
 		_httpServletRequest = Mockito.mock(HttpServletRequest.class);
 
-		ThemeDisplay themeDisplay = new ThemeDisplay();
-
-		themeDisplay.setPathThemeImages(StringPool.BLANK);
+		ThemeDisplay themeDisplay = _getThemeDisplay();
 
 		when(
 			(ThemeDisplay)_httpServletRequest.getAttribute(
@@ -1192,6 +1191,26 @@ public class DDMFormPagesTemplateContextFactoryTest extends PowerMockito {
 		).thenReturn(
 			returnValue
 		);
+	}
+
+	private ThemeDisplay _getThemeDisplay() {
+		ThemeDisplay themeDisplay = Mockito.mock(ThemeDisplay.class);
+
+		Mockito.when(
+			themeDisplay.getPathThemeImages()
+		).thenReturn(
+			StringPool.BLANK
+		);
+
+		User user = mock(User.class);
+
+		Mockito.when(
+			themeDisplay.getUser()
+		).thenReturn(
+			user
+		);
+
+		return themeDisplay;
 	}
 
 	private static final String _HTML_WRAPPER = "<a>%s</a>";
