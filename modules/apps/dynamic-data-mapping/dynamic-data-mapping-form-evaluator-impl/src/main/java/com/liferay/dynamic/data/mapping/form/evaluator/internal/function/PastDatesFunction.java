@@ -35,9 +35,7 @@ public class PastDatesFunction
 
 	@Override
 	public Boolean apply(Object object1, Object object2) {
-		if ((_ddmExpressionParameterAccessor == null) ||
-			Validator.isNull(object1) || Validator.isNull(object2)) {
-
+		if (Validator.isNull(object1) || Validator.isNull(object2)) {
 			return false;
 		}
 
@@ -52,8 +50,7 @@ public class PastDatesFunction
 			}
 
 			return DateFunctionsUtil.isPastDate(
-				object1.toString(),
-				_ddmExpressionParameterAccessor.getTimeZoneId(),
+				_ddmExpressionParameterAccessor, object1.toString(),
 				endsOnJSONObject.getString("type"));
 		}
 		catch (Exception exception) {

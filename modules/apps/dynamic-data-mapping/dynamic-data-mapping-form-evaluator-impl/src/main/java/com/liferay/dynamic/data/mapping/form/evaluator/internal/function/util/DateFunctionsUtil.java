@@ -14,11 +14,17 @@
 
 package com.liferay.dynamic.data.mapping.form.evaluator.internal.function.util;
 
+import com.liferay.dynamic.data.mapping.expression.DDMExpressionParameterAccessor;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.TimeZoneThreadLocal;
+import com.liferay.portal.kernel.util.Validator;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+
+import java.util.TimeZone;
 
 /**
  * @author Carolina Barbosa
@@ -26,12 +32,16 @@ import java.time.format.DateTimeFormatter;
 public class DateFunctionsUtil {
 
 	public static Boolean isFutureDate(
-		String date, String timeZoneId, String type) {
+		DDMExpressionParameterAccessor ddmExpressionParameterAccessor,
+		String date, String type) {
 
 		if (StringUtil.equals(type, "responseDate")) {
 			LocalDate localDate = _getParsedLocalDate(date);
 
-			if (localDate.isBefore(_getCurrentLocalDate(timeZoneId))) {
+			if (localDate.isBefore(
+					_getCurrentLocalDate(
+						_getTimeZoneId(ddmExpressionParameterAccessor)))) {
+
 				return false;
 			}
 		}
@@ -40,12 +50,16 @@ public class DateFunctionsUtil {
 	}
 
 	public static Boolean isPastDate(
-		String date, String timeZoneId, String type) {
+		DDMExpressionParameterAccessor ddmExpressionParameterAccessor,
+		String date, String type) {
 
 		if (StringUtil.equals(type, "responseDate")) {
 			LocalDate localDate = _getParsedLocalDate(date);
 
-			if (localDate.isAfter(_getCurrentLocalDate(timeZoneId))) {
+			if (localDate.isAfter(
+					_getCurrentLocalDate(
+						_getTimeZoneId(ddmExpressionParameterAccessor)))) {
+
 				return false;
 			}
 		}
@@ -54,11 +68,31 @@ public class DateFunctionsUtil {
 	}
 
 	private static LocalDate _getCurrentLocalDate(String timeZoneId) {
+		if (Validator.isNull(timeZoneId)) {
+			return LocalDate.now();
+		}
+
 		return LocalDate.now(ZoneId.of(timeZoneId));
 	}
 
 	private static LocalDate _getParsedLocalDate(String date) {
 		return LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+	}
+
+	private static String _getTimeZoneId(
+		DDMExpressionParameterAccessor ddmExpressionParameterAccessor) {
+
+		if (ddmExpressionParameterAccessor != null) {
+			return ddmExpressionParameterAccessor.getTimeZoneId();
+		}
+
+		TimeZone timeZone = TimeZoneThreadLocal.getThemeDisplayTimeZone();
+
+		if (timeZone != null) {
+			return timeZone.getID();
+		}
+
+		return StringPool.BLANK;
 	}
 
 }
