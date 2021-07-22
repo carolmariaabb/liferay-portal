@@ -36,9 +36,7 @@ public class FutureDatesFunction
 
 	@Override
 	public Boolean apply(Object object1, Object object2) {
-		if ((_ddmExpressionParameterAccessor == null) ||
-			Validator.isNull(object1) || Validator.isNull(object2)) {
-
+		if (Validator.isNull(object1) || Validator.isNull(object2)) {
 			return false;
 		}
 
@@ -54,8 +52,7 @@ public class FutureDatesFunction
 			}
 
 			return DateFunctionsUtil.isFutureDate(
-				object1.toString(),
-				_ddmExpressionParameterAccessor.getTimeZoneId(),
+				_ddmExpressionParameterAccessor, object1.toString(),
 				startsFromJSONObject.getString("type"));
 		}
 		catch (Exception exception) {

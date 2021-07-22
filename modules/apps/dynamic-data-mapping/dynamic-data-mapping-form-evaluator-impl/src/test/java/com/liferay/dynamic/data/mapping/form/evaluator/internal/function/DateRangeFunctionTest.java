@@ -15,9 +15,13 @@
 package com.liferay.dynamic.data.mapping.form.evaluator.internal.function;
 
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.util.TimeZoneThreadLocal;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
+
+import java.util.TimeZone;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -45,7 +49,7 @@ public class DateRangeFunctionTest {
 
 	@Test
 	public void testApplyFalse1() {
-		LocalDate todayLocalDate = LocalDate.now();
+		LocalDate todayLocalDate = LocalDate.now(ZoneId.of("UTC"));
 
 		LocalDate yesterdayLocalDate = todayLocalDate.minusDays(1);
 
@@ -61,7 +65,7 @@ public class DateRangeFunctionTest {
 
 	@Test
 	public void testApplyFalse2() {
-		LocalDate todayLocalDate = LocalDate.now();
+		LocalDate todayLocalDate = LocalDate.now(ZoneId.of("UTC"));
 
 		LocalDate tomorrowLocalDate = todayLocalDate.plusDays(1);
 
@@ -79,7 +83,25 @@ public class DateRangeFunctionTest {
 	public void testApplyTrue() {
 		Assert.assertTrue(
 			_dateRangeFunction.apply(
-				LocalDate.now(),
+				LocalDate.now(ZoneId.of("UTC")),
+				JSONUtil.put(
+					"endsOn", JSONUtil.put("type", "responseDate")
+				).put(
+					"startsFrom", JSONUtil.put("type", "responseDate")
+				).toString()));
+	}
+
+	@Test
+	public void testDDMExpressionParameterAccessorNull() {
+		_futureDatesFunction.setDDMExpressionParameterAccessor(null);
+		_pastDatesFunction.setDDMExpressionParameterAccessor(null);
+
+		TimeZoneThreadLocal.setThemeDisplayTimeZone(
+			TimeZone.getTimeZone("America/Recife"));
+
+		Assert.assertTrue(
+			_dateRangeFunction.apply(
+				LocalDate.now(ZoneId.of("America/Recife")),
 				JSONUtil.put(
 					"endsOn", JSONUtil.put("type", "responseDate")
 				).put(
@@ -88,32 +110,32 @@ public class DateRangeFunctionTest {
 	}
 
 	private void _setUpFutureDatesFunction() throws Exception {
-		FutureDatesFunction futureDatesFunction = new FutureDatesFunction();
-
-		futureDatesFunction.setDDMExpressionParameterAccessor(
+		_futureDatesFunction.setDDMExpressionParameterAccessor(
 			new DefaultDDMExpressionParameterAccessor());
 
 		PowerMockito.field(
 			DateRangeFunction.class, "_futureDatesFunction"
 		).set(
-			_dateRangeFunction, futureDatesFunction
+			_dateRangeFunction, _futureDatesFunction
 		);
 	}
 
 	private void _setUpPastDatesFunction() throws Exception {
-		PastDatesFunction pastDatesFunction = new PastDatesFunction();
-
-		pastDatesFunction.setDDMExpressionParameterAccessor(
+		_pastDatesFunction.setDDMExpressionParameterAccessor(
 			new DefaultDDMExpressionParameterAccessor());
 
 		PowerMockito.field(
 			DateRangeFunction.class, "_pastDatesFunction"
 		).set(
-			_dateRangeFunction, pastDatesFunction
+			_dateRangeFunction, _pastDatesFunction
 		);
 	}
 
 	private final DateRangeFunction _dateRangeFunction =
 		new DateRangeFunction();
+	private final FutureDatesFunction _futureDatesFunction =
+		new FutureDatesFunction();
+	private final PastDatesFunction _pastDatesFunction =
+		new PastDatesFunction();
 
 }
