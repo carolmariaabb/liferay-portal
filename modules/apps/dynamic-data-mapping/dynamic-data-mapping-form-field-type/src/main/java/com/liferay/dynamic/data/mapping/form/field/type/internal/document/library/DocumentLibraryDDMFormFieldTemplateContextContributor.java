@@ -54,6 +54,7 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Html;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
@@ -99,87 +100,42 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 		DDMFormField ddmFormField,
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
 
-		Map<String, Object> parameters = new HashMap<>();
-
-		parameters.put(
+		return HashMapBuilder.<String, Object>put(
 			"allowGuestUsers",
-			GetterUtil.getBoolean(ddmFormField.getProperty("allowGuestUsers")));
-
-		HttpServletRequest httpServletRequest =
-			ddmFormFieldRenderingContext.getHttpServletRequest();
-
-		if (Validator.isNotNull(ddmFormFieldRenderingContext.getValue())) {
-			JSONObject valueJSONObject = _getValueJSONObject(
-				ddmFormFieldRenderingContext.getValue());
-
-			if ((valueJSONObject != null) && (valueJSONObject.length() > 0)) {
-				FileEntry fileEntry = _getFileEntry(valueJSONObject);
-
-				parameters.put("fileEntryTitle", _getFileEntryTitle(fileEntry));
-				parameters.put(
-					"fileEntryURL",
-					_getFileEntryURL(httpServletRequest, fileEntry));
-			}
-		}
-
-		long folderId = 0;
-
-		if (!ddmFormFieldRenderingContext.isReadOnly()) {
-			folderId = _getFolderId(
-				GetterUtil.getLong(
-					ddmFormFieldRenderingContext.getProperty("groupId")),
-				httpServletRequest);
-		}
-
-		parameters.put("folderId", folderId);
-
-		parameters.put(
-			"groupId", ddmFormFieldRenderingContext.getProperty("groupId"));
-
-		ThemeDisplay themeDisplay = getThemeDisplay(httpServletRequest);
-
-		if ((themeDisplay == null) || themeDisplay.isSignedIn()) {
-			parameters.put(
-				"itemSelectorURL",
-				_getItemSelectorURL(
-					ddmFormFieldRenderingContext, folderId,
-					httpServletRequest));
-		}
-		else {
-			String guestUploadURL = GetterUtil.getString(
-				ddmFormField.getProperty("guestUploadURL"));
-
-			if (Validator.isNull(guestUploadURL)) {
-				guestUploadURL = _getGuestUploadURL(
-					ddmFormFieldRenderingContext, folderId, httpServletRequest);
-			}
-
-			parameters.put("guestUploadURL", guestUploadURL);
-		}
-
-		parameters.put(
+			GetterUtil.getBoolean(ddmFormField.getProperty("allowGuestUsers"))
+		).put(
+			"groupId", ddmFormFieldRenderingContext.getProperty("groupId")
+		).put(
 			"maximumRepetitions",
 			GetterUtil.getInteger(
-				ddmFormField.getProperty("maximumRepetitions")));
-		parameters.put(
+				ddmFormField.getProperty("maximumRepetitions"))
+		).put(
 			"maximumSubmissionLimitReached",
 			GetterUtil.getBoolean(
-				ddmFormField.getProperty("maximumSubmissionLimitReached")));
-		parameters.put(
+				ddmFormField.getProperty("maximumSubmissionLimitReached"))
+		).put(
 			"message",
 			_getMessage(
 				ddmFormFieldRenderingContext.getLocale(),
-				ddmFormFieldRenderingContext.getValue()));
+				ddmFormFieldRenderingContext.getValue())
+		).put(
+			"value",
+			() -> {
+				String value = ddmFormFieldRenderingContext.getValue();
 
-		String value = ddmFormFieldRenderingContext.getValue();
+				if (Validator.isNull(value)) {
+					return "{}";
+				}
 
-		if (Validator.isNull(value)) {
-			value = "{}";
-		}
-
-		parameters.put("value", value);
-
-		return parameters;
+				return value;
+			}
+		).putAll(
+			_getFileEntryParameters(
+				ddmFormFieldRenderingContext.getHttpServletRequest(),
+				ddmFormFieldRenderingContext.getValue())
+		).putAll(
+			_getUploadParameters(ddmFormField, ddmFormFieldRenderingContext)
+		).build();
 	}
 
 	protected ResourceBundle getResourceBundle(Locale locale) {
@@ -353,6 +309,28 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 
 			return null;
 		}
+	}
+
+	private Map<String, Object> _getFileEntryParameters(
+		HttpServletRequest httpServletRequest, String value) {
+
+		if (Validator.isNull(value)) {
+			return new HashMap<>();
+		}
+
+		JSONObject valueJSONObject = _getValueJSONObject(value);
+
+		if ((valueJSONObject == null) || (valueJSONObject.length() <= 0)) {
+			return new HashMap<>();
+		}
+
+		FileEntry fileEntry = _getFileEntry(valueJSONObject);
+
+		return HashMapBuilder.<String, Object>put(
+			"fileEntryTitle", _getFileEntryTitle(fileEntry)
+		).put(
+			"fileEntryURL", _getFileEntryURL(httpServletRequest, fileEntry)
+		).build();
 	}
 
 	private String _getFileEntryTitle(FileEntry fileEntry) {
@@ -589,6 +567,50 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 		serviceContext.setAddGuestPermissions(true);
 
 		return serviceContext;
+	}
+
+	private Map<String, Object> _getUploadParameters(
+		DDMFormField ddmFormField,
+		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
+
+		if (ddmFormFieldRenderingContext.isReadOnly()) {
+			return new HashMap<>();
+		}
+
+		Map<String, Object> parameters = new HashMap<>();
+
+		HttpServletRequest httpServletRequest =
+			ddmFormFieldRenderingContext.getHttpServletRequest();
+
+		long folderId = _getFolderId(
+			GetterUtil.getLong(
+				ddmFormFieldRenderingContext.getProperty("groupId")),
+			httpServletRequest);
+
+		parameters.put("folderId", folderId);
+
+		ThemeDisplay themeDisplay = getThemeDisplay(httpServletRequest);
+
+		if ((themeDisplay == null) || themeDisplay.isSignedIn()) {
+			parameters.put(
+				"itemSelectorURL",
+				_getItemSelectorURL(
+					ddmFormFieldRenderingContext, folderId,
+					httpServletRequest));
+		}
+		else {
+			String guestUploadURL = GetterUtil.getString(
+				ddmFormField.getProperty("guestUploadURL"));
+
+			if (Validator.isNull(guestUploadURL)) {
+				guestUploadURL = _getGuestUploadURL(
+					ddmFormFieldRenderingContext, folderId, httpServletRequest);
+			}
+
+			parameters.put("guestUploadURL", guestUploadURL);
+		}
+
+		return parameters;
 	}
 
 	private JSONObject _getValueJSONObject(String value) {
