@@ -77,7 +77,7 @@ public class SXPBlueprintCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(29);
+		StringBundler sb = new StringBundler(35);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -85,6 +85,8 @@ public class SXPBlueprintCacheModel
 		sb.append(uuid);
 		sb.append(", sxpBlueprintId=");
 		sb.append(sxpBlueprintId);
+		sb.append(", groupId=");
+		sb.append(groupId);
 		sb.append(", companyId=");
 		sb.append(companyId);
 		sb.append(", userId=");
@@ -95,8 +97,12 @@ public class SXPBlueprintCacheModel
 		sb.append(createDate);
 		sb.append(", modifiedDate=");
 		sb.append(modifiedDate);
+		sb.append(", configurationJSON=");
+		sb.append(configurationJSON);
 		sb.append(", description=");
 		sb.append(description);
+		sb.append(", elementInstanceJSONArray=");
+		sb.append(elementInstanceJSONArray);
 		sb.append(", title=");
 		sb.append(title);
 		sb.append(", status=");
@@ -126,6 +132,7 @@ public class SXPBlueprintCacheModel
 		}
 
 		sxpBlueprintImpl.setSXPBlueprintId(sxpBlueprintId);
+		sxpBlueprintImpl.setGroupId(groupId);
 		sxpBlueprintImpl.setCompanyId(companyId);
 		sxpBlueprintImpl.setUserId(userId);
 
@@ -150,11 +157,26 @@ public class SXPBlueprintCacheModel
 			sxpBlueprintImpl.setModifiedDate(new Date(modifiedDate));
 		}
 
+		if (configurationJSON == null) {
+			sxpBlueprintImpl.setConfigurationJSON("");
+		}
+		else {
+			sxpBlueprintImpl.setConfigurationJSON(configurationJSON);
+		}
+
 		if (description == null) {
 			sxpBlueprintImpl.setDescription("");
 		}
 		else {
 			sxpBlueprintImpl.setDescription(description);
+		}
+
+		if (elementInstanceJSONArray == null) {
+			sxpBlueprintImpl.setElementInstanceJSONArray("");
+		}
+		else {
+			sxpBlueprintImpl.setElementInstanceJSONArray(
+				elementInstanceJSONArray);
 		}
 
 		if (title == null) {
@@ -193,13 +215,17 @@ public class SXPBlueprintCacheModel
 
 		sxpBlueprintId = objectInput.readLong();
 
+		groupId = objectInput.readLong();
+
 		companyId = objectInput.readLong();
 
 		userId = objectInput.readLong();
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
+		configurationJSON = objectInput.readUTF();
 		description = objectInput.readUTF();
+		elementInstanceJSONArray = objectInput.readUTF();
 		title = objectInput.readUTF();
 
 		status = objectInput.readInt();
@@ -222,6 +248,8 @@ public class SXPBlueprintCacheModel
 
 		objectOutput.writeLong(sxpBlueprintId);
 
+		objectOutput.writeLong(groupId);
+
 		objectOutput.writeLong(companyId);
 
 		objectOutput.writeLong(userId);
@@ -236,11 +264,25 @@ public class SXPBlueprintCacheModel
 		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
 
+		if (configurationJSON == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(configurationJSON);
+		}
+
 		if (description == null) {
 			objectOutput.writeUTF("");
 		}
 		else {
 			objectOutput.writeUTF(description);
+		}
+
+		if (elementInstanceJSONArray == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(elementInstanceJSONArray);
 		}
 
 		if (title == null) {
@@ -267,12 +309,15 @@ public class SXPBlueprintCacheModel
 	public long mvccVersion;
 	public String uuid;
 	public long sxpBlueprintId;
+	public long groupId;
 	public long companyId;
 	public long userId;
 	public String userName;
 	public long createDate;
 	public long modifiedDate;
+	public String configurationJSON;
 	public String description;
+	public String elementInstanceJSONArray;
 	public String title;
 	public int status;
 	public long statusByUserId;
