@@ -142,13 +142,27 @@ public class DDMFormEvaluatorHelper {
 
 		Stream<DDMFormRule> stream = ddmFormRules.stream();
 
+		Stream<DDMFormRule> secondaryStream = ddmFormRules.stream();
+
 		stream.filter(
 			DDMFormRule::isEnabled
 		).forEach(
 			rule -> {
-				evaluateDDMFormRule(rule);
+				if (Validator.isNotNull(rule.getCondition()) && !evaluateDDMFormRuleCondition(rule.getCondition())) {
+						evaluateDDMFormRule(rule);
+						_resetInvisibleFieldValue();
+				}
+			}
+		);
 
-				_resetInvisibleFieldValue();
+		secondaryStream.filter(
+			DDMFormRule::isEnabled
+		).forEach(
+			rule -> {
+				if (Validator.isNotNull(rule.getCondition()) && evaluateDDMFormRuleCondition(rule.getCondition())) {
+						evaluateDDMFormRule(rule);
+						_resetInvisibleFieldValue();
+					}
 			}
 		);
 
@@ -237,7 +251,6 @@ public class DDMFormEvaluatorHelper {
 	}
 
 	protected void evaluateDDMFormRule(DDMFormRule ddmFormRule) {
-		if (Validator.isNotNull(ddmFormRule.getCondition())) {
 			if (evaluateDDMFormRuleCondition(ddmFormRule.getCondition())) {
 				List<String> actions = ddmFormRule.getActions();
 
@@ -268,7 +281,6 @@ public class DDMFormEvaluatorHelper {
 				_ddmFormEvaluatorRuleHelper.checkFieldAffectedByAction(
 					copyDDMFormRule);
 			}
-		}
 	}
 
 	protected void evaluateDDMFormRuleAction(String action) {
