@@ -18,7 +18,6 @@ import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTemplateCont
 import com.liferay.dynamic.data.mapping.form.field.type.constants.DDMFormFieldTypeConstants;
 import com.liferay.dynamic.data.mapping.form.field.type.internal.util.DDMFormFieldTypeUtil;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
-import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.render.DDMFormFieldRenderingContext;
 import com.liferay.dynamic.data.mapping.util.NumericDDMFormFieldUtil;
 import com.liferay.petra.string.StringPool;
@@ -30,7 +29,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.HtmlUtil;
-import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -67,17 +65,17 @@ public class NumericDDMFormFieldTemplateContextContributor
 		Map<String, Object> parameters = new HashMap<>();
 
 		String dataType = GetterUtil.getString(
-			getPropertyValue(
+			DDMFormFieldTypeUtil.getPropertyValue(
 				ddmFormField, ddmFormFieldRenderingContext, "dataType"));
 		boolean inputMask = GetterUtil.getBoolean(
-			getPropertyValue(
+			DDMFormFieldTypeUtil.getPropertyValue(
 				ddmFormField, ddmFormFieldRenderingContext, "inputMask"));
 		Locale locale = ddmFormFieldRenderingContext.getLocale();
 
 		if (inputMask && StringUtil.equals(dataType, "double")) {
 			parameters.putAll(
 				_getNumericInputMaskParameters(
-					_getPropertyValue(
+					DDMFormFieldTypeUtil.getPropertyValue(
 						ddmFormField, ddmFormFieldRenderingContext, locale,
 						"numericInputMask")));
 		}
@@ -104,12 +102,12 @@ public class NumericDDMFormFieldTemplateContextContributor
 			"inputMask", inputMask
 		).put(
 			"inputMaskFormat",
-			_getPropertyValue(
+			DDMFormFieldTypeUtil.getPropertyValue(
 				ddmFormField, ddmFormFieldRenderingContext, locale,
 				"inputMaskFormat")
 		).put(
 			"numericInputMask",
-			_getPropertyValue(
+			DDMFormFieldTypeUtil.getPropertyValue(
 				ddmFormField, ddmFormFieldRenderingContext, locale,
 				"numericInputMask")
 		).put(
@@ -169,26 +167,6 @@ public class NumericDDMFormFieldTemplateContextContributor
 		return value;
 	}
 
-	protected Object getPropertyValue(
-		DDMFormField ddmFormField,
-		DDMFormFieldRenderingContext ddmFormFieldRenderingContext,
-		String propertyName) {
-
-		Map<String, Object> changedProperties =
-			(Map<String, Object>)ddmFormFieldRenderingContext.getProperty(
-				"changedProperties");
-
-		if (MapUtil.isNotEmpty(changedProperties)) {
-			Object propertyValue = changedProperties.get(propertyName);
-
-			if (propertyValue != null) {
-				return propertyValue;
-			}
-		}
-
-		return ddmFormField.getProperty(propertyName);
-	}
-
 	protected Map<String, String> getSymbolsMap(Locale locale) {
 		DecimalFormat decimalFormat = NumericDDMFormFieldUtil.getDecimalFormat(
 			locale);
@@ -230,34 +208,6 @@ public class NumericDDMFormFieldTemplateContextContributor
 
 			return new HashMap<>();
 		}
-	}
-
-	private String _getPropertyValue(
-		DDMFormField ddmFormField,
-		DDMFormFieldRenderingContext ddmFormFieldRenderingContext,
-		Locale locale, String propertyName) {
-
-		Map<String, Object> changedProperties =
-			(Map<String, Object>)ddmFormFieldRenderingContext.getProperty(
-				"changedProperties");
-
-		if (MapUtil.isNotEmpty(changedProperties)) {
-			Object changedPropertyValue = changedProperties.get(propertyName);
-
-			if (changedPropertyValue instanceof LocalizedValue) {
-				LocalizedValue localizedValue =
-					(LocalizedValue)changedPropertyValue;
-
-				String propertyValue = localizedValue.getString(locale);
-
-				if (propertyValue != null) {
-					return propertyValue;
-				}
-			}
-		}
-
-		return DDMFormFieldTypeUtil.getPropertyValue(
-			ddmFormField, locale, propertyName);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
