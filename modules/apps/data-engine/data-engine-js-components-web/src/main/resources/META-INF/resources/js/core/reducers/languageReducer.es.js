@@ -16,6 +16,7 @@ import {
 	generateInstanceId,
 	getFieldProperties,
 	localizeField,
+	updateInputMaskProperties,
 } from '../../utils/fieldSupport';
 import {generateName, getRepeatedIndex} from '../../utils/repeatable.es';
 import {PagesVisitor} from '../../utils/visitors.es';
@@ -273,31 +274,10 @@ export default function languageReducer(state, action) {
 							value: previousValue,
 						};
 
-						if (field.numericInputMask) {
-							const visitor = new PagesVisitor(
-								field.settingsContext.pages
-							);
-							let numericInputMask = {};
-							visitor.mapFields((field) => {
-								if (field.fieldName === 'numericInputMask') {
-									numericInputMask =
-										field.localizedValue[editingLanguageId];
-									newField = {
-										...newField,
-										...numericInputMask,
-									};
-								}
-							});
-
-							field.settingsContext.pages = visitor.mapFields(
-								(field) => {
-									return field.fieldName === 'predefinedValue'
-										? {
-												...field,
-												...numericInputMask,
-										  }
-										: field;
-								}
+						if (newField.inputMask) {
+							newField = updateInputMaskProperties(
+								editingLanguageId,
+								newField
 							);
 						}
 
