@@ -450,6 +450,51 @@ export function updateEditorConfigInstanceId(editorConfig, instanceId) {
 	return updatedEditorConfig;
 }
 
+export function updateInputMaskProperties(editingLanguageId, field) {
+	let newField = field;
+
+	let inputMaskFormat = '';
+	let numericInputMask = {};
+
+	const visitor = new PagesVisitor(field.settingsContext.pages);
+
+	visitor.mapFields((field) => {
+		if (field.fieldName === 'inputMaskFormat') {
+			inputMaskFormat = field.localizedValue?.[editingLanguageId];
+		}
+		else if (field.fieldName === 'numericInputMask') {
+			numericInputMask = field.localizedValue?.[editingLanguageId];
+
+			if (typeof numericInputMask === 'string') {
+				numericInputMask = JSON.parse(numericInputMask);
+			}
+		}
+
+		newField = {
+			...newField,
+			...numericInputMask,
+			inputMaskFormat,
+		};
+	});
+
+	newField.settingsContext.pages = visitor.mapFields((field) => {
+		if (
+			field.fieldName === 'predefinedValue' ||
+			field.fieldName === 'validation'
+		) {
+			return {
+				...field,
+				...numericInputMask,
+				inputMaskFormat,
+			};
+		}
+
+		return field;
+	});
+
+	return newField;
+}
+
 export function formatFieldName(instanceId, languageId, value) {
 	return `ddm$$${value}$${instanceId}$0$$${languageId}`;
 }

@@ -24,14 +24,63 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Stream;
 
 /**
  * @author Marcela Cunha
  */
 public class DDMFormFieldTypeUtil {
+
+	public static String getPropertyValue(
+		DDMFormField ddmFormField,
+		DDMFormFieldRenderingContext ddmFormFieldRenderingContext,
+		Locale locale, String propertyName) {
+
+		Map<String, Object> changedProperties =
+			(Map<String, Object>)ddmFormFieldRenderingContext.getProperty(
+				"changedProperties");
+
+		if (MapUtil.isNotEmpty(changedProperties)) {
+			Object changedPropertyValue = changedProperties.get(propertyName);
+
+			if (changedPropertyValue instanceof LocalizedValue) {
+				LocalizedValue localizedValue =
+					(LocalizedValue)changedPropertyValue;
+
+				String propertyValue = localizedValue.getString(locale);
+
+				if (propertyValue != null) {
+					return propertyValue;
+				}
+			}
+		}
+
+		return getPropertyValue(ddmFormField, locale, propertyName);
+	}
+
+	public static Object getPropertyValue(
+		DDMFormField ddmFormField,
+		DDMFormFieldRenderingContext ddmFormFieldRenderingContext,
+		String propertyName) {
+
+		Map<String, Object> changedProperties =
+			(Map<String, Object>)ddmFormFieldRenderingContext.getProperty(
+				"changedProperties");
+
+		if (MapUtil.isNotEmpty(changedProperties)) {
+			Object propertyValue = changedProperties.get(propertyName);
+
+			if (propertyValue != null) {
+				return propertyValue;
+			}
+		}
+
+		return ddmFormField.getProperty(propertyName);
+	}
 
 	public static String getPropertyValue(
 		DDMFormField ddmFormField, Locale locale, String propertyName) {

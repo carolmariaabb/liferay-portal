@@ -402,6 +402,12 @@ definition {
 		SelectWindow(locator1 = "Home - ${siteTemplateName} - ${siteName}");
 	}
 
+	macro openSiteTemplateInEditMode {
+		var templateID = SiteTemplates.getSiteTemplateID(siteTemplateName = "${siteTemplateName}");
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "group/${templateID}?p_l_mode=edit");
+	}
+
 	macro resetPageChanges {
 		WaitForElementPresent(locator1 = "ControlMenu#INFO");
 
