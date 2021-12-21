@@ -17,7 +17,7 @@ import classNames from 'classnames';
 
 // @ts-ignore
 
-import {useFormState} from 'data-engine-js-components-web';
+import {SettingsContext, useFormState} from 'data-engine-js-components-web';
 import React, {ChangeEventHandler, FocusEventHandler, useMemo} from 'react';
 import createNumberMask from 'text-mask-addons/dist/createNumberMask';
 
@@ -166,7 +166,7 @@ const Numeric: React.FC<IProps> = ({
 	id,
 	inputMask,
 	inputMaskFormat,
-	localizedSymbols,
+	localizedSymbols: initialLocalizedSymbols,
 	localizedValue,
 	name,
 	onBlur,
@@ -175,6 +175,7 @@ const Numeric: React.FC<IProps> = ({
 	placeholder,
 	predefinedValue,
 	readOnly,
+	settingsContext,
 	symbols: symbolsProp = {decimalSymbol: '.'},
 	value,
 	...otherProps
@@ -192,8 +193,22 @@ const Numeric: React.FC<IProps> = ({
 			};
 		}
 
+		const localizedSymbols = settingsContext
+			? SettingsContext.getSettingsContextProperty(
+					settingsContext,
+					'predefinedValue',
+					'localizedSymbols'
+			  )
+			: initialLocalizedSymbols;
+
 		return localizedSymbols?.[editingLanguageId] || symbolsProp;
-	}, [editingLanguageId, inputMask, localizedSymbols, symbolsProp]);
+	}, [
+		editingLanguageId,
+		initialLocalizedSymbols,
+		inputMask,
+		settingsContext,
+		symbolsProp,
+	]);
 
 	const inputValue = useMemo<IMaskedNumber>(() => {
 		let newValue =
@@ -378,6 +393,7 @@ interface IProps {
 	placeholder?: string;
 	predefinedValue?: string;
 	readOnly: boolean;
+	settingsContext?: any;
 	symbols: ISymbols;
 	value?: string;
 }
