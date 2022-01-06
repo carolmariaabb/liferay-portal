@@ -74,7 +74,7 @@ public class ObjectFieldSerDes {
 
 			sb.append("\"");
 
-			sb.append(_escape(objectField.getBusinessType()));
+			sb.append(objectField.getBusinessType());
 
 			sb.append("\"");
 		}
@@ -337,7 +337,9 @@ public class ObjectFieldSerDes {
 			}
 			else if (Objects.equals(jsonParserFieldName, "businessType")) {
 				if (jsonParserFieldValue != null) {
-					objectField.setBusinessType((String)jsonParserFieldValue);
+					objectField.setBusinessType(
+						ObjectField.BusinessType.create(
+							(String)jsonParserFieldValue));
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "id")) {

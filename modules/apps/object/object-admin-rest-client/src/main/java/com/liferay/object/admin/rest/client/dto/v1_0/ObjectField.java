@@ -57,16 +57,24 @@ public class ObjectField implements Cloneable, Serializable {
 
 	protected Map<String, Map<String, String>> actions;
 
-	public String getBusinessType() {
+	public BusinessType getBusinessType() {
 		return businessType;
 	}
 
-	public void setBusinessType(String businessType) {
+	public String getBusinessTypeAsString() {
+		if (businessType == null) {
+			return null;
+		}
+
+		return businessType.toString();
+	}
+
+	public void setBusinessType(BusinessType businessType) {
 		this.businessType = businessType;
 	}
 
 	public void setBusinessType(
-		UnsafeSupplier<String, Exception> businessTypeUnsafeSupplier) {
+		UnsafeSupplier<BusinessType, Exception> businessTypeUnsafeSupplier) {
 
 		try {
 			businessType = businessTypeUnsafeSupplier.get();
@@ -76,7 +84,7 @@ public class ObjectField implements Cloneable, Serializable {
 		}
 	}
 
-	protected String businessType;
+	protected BusinessType businessType;
 
 	public Long getId() {
 		return id;
@@ -328,6 +336,42 @@ public class ObjectField implements Cloneable, Serializable {
 
 	public String toString() {
 		return ObjectFieldSerDes.toJSON(this);
+	}
+
+	public static enum BusinessType {
+
+		BOOLEAN("Boolean"), DATE("Date"), DECIMAL("Decimal"),
+		INTEGER("Integer"), LONG_INTEGER("LongInteger"), LONG_TEXT("LongText"),
+		PICKLIST("Picklist"), PRECISION_DECIMAL("PrecisionDecimal"),
+		RELATIONSHIP("Relationship"), TEXT("Text");
+
+		public static BusinessType create(String value) {
+			for (BusinessType businessType : values()) {
+				if (Objects.equals(businessType.getValue(), value) ||
+					Objects.equals(businessType.name(), value)) {
+
+					return businessType;
+				}
+			}
+
+			return null;
+		}
+
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private BusinessType(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
 	}
 
 	public static enum RelationshipType {

@@ -179,7 +179,6 @@ public abstract class BaseObjectFieldResourceTestCase {
 
 		ObjectField objectField = randomObjectField();
 
-		objectField.setBusinessType(regex);
 		objectField.setIndexedLanguageId(regex);
 		objectField.setName(regex);
 
@@ -189,7 +188,6 @@ public abstract class BaseObjectFieldResourceTestCase {
 
 		objectField = ObjectFieldSerDes.toDTO(json);
 
-		Assert.assertEquals(regex, objectField.getBusinessType());
 		Assert.assertEquals(regex, objectField.getIndexedLanguageId());
 		Assert.assertEquals(regex, objectField.getName());
 	}
@@ -1010,11 +1008,8 @@ public abstract class BaseObjectFieldResourceTestCase {
 		}
 
 		if (entityFieldName.equals("businessType")) {
-			sb.append("'");
-			sb.append(String.valueOf(objectField.getBusinessType()));
-			sb.append("'");
-
-			return sb.toString();
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
 		}
 
 		if (entityFieldName.equals("id")) {
@@ -1117,8 +1112,6 @@ public abstract class BaseObjectFieldResourceTestCase {
 	protected ObjectField randomObjectField() throws Exception {
 		return new ObjectField() {
 			{
-				businessType = StringUtil.toLowerCase(
-					RandomTestUtil.randomString());
 				id = RandomTestUtil.randomLong();
 				indexed = RandomTestUtil.randomBoolean();
 				indexedAsKeyword = RandomTestUtil.randomBoolean();

@@ -91,17 +91,27 @@ public class ObjectField implements Serializable {
 	protected Map<String, Map<String, String>> actions;
 
 	@Schema
-	public String getBusinessType() {
+	@Valid
+	public BusinessType getBusinessType() {
 		return businessType;
 	}
 
-	public void setBusinessType(String businessType) {
+	@JsonIgnore
+	public String getBusinessTypeAsString() {
+		if (businessType == null) {
+			return null;
+		}
+
+		return businessType.toString();
+	}
+
+	public void setBusinessType(BusinessType businessType) {
 		this.businessType = businessType;
 	}
 
 	@JsonIgnore
 	public void setBusinessType(
-		UnsafeSupplier<String, Exception> businessTypeUnsafeSupplier) {
+		UnsafeSupplier<BusinessType, Exception> businessTypeUnsafeSupplier) {
 
 		try {
 			businessType = businessTypeUnsafeSupplier.get();
@@ -116,7 +126,7 @@ public class ObjectField implements Serializable {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected String businessType;
+	protected BusinessType businessType;
 
 	@Schema
 	public Long getId() {
@@ -460,7 +470,7 @@ public class ObjectField implements Serializable {
 
 			sb.append("\"");
 
-			sb.append(_escape(businessType));
+			sb.append(businessType);
 
 			sb.append("\"");
 		}
@@ -592,6 +602,47 @@ public class ObjectField implements Serializable {
 		name = "x-class-name"
 	)
 	public String xClassName;
+
+	@GraphQLName("BusinessType")
+	public static enum BusinessType {
+
+		BOOLEAN("Boolean"), DATE("Date"), DECIMAL("Decimal"),
+		INTEGER("Integer"), LONG_INTEGER("LongInteger"), LONG_TEXT("LongText"),
+		PICKLIST("Picklist"), PRECISION_DECIMAL("PrecisionDecimal"),
+		RELATIONSHIP("Relationship"), TEXT("Text");
+
+		@JsonCreator
+		public static BusinessType create(String value) {
+			if ((value == null) || value.equals("")) {
+				return null;
+			}
+
+			for (BusinessType businessType : values()) {
+				if (Objects.equals(businessType.getValue(), value)) {
+					return businessType;
+				}
+			}
+
+			throw new IllegalArgumentException("Invalid enum value: " + value);
+		}
+
+		@JsonValue
+		public String getValue() {
+			return _value;
+		}
+
+		@Override
+		public String toString() {
+			return _value;
+		}
+
+		private BusinessType(String value) {
+			_value = value;
+		}
+
+		private final String _value;
+
+	}
 
 	@GraphQLName("RelationshipType")
 	public static enum RelationshipType {
