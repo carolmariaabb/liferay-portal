@@ -57,6 +57,27 @@ public class ObjectField implements Cloneable, Serializable {
 
 	protected Map<String, Map<String, String>> actions;
 
+	public String getBusinessType() {
+		return businessType;
+	}
+
+	public void setBusinessType(String businessType) {
+		this.businessType = businessType;
+	}
+
+	public void setBusinessType(
+		UnsafeSupplier<String, Exception> businessTypeUnsafeSupplier) {
+
+		try {
+			businessType = businessTypeUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String businessType;
+
 	public Long getId() {
 		return id;
 	}

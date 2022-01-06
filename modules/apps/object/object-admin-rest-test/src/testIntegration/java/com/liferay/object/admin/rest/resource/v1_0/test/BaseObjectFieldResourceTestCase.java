@@ -179,6 +179,7 @@ public abstract class BaseObjectFieldResourceTestCase {
 
 		ObjectField objectField = randomObjectField();
 
+		objectField.setBusinessType(regex);
 		objectField.setIndexedLanguageId(regex);
 		objectField.setName(regex);
 
@@ -188,6 +189,7 @@ public abstract class BaseObjectFieldResourceTestCase {
 
 		objectField = ObjectFieldSerDes.toDTO(json);
 
+		Assert.assertEquals(regex, objectField.getBusinessType());
 		Assert.assertEquals(regex, objectField.getIndexedLanguageId());
 		Assert.assertEquals(regex, objectField.getName());
 	}
@@ -597,6 +599,14 @@ public abstract class BaseObjectFieldResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("businessType", additionalAssertFieldName)) {
+				if (objectField.getBusinessType() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("indexed", additionalAssertFieldName)) {
 				if (objectField.getIndexed() == null) {
 					valid = false;
@@ -769,6 +779,17 @@ public abstract class BaseObjectFieldResourceTestCase {
 				if (!equals(
 						(Map)objectField1.getActions(),
 						(Map)objectField2.getActions())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("businessType", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						objectField1.getBusinessType(),
+						objectField2.getBusinessType())) {
 
 					return false;
 				}
@@ -988,6 +1009,14 @@ public abstract class BaseObjectFieldResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("businessType")) {
+			sb.append("'");
+			sb.append(String.valueOf(objectField.getBusinessType()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
 		if (entityFieldName.equals("id")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -1088,6 +1117,8 @@ public abstract class BaseObjectFieldResourceTestCase {
 	protected ObjectField randomObjectField() throws Exception {
 		return new ObjectField() {
 			{
+				businessType = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 				id = RandomTestUtil.randomLong();
 				indexed = RandomTestUtil.randomBoolean();
 				indexedAsKeyword = RandomTestUtil.randomBoolean();

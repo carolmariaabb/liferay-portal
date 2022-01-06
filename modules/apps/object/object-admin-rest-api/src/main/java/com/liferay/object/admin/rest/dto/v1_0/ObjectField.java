@@ -91,6 +91,34 @@ public class ObjectField implements Serializable {
 	protected Map<String, Map<String, String>> actions;
 
 	@Schema
+	public String getBusinessType() {
+		return businessType;
+	}
+
+	public void setBusinessType(String businessType) {
+		this.businessType = businessType;
+	}
+
+	@JsonIgnore
+	public void setBusinessType(
+		UnsafeSupplier<String, Exception> businessTypeUnsafeSupplier) {
+
+		try {
+			businessType = businessTypeUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String businessType;
+
+	@Schema
 	public Long getId() {
 		return id;
 	}
@@ -421,6 +449,20 @@ public class ObjectField implements Serializable {
 			sb.append("\"actions\": ");
 
 			sb.append(_toJSON(actions));
+		}
+
+		if (businessType != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"businessType\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(businessType));
+
+			sb.append("\"");
 		}
 
 		if (id != null) {
