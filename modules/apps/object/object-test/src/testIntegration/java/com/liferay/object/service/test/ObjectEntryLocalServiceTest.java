@@ -116,8 +116,8 @@ public class ObjectEntryLocalServiceTest {
 				ObjectDefinitionConstants.SCOPE_COMPANY,
 				Arrays.asList(
 					ObjectFieldUtil.createObjectField(
-						RandomTestUtil.randomString(), StringUtil.randomId(),
-						"String")));
+						"Text", "String", RandomTestUtil.randomString(),
+						StringUtil.randomId())));
 
 		_irrelevantObjectDefinition =
 			_objectDefinitionLocalService.publishCustomObjectDefinition(
@@ -155,48 +155,51 @@ public class ObjectEntryLocalServiceTest {
 				ObjectDefinitionConstants.SCOPE_COMPANY,
 				Arrays.asList(
 					ObjectFieldUtil.createObjectField(
-						true, false, null, "Age of Death", "ageOfDeath", false,
-						"Long"),
+						"LongInteger", "Long", true, false, null,
+						"Age of Death", "ageOfDeath", false),
 					ObjectFieldUtil.createObjectField(
-						true, false, null, "Author of Gospel", "authorOfGospel",
-						false, "Boolean"),
+						"Boolean", "Boolean", true, false, null,
+						"Author of Gospel", "authorOfGospel", false),
 					ObjectFieldUtil.createObjectField(
-						true, false, null, "Birthday", "birthday", false,
-						"Date"),
+						"Date", "Date", true, false, null, "Birthday",
+						"birthday", false),
 					ObjectFieldUtil.createObjectField(
-						true, true, null, "Email Address", "emailAddress", true,
-						"String"),
+						"Text", "String", true, true, null, "Email Address",
+						"emailAddress", true),
 					ObjectFieldUtil.createObjectField(
-						true, true, null, "Email Address Domain",
-						"emailAddressDomain", false, "String"),
+						"Text", "String", true, true, null,
+						"Email Address Domain", "emailAddressDomain", false),
 					ObjectFieldUtil.createObjectField(
-						true, false, null, "First Name", "firstName", false,
-						"String"),
+						"Text", "String", true, false, null, "First Name",
+						"firstName", false),
 					ObjectFieldUtil.createObjectField(
-						true, false, null, "Height", "height", false, "Double"),
+						"Decimal", "Double", true, false, null, "Height",
+						"height", false),
 					ObjectFieldUtil.createObjectField(
-						true, false, null, "Last Name", "lastName", false,
-						"String"),
+						"Text", "String", true, false, null, "Last Name",
+						"lastName", false),
 					ObjectFieldUtil.createObjectField(
-						_listTypeDefinition.getListTypeDefinitionId(), null,
-						true, false, null, "List Type Entry Key",
-						"listTypeEntryKey", false, "String"),
+						_listTypeDefinition.getListTypeDefinitionId(), "Text",
+						null, "String", true, false, null,
+						"List Type Entry Key", "listTypeEntryKey", false),
 					ObjectFieldUtil.createObjectField(
-						_listTypeDefinition.getListTypeDefinitionId(), null,
-						true, false, null, "List Type Entry Key Required",
-						"listTypeEntryKeyRequired", true, "String"),
+						_listTypeDefinition.getListTypeDefinitionId(), "Text",
+						null, "String", true, false, null,
+						"List Type Entry Key Required",
+						"listTypeEntryKeyRequired", true),
 					ObjectFieldUtil.createObjectField(
-						true, false, null, "Middle Name", "middleName", false,
-						"String"),
+						"Text", "String", true, false, null, "Middle Name",
+						"middleName", false),
 					ObjectFieldUtil.createObjectField(
-						true, false, null, "Number of Books Written",
-						"numberOfBooksWritten", false, "Integer"),
+						"Integer", "Integer", true, false, null,
+						"Number of Books Written", "numberOfBooksWritten",
+						false),
 					ObjectFieldUtil.createObjectField(
-						false, false, null, "Portrait", "portrait", false,
-						"Blob"),
+						"LongText", "Blob", false, false, null, "Portrait",
+						"portrait", false),
 					ObjectFieldUtil.createObjectField(
-						false, false, null, "Script", "script", false,
-						"Clob")));
+						"LongText", "Clob", false, false, null, "Script",
+						"script", false)));
 
 		_objectDefinition =
 			_objectDefinitionLocalService.publishCustomObjectDefinition(
@@ -217,14 +220,14 @@ public class ObjectEntryLocalServiceTest {
 
 		_objectFieldLocalService.addCustomObjectField(
 			TestPropsValues.getUserId(), 0,
-			_objectDefinition.getObjectDefinitionId(), true, false, null,
-			LocalizedMapUtil.getLocalizedMap("Speed"), "speed", false,
-			"BigDecimal");
+			_objectDefinition.getObjectDefinitionId(), "PrecisionDecimal",
+			"BigDecimal", true, false, null,
+			LocalizedMapUtil.getLocalizedMap("Speed"), "speed", false);
 		_objectFieldLocalService.addCustomObjectField(
 			TestPropsValues.getUserId(), 0,
-			_objectDefinition.getObjectDefinitionId(), true, false, null,
-			LocalizedMapUtil.getLocalizedMap("Weight"), "weight", false,
-			"Double");
+			_objectDefinition.getObjectDefinitionId(), "Decimal", "Double",
+			true, false, null, LocalizedMapUtil.getLocalizedMap("Weight"),
+			"weight", false);
 	}
 
 	@After
@@ -1452,8 +1455,8 @@ public class ObjectEntryLocalServiceTest {
 				scope,
 				Arrays.asList(
 					ObjectFieldUtil.createObjectField(
-						RandomTestUtil.randomString(), StringUtil.randomId(),
-						"String")));
+						"Text", "String", RandomTestUtil.randomString(),
+						StringUtil.randomId())));
 
 		objectDefinition =
 			_objectDefinitionLocalService.publishCustomObjectDefinition(

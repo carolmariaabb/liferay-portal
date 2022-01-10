@@ -32,6 +32,10 @@ public class ObjectFieldUtil {
 
 		ObjectField objectField = new ObjectField() {
 			{
+				businessType = ObjectField.BusinessType.create(
+					serviceBuilderObjectField.getBusinessType());
+				DBType = ObjectField.DBType.create(
+					serviceBuilderObjectField.getDBType());
 				id = serviceBuilderObjectField.getObjectFieldId();
 				indexed = serviceBuilderObjectField.getIndexed();
 				indexedAsKeyword =
@@ -47,7 +51,7 @@ public class ObjectFieldUtil {
 					serviceBuilderObjectField.getRelationshipType());
 				required = serviceBuilderObjectField.isRequired();
 				type = ObjectField.Type.create(
-					serviceBuilderObjectField.getType());
+					serviceBuilderObjectField.getDBType());
 			}
 		};
 
@@ -65,6 +69,9 @@ public class ObjectFieldUtil {
 
 		serviceBuilderObjectField.setListTypeDefinitionId(
 			GetterUtil.getLong(objectField.getListTypeDefinitionId()));
+		serviceBuilderObjectField.setBusinessType(
+			objectField.getBusinessTypeAsString());
+		serviceBuilderObjectField.setDBType(objectField.getDBTypeAsString());
 		serviceBuilderObjectField.setIndexed(
 			GetterUtil.getBoolean(objectField.getIndexed()));
 		serviceBuilderObjectField.setIndexedAsKeyword(
@@ -76,7 +83,6 @@ public class ObjectFieldUtil {
 		serviceBuilderObjectField.setName(objectField.getName());
 		serviceBuilderObjectField.setRequired(
 			GetterUtil.getBoolean(objectField.getRequired()));
-		serviceBuilderObjectField.setType(objectField.getTypeAsString());
 
 		return serviceBuilderObjectField;
 	}

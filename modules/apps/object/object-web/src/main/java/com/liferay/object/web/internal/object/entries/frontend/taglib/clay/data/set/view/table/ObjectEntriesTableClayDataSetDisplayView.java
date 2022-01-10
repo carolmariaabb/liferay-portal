@@ -74,7 +74,7 @@ public class ObjectEntriesTableClayDataSetDisplayView
 
 			ClayTableSchemaField clayTableSchemaField = null;
 
-			if (Objects.equals(objectField.getType(), "Clob")) {
+			if (Objects.equals(objectField.getDBType(), "Clob")) {
 				ClobClayTableSchemaField clobTypeClayTableSchemaField =
 					clayTableSchemaBuilder.addClayTableSchemaField(
 						ClobClayTableSchemaField.class, fieldName,
@@ -84,7 +84,7 @@ public class ObjectEntriesTableClayDataSetDisplayView
 
 				clayTableSchemaField = clobTypeClayTableSchemaField;
 			}
-			else if (Objects.equals(objectField.getType(), "Date")) {
+			else if (Objects.equals(objectField.getDBType(), "Date")) {
 				DateClayTableSchemaField dateClayTableSchemaField =
 					clayTableSchemaBuilder.addClayTableSchemaField(
 						DateClayTableSchemaField.class, fieldName,
@@ -99,7 +99,7 @@ public class ObjectEntriesTableClayDataSetDisplayView
 					clayTableSchemaBuilder.addClayTableSchemaField(
 						fieldName, objectField.getLabel(locale, true));
 
-				if (Objects.equals(objectField.getType(), "Boolean")) {
+				if (Objects.equals(objectField.getDBType(), "Boolean")) {
 					clayTableSchemaField.setContentRenderer("boolean");
 				}
 			}
@@ -107,7 +107,7 @@ public class ObjectEntriesTableClayDataSetDisplayView
 			clayTableSchemaBuilder.addClayTableSchemaField(
 				clayTableSchemaField);
 
-			if (!Objects.equals(objectField.getType(), "Blob") &&
+			if (!Objects.equals(objectField.getDBType(), "Blob") &&
 				objectField.isIndexed()) {
 
 				clayTableSchemaField.setSortable(true);

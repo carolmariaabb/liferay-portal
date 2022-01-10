@@ -589,8 +589,24 @@ public abstract class BaseObjectFieldResourceTestCase {
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
 
+			if (Objects.equals("DBType", additionalAssertFieldName)) {
+				if (objectField.getDBType() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("actions", additionalAssertFieldName)) {
 				if (objectField.getActions() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("businessType", additionalAssertFieldName)) {
+				if (objectField.getBusinessType() == null) {
 					valid = false;
 				}
 
@@ -765,10 +781,31 @@ public abstract class BaseObjectFieldResourceTestCase {
 		for (String additionalAssertFieldName :
 				getAdditionalAssertFieldNames()) {
 
+			if (Objects.equals("DBType", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						objectField1.getDBType(), objectField2.getDBType())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("actions", additionalAssertFieldName)) {
 				if (!equals(
 						(Map)objectField1.getActions(),
 						(Map)objectField2.getActions())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("businessType", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						objectField1.getBusinessType(),
+						objectField2.getBusinessType())) {
 
 					return false;
 				}
@@ -983,7 +1020,17 @@ public abstract class BaseObjectFieldResourceTestCase {
 		sb.append(operator);
 		sb.append(" ");
 
+		if (entityFieldName.equals("DBType")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("actions")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("businessType")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}

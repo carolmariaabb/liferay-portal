@@ -81,8 +81,10 @@
 		<field name="modifiedDate" type="Date" />
 		<field name="listTypeDefinitionId" type="long" />
 		<field name="objectDefinitionId" type="long" />
+		<field name="businessType" type="String" />
 		<field name="DBColumnName" type="String" />
 		<field name="DBTableName" type="String" />
+		<field name="DBType" type="String" />
 		<field name="indexed" type="boolean" />
 		<field name="indexedAsKeyword" type="boolean" />
 		<field name="indexedLanguageId" type="String" />
@@ -90,7 +92,6 @@
 		<field name="name" type="String" />
 		<field name="relationshipType" type="String" />
 		<field name="required" type="boolean" />
-		<field name="type" type="String" />
 	</model>
 	<model name="com.liferay.object.model.ObjectLayout">
 		<field name="mvccVersion" type="long" />

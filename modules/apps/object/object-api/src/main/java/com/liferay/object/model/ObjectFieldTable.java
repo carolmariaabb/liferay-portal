@@ -56,10 +56,14 @@ public class ObjectFieldTable extends BaseTable<ObjectFieldTable> {
 		createColumn(
 			"objectDefinitionId", Long.class, Types.BIGINT,
 			Column.FLAG_DEFAULT);
+	public final Column<ObjectFieldTable, String> businessType = createColumn(
+		"businessType", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<ObjectFieldTable, String> dbColumnName = createColumn(
 		"dbColumnName", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<ObjectFieldTable, String> dbTableName = createColumn(
 		"dbTableName", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
+	public final Column<ObjectFieldTable, String> dbType = createColumn(
+		"dbType", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 	public final Column<ObjectFieldTable, Boolean> indexed = createColumn(
 		"indexed", Boolean.class, Types.BOOLEAN, Column.FLAG_DEFAULT);
 	public final Column<ObjectFieldTable, Boolean> indexedAsKeyword =
@@ -80,8 +84,6 @@ public class ObjectFieldTable extends BaseTable<ObjectFieldTable> {
 			Column.FLAG_DEFAULT);
 	public final Column<ObjectFieldTable, Boolean> required = createColumn(
 		"required", Boolean.class, Types.BOOLEAN, Column.FLAG_DEFAULT);
-	public final Column<ObjectFieldTable, String> type = createColumn(
-		"type_", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
 
 	private ObjectFieldTable() {
 		super("ObjectField", ObjectFieldTable::new);

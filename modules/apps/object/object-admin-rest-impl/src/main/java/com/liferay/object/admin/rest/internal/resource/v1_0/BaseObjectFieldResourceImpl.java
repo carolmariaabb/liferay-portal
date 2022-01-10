@@ -117,7 +117,7 @@ public abstract class BaseObjectFieldResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/object-admin/v1.0/object-definitions/{objectDefinitionId}/object-fields' -d $'{"indexed": ___, "indexedAsKeyword": ___, "indexedLanguageId": ___, "label": ___, "listTypeDefinitionId": ___, "name": ___, "required": ___, "type": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/object-admin/v1.0/object-definitions/{objectDefinitionId}/object-fields' -d $'{"DBType": ___, "businessType": ___, "indexed": ___, "indexedAsKeyword": ___, "indexedLanguageId": ___, "label": ___, "listTypeDefinitionId": ___, "name": ___, "required": ___, "type": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Parameters(
 		value = {
@@ -305,7 +305,7 @@ public abstract class BaseObjectFieldResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PATCH' 'http://localhost:8080/o/object-admin/v1.0/object-fields/{objectFieldId}' -d $'{"indexed": ___, "indexedAsKeyword": ___, "indexedLanguageId": ___, "label": ___, "listTypeDefinitionId": ___, "name": ___, "required": ___, "type": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PATCH' 'http://localhost:8080/o/object-admin/v1.0/object-fields/{objectFieldId}' -d $'{"DBType": ___, "businessType": ___, "indexed": ___, "indexedAsKeyword": ___, "indexedLanguageId": ___, "label": ___, "listTypeDefinitionId": ___, "name": ___, "required": ___, "type": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Parameters(
 		value = {
@@ -333,8 +333,16 @@ public abstract class BaseObjectFieldResourceImpl
 
 		ObjectField existingObjectField = getObjectField(objectFieldId);
 
+		if (objectField.getDBType() != null) {
+			existingObjectField.setDBType(objectField.getDBType());
+		}
+
 		if (objectField.getActions() != null) {
 			existingObjectField.setActions(objectField.getActions());
+		}
+
+		if (objectField.getBusinessType() != null) {
+			existingObjectField.setBusinessType(objectField.getBusinessType());
 		}
 
 		if (objectField.getIndexed() != null) {
@@ -385,7 +393,7 @@ public abstract class BaseObjectFieldResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PUT' 'http://localhost:8080/o/object-admin/v1.0/object-fields/{objectFieldId}' -d $'{"indexed": ___, "indexedAsKeyword": ___, "indexedLanguageId": ___, "label": ___, "listTypeDefinitionId": ___, "name": ___, "required": ___, "type": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PUT' 'http://localhost:8080/o/object-admin/v1.0/object-fields/{objectFieldId}' -d $'{"DBType": ___, "businessType": ___, "indexed": ___, "indexedAsKeyword": ___, "indexedLanguageId": ___, "label": ___, "listTypeDefinitionId": ___, "name": ___, "required": ___, "type": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Parameters(
 		value = {

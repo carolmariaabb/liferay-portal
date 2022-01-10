@@ -102,6 +102,9 @@ components:
             type: object
         ObjectField:
             properties:
+                DBType:
+                    enum: [BigDecimal, Boolean, Clob, Date, Double, Integer, Long, String]
+                    type: string
                 actions:
                     additionalProperties:
                         additionalProperties:
@@ -109,6 +112,9 @@ components:
                         type: object
                     readOnly: true
                     type: object
+                businessType:
+                    enum: [Boolean, Date, Decimal, Integer, LongInteger, LongText, Picklist, PrecisionDecimal, Relationship, Text]
+                    type: string
                 id:
                     format: int64
                     readOnly: true
@@ -135,6 +141,7 @@ components:
                 required:
                     type: boolean
                 type:
+                    deprecated: true
                     enum: [BigDecimal, Boolean, Clob, Date, Double, Integer, Long, String]
                     type: string
         ObjectLayout:
@@ -286,7 +293,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.object.admin.rest.client', and version '1.0.9'."
+        'com.liferay.object.admin.rest.client', and version '1.0.10'."
     license:
         name: "Apache 2.0"
         url: "http://www.apache.org/licenses/LICENSE-2.0.html"

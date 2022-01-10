@@ -78,18 +78,20 @@ public abstract class BaseSystemObjectDefinitionMetadata
 	}
 
 	protected ObjectField createObjectField(
-		String labelKey, String name, boolean required, String type) {
+		String businessType, String dbType, String labelKey, String name,
+		boolean required) {
 
-		return createObjectField(null, labelKey, name, required, type);
+		return createObjectField(
+			businessType, null, dbType, labelKey, name, required);
 	}
 
 	protected ObjectField createObjectField(
-		String dbColumnName, String labelKey, String name, boolean required,
-		String type) {
+		String businessType, String dbColumnName, String dbType,
+		String labelKey, String name, boolean required) {
 
 		return ObjectFieldUtil.createObjectField(
-			0, dbColumnName, false, false, null, _translate(labelKey), name,
-			required, type);
+			0, businessType, dbColumnName, dbType, false, false, null,
+			_translate(labelKey), name, required);
 	}
 
 	@Deactivate

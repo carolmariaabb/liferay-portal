@@ -102,7 +102,7 @@ public class ListTypeDefinitionLocalServiceTest {
 		Assert.assertNotNull(listTypeEntry);
 
 		ObjectField objectField = ObjectFieldUtil.createObjectField(
-			StringUtil.randomId(), "String");
+			"Text", "String", StringUtil.randomId());
 
 		objectField.setListTypeDefinitionId(
 			listTypeDefinition.getListTypeDefinitionId());
