@@ -31,6 +31,12 @@
 	&--layout {
 		height: calc(100vh - 118px);
 	}
+
+	.form-group {
+		.form-text.help-text {
+			margin-top: -1rem;
+		}
+	}
 }
 
 .text-small {

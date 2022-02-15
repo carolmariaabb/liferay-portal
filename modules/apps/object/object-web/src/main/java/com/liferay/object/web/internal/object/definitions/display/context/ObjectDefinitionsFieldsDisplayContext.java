@@ -19,6 +19,8 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.object.field.business.type.ObjectFieldBusinessType;
 import com.liferay.object.field.business.type.ObjectFieldBusinessTypeServicesTracker;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectFieldSetting;
+import com.liferay.object.service.ObjectFieldSettingLocalService;
 import com.liferay.object.web.internal.configuration.activator.FFObjectFieldBusinessTypeConfigurationActivator;
 import com.liferay.object.web.internal.constants.ObjectWebKeys;
 import com.liferay.object.web.internal.display.context.helper.ObjectRequestHelper;
@@ -30,9 +32,11 @@ import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -55,7 +59,8 @@ public class ObjectDefinitionsFieldsDisplayContext {
 		ModelResourcePermission<ObjectDefinition>
 			objectDefinitionModelResourcePermission,
 		ObjectFieldBusinessTypeServicesTracker
-			objectFieldBusinessTypeServicesTracker) {
+			objectFieldBusinessTypeServicesTracker,
+		ObjectFieldSettingLocalService objectFieldSettingLocalService) {
 
 		_ffObjectFieldBusinessTypeConfigurationActivator =
 			ffObjectFieldBusinessTypeConfigurationActivator;
@@ -63,6 +68,7 @@ public class ObjectDefinitionsFieldsDisplayContext {
 			objectDefinitionModelResourcePermission;
 		_objectFieldBusinessTypeServicesTracker =
 			objectFieldBusinessTypeServicesTracker;
+		_objectFieldSettingLocalService = objectFieldSettingLocalService;
 
 		_objectRequestHelper = new ObjectRequestHelper(httpServletRequest);
 	}
@@ -159,6 +165,24 @@ public class ObjectDefinitionsFieldsDisplayContext {
 		return objectFieldBusinessTypeMaps;
 	}
 
+	public Map<String, String> getObjectFieldSettingsMap(long objectFieldId) {
+		List<ObjectFieldSetting> objectFieldSettings =
+			_objectFieldSettingLocalService.getObjectFieldSettings(
+				objectFieldId);
+
+		if (ListUtil.isEmpty(objectFieldSettings)) {
+			return new HashMap<>();
+		}
+
+		Map<String, String> objectFieldSettingsMap = new HashMap<>();
+
+		objectFieldSettings.forEach(
+			objectFieldSetting -> objectFieldSettingsMap.put(
+				objectFieldSetting.getName(), objectFieldSetting.getValue()));
+
+		return objectFieldSettingsMap;
+	}
+
 	public PortletURL getPortletURL() throws PortletException {
 		return PortletURLUtil.clone(
 			PortletURLUtil.getCurrent(
@@ -185,6 +209,8 @@ public class ObjectDefinitionsFieldsDisplayContext {
 		_objectDefinitionModelResourcePermission;
 	private final ObjectFieldBusinessTypeServicesTracker
 		_objectFieldBusinessTypeServicesTracker;
+	private final ObjectFieldSettingLocalService
+		_objectFieldSettingLocalService;
 	private final ObjectRequestHelper _objectRequestHelper;
 
 }

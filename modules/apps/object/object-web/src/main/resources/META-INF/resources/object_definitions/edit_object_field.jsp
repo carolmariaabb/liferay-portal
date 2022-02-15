@@ -53,6 +53,36 @@ ObjectField objectField = (ObjectField)request.getAttribute(ObjectWebKeys.OBJECT
 
 					</aui:select>
 
+					<div id="<portlet:namespace />objectFieldSettings">
+
+						<%
+						Map<String, String> objectFieldSettingsMap = objectDefinitionsFieldsDisplayContext.getObjectFieldSettingsMap(objectField.getObjectFieldId());
+						%>
+
+						<div id="<portlet:namespace />attachmentSettings" style="display: <%= Objects.equals(objectField.getBusinessType(), "Attachment") ? "block;" : "none;" %>">
+							<aui:select disabled="<%= true %>" label="request-files" name="fileSource" required="<%= true %>">
+								<aui:option label="directly-from-the-users-computer" selected='<%= Objects.equals(objectFieldSettingsMap.get("fileSource"), "userComputer") %>' value="userComputer" />
+								<aui:option label="through-documents-and-media-item-selector" selected='<%= Objects.equals(objectFieldSettingsMap.get("fileSource"), "documentsAndMedia") %>' value="documentsAndMedia" />
+							</aui:select>
+
+							<div class="form-group">
+								<aui:input disabled="<%= !objectDefinitionsFieldsDisplayContext.hasUpdateObjectDefinitionPermission() %>" label="accepted-file-extensions" name="acceptedFileExtensions" required="<%= true %>" type="textarea" value='<%= GetterUtil.getString(objectFieldSettingsMap.get("acceptedFileExtensions"), "jpeg, jpg, pdf, png") %>' />
+
+								<span class="form-text help-text">
+									<%= LanguageUtil.get(request, "object-field-setting-help-text-accepted-file-extensions") %>
+								</span>
+							</div>
+
+							<div class="form-group">
+								<aui:input disabled="<%= !objectDefinitionsFieldsDisplayContext.hasUpdateObjectDefinitionPermission() %>" label="maximum-file-size" min="0" name="maximumFileSize" required="<%= true %>" type="number" value='<%= GetterUtil.getInteger(objectFieldSettingsMap.get("maximumFileSize"), 100) %>' />
+
+								<span class="form-text help-text">
+									<%= LanguageUtil.get(request, "object-field-setting-help-text-maximum-file-size") %>
+								</span>
+							</div>
+						</div>
+					</div>
+
 					<aui:field-wrapper cssClass="form-group lfr-input-text-container">
 						<aui:input disabled="<%= objectDefinition.isApproved() || !objectDefinitionsFieldsDisplayContext.hasUpdateObjectDefinitionPermission() || Validator.isNotNull(objectField.getRelationshipType()) %>" inlineLabel="right" label='<%= LanguageUtil.get(request, "mandatory") %>' labelCssClass="simple-toggle-switch" name="required" type="toggle-switch" value="<%= objectField.getRequired() %>" />
 					</aui:field-wrapper>

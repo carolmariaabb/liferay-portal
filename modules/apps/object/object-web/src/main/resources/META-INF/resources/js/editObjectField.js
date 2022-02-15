@@ -14,7 +14,41 @@
 
 import {ERRORS} from './utils/errors';
 
+const getAttachmentSettings = (iframeDocument, namespace, objectFieldId) => {
+	const acceptedFileExtensions = iframeDocument.getElementById(
+		`${namespace}acceptedFileExtensions`
+	);
+	const fileSource = iframeDocument.getElementById(`${namespace}fileSource`);
+	const maximumFileSize = iframeDocument.getElementById(
+		`${namespace}maximumFileSize`
+	);
+
+	return [
+		{
+			name: 'acceptedFileExtensions',
+			objectFieldId,
+			required: true,
+			value: acceptedFileExtensions.value,
+		},
+		{
+			name: 'fileSource',
+			objectFieldId,
+			required: true,
+			value: fileSource.value,
+		},
+		{
+			name: 'maximumFileSize',
+			objectFieldId,
+			required: true,
+			value: maximumFileSize.value,
+		},
+	];
+};
+
 const onChangeFieldType = (iframeDocument, event, namespace) => {
+	const attachmentSettings = iframeDocument.getElementById(
+		`${namespace}attachmentSettings`
+	);
 	const searchableContainer = iframeDocument.getElementById(
 		`${namespace}searchableContainer`
 	);
@@ -23,6 +57,8 @@ const onChangeFieldType = (iframeDocument, event, namespace) => {
 	);
 	const indexed = iframeDocument.getElementById(`${namespace}indexed`).value;
 
+	attachmentSettings.style.display =
+		event.target.value === 'Attachment' ? 'block' : 'none';
 	indexedGroup.style.display =
 		indexed && event.target.value === 'String' ? 'block' : 'none';
 	searchableContainer.style.display =
@@ -111,6 +147,14 @@ const saveObjectField = (
 			label: localizedLabels,
 			listTypeDefinitionId: 0,
 			name,
+			objectFieldSettings:
+				businessType === 'Attachment'
+					? getAttachmentSettings(
+							iframeDocument,
+							namespace,
+							objectFieldId
+					  )
+					: [],
 			required,
 		}),
 		headers: new Headers({
