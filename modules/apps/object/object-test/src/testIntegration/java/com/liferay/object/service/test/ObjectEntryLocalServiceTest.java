@@ -118,7 +118,7 @@ public class ObjectEntryLocalServiceTest {
 				ObjectDefinitionConstants.SCOPE_COMPANY,
 				Arrays.asList(
 					ObjectFieldUtil.createObjectField(
-						"Text", "String", RandomTestUtil.randomString(),
+						"Text2", "String", RandomTestUtil.randomString(),
 						StringUtil.randomId())));
 
 		_irrelevantObjectDefinition =
