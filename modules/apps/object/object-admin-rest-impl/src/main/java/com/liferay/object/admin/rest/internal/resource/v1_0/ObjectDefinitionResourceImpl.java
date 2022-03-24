@@ -115,6 +115,7 @@ public class ObjectDefinitionResourceImpl
 			searchContext -> {
 				searchContext.addVulcanAggregation(aggregation);
 				searchContext.setAttribute(Field.NAME, search);
+				searchContext.setAttribute("label", search);
 				searchContext.setCompanyId(contextCompany.getCompanyId());
 			},
 			sorts,
