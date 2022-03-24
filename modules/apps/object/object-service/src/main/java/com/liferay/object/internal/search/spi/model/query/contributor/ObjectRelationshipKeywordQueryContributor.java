@@ -14,15 +14,10 @@
 
 package com.liferay.object.internal.search.spi.model.query.contributor;
 
-import com.liferay.portal.kernel.exception.SystemException;
-import com.liferay.portal.kernel.search.BooleanClauseOccur;
+import com.liferay.object.internal.search.spi.model.query.contributor.util.ObjectQueryContributorUtil;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Field;
-import com.liferay.portal.kernel.search.ParseException;
 import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.search.generic.MatchQuery;
-import com.liferay.portal.kernel.util.GetterUtil;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.query.QueryHelper;
 import com.liferay.portal.search.spi.model.query.contributor.KeywordQueryContributor;
 import com.liferay.portal.search.spi.model.query.contributor.helper.KeywordQueryContributorHelper;
@@ -54,39 +49,8 @@ public class ObjectRelationshipKeywordQueryContributor
 		_queryHelper.addSearchTerm(
 			booleanQuery, searchContext, Field.NAME, false);
 
-		_addMatchQuery(booleanQuery, "label", searchContext);
-	}
-
-	private void _addMatchQuery(
-		BooleanQuery booleanQuery, String fieldName,
-		SearchContext searchContext) {
-
-		String fieldValue = GetterUtil.getString(
-			searchContext.getAttribute(fieldName));
-
-		if (Validator.isNull(fieldValue)) {
-			return;
-		}
-
-		try {
-			booleanQuery.add(
-				_getMatchQuery(
-					Field.getLocalizedName(
-						searchContext.getLanguageId(), fieldName),
-					fieldValue),
-				BooleanClauseOccur.SHOULD);
-		}
-		catch (ParseException parseException) {
-			throw new SystemException(parseException);
-		}
-	}
-
-	private MatchQuery _getMatchQuery(String fieldName, String fieldValue) {
-		MatchQuery matchQuery = new MatchQuery(fieldName, fieldValue);
-
-		matchQuery.setType(MatchQuery.Type.PHRASE_PREFIX);
-
-		return matchQuery;
+		ObjectQueryContributorUtil.addMatchQuery(
+			booleanQuery, "label", true, searchContext);
 	}
 
 	@Reference
