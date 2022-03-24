@@ -87,6 +87,7 @@ public class ObjectRelationshipResourceImpl
 				Field.ENTRY_CLASS_PK),
 			searchContext -> {
 				searchContext.setAttribute(Field.NAME, search);
+				searchContext.setAttribute("label", search);
 				searchContext.setAttribute(
 					"objectDefinitionId", objectDefinitionId);
 				searchContext.setCompanyId(contextCompany.getCompanyId());
