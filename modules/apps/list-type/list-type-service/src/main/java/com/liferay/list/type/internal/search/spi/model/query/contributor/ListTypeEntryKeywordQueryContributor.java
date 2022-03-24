@@ -14,10 +14,14 @@
 
 package com.liferay.list.type.internal.search.spi.model.query.contributor;
 
+import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.ParseException;
 import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.search.generic.MatchQuery;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.query.QueryHelper;
 import com.liferay.portal.search.spi.model.query.contributor.KeywordQueryContributor;
@@ -42,41 +46,44 @@ public class ListTypeEntryKeywordQueryContributor
 		String keywords, BooleanQuery booleanQuery,
 		KeywordQueryContributorHelper keywordQueryContributorHelper) {
 
-		_addSearchLocalizedTerm(
-			booleanQuery, keywordQueryContributorHelper.getSearchContext(),
-			Field.NAME);
-		_addSearchTerm(
-			booleanQuery, keywordQueryContributorHelper.getSearchContext(),
-			"key");
+		SearchContext searchContext =
+			keywordQueryContributorHelper.getSearchContext();
+
+		_addMatchQuery(booleanQuery, Field.NAME, searchContext);
+
+		_queryHelper.addSearchTerm(booleanQuery, searchContext, "key", false);
 	}
 
-	private void _addSearchLocalizedTerm(
-		BooleanQuery booleanQuery, SearchContext searchContext,
-		String fieldName) {
+	private void _addMatchQuery(
+		BooleanQuery booleanQuery, String fieldName,
+		SearchContext searchContext) {
 
-		if (Validator.isNull(searchContext.getAttribute(fieldName))) {
-			return;
-		}
-
-		searchContext.setAttribute(
-			LocalizationUtil.getLocalizedName(
-				fieldName, searchContext.getLanguageId()),
+		String fieldValue = GetterUtil.getString(
 			searchContext.getAttribute(fieldName));
 
-		_queryHelper.addSearchLocalizedTerm(
-			booleanQuery, searchContext, fieldName, false);
-	}
-
-	private void _addSearchTerm(
-		BooleanQuery booleanQuery, SearchContext searchContext,
-		String fieldName) {
-
-		if (Validator.isNull(searchContext.getAttribute(fieldName))) {
+		if (Validator.isNull(fieldValue)) {
 			return;
 		}
 
-		_queryHelper.addSearchTerm(
-			booleanQuery, searchContext, fieldName, false);
+		try {
+			booleanQuery.add(
+				_getMatchQuery(
+					Field.getLocalizedName(
+						searchContext.getLanguageId(), fieldName),
+					fieldValue),
+				BooleanClauseOccur.SHOULD);
+		}
+		catch (ParseException parseException) {
+			throw new SystemException(parseException);
+		}
+	}
+
+	private MatchQuery _getMatchQuery(String fieldName, String fieldValue) {
+		MatchQuery matchQuery = new MatchQuery(fieldName, fieldValue);
+
+		matchQuery.setType(MatchQuery.Type.PHRASE_PREFIX);
+
+		return matchQuery;
 	}
 
 	@Reference
