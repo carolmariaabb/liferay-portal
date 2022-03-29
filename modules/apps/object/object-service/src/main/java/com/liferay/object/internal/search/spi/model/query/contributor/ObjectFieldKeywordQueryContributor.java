@@ -14,6 +14,7 @@
 
 package com.liferay.object.internal.search.spi.model.query.contributor;
 
+import com.liferay.object.internal.search.spi.model.query.contributor.util.ObjectQueryContributorUtil;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.SearchContext;
@@ -47,8 +48,9 @@ public class ObjectFieldKeywordQueryContributor
 			booleanQuery, searchContext, Field.ENTRY_CLASS_PK, false);
 		_queryHelper.addSearchTerm(
 			booleanQuery, searchContext, Field.NAME, false);
-		_queryHelper.addSearchLocalizedTerm(
-			booleanQuery, searchContext, "label", false);
+
+		ObjectQueryContributorUtil.addMatchQuery(
+			booleanQuery, "label", true, searchContext);
 	}
 
 	@Reference

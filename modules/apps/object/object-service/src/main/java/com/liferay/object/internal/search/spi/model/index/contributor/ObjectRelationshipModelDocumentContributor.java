@@ -37,6 +37,7 @@ public class ObjectRelationshipModelDocumentContributor
 		Document document, ObjectRelationship objectRelationship) {
 
 		document.addText(Field.NAME, objectRelationship.getName());
+		document.addLocalizedText("label", objectRelationship.getLabelMap());
 		document.addKeyword(
 			"objectDefinitionId", objectRelationship.getObjectDefinitionId1());
 		document.remove(Field.USER_NAME);

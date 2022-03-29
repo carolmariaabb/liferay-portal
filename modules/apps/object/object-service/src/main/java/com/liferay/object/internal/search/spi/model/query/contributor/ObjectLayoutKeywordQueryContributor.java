@@ -14,11 +14,9 @@
 
 package com.liferay.object.internal.search.spi.model.query.contributor;
 
+import com.liferay.object.internal.search.spi.model.query.contributor.util.ObjectQueryContributorUtil;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Field;
-import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.util.LocalizationUtil;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.query.QueryHelper;
 import com.liferay.portal.search.spi.model.query.contributor.KeywordQueryContributor;
 import com.liferay.portal.search.spi.model.query.contributor.helper.KeywordQueryContributorHelper;
@@ -42,21 +40,9 @@ public class ObjectLayoutKeywordQueryContributor
 		String keywords, BooleanQuery booleanQuery,
 		KeywordQueryContributorHelper keywordQueryContributorHelper) {
 
-		SearchContext searchContext =
-			keywordQueryContributorHelper.getSearchContext();
-
-		if (Validator.isNull(searchContext.getAttribute(Field.NAME))) {
-			return;
-		}
-
-		searchContext.setAttribute(
-			LocalizationUtil.getLocalizedName(
-				Field.NAME, searchContext.getLanguageId()),
-			searchContext.getAttribute(Field.NAME));
-
-		_queryHelper.addSearchLocalizedTerm(
-			booleanQuery, keywordQueryContributorHelper.getSearchContext(),
-			Field.NAME, false);
+		ObjectQueryContributorUtil.addMatchQuery(
+			booleanQuery, Field.NAME, true,
+			keywordQueryContributorHelper.getSearchContext());
 	}
 
 	@Reference

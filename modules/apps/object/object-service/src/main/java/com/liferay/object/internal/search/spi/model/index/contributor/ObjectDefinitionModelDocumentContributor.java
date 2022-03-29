@@ -37,6 +37,7 @@ public class ObjectDefinitionModelDocumentContributor
 		Document document, ObjectDefinition objectDefinition) {
 
 		document.addText(Field.NAME, objectDefinition.getShortName());
+		document.addLocalizedText("label", objectDefinition.getLabelMap());
 		document.remove(Field.USER_NAME);
 	}
 

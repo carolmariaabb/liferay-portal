@@ -14,11 +14,10 @@
 
 package com.liferay.list.type.internal.search.spi.model.query.contributor;
 
+import com.liferay.list.type.internal.search.spi.model.query.contributor.util.ListTypeQueryContributorUtil;
 import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.SearchContext;
-import com.liferay.portal.kernel.util.LocalizationUtil;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.query.QueryHelper;
 import com.liferay.portal.search.spi.model.query.contributor.KeywordQueryContributor;
 import com.liferay.portal.search.spi.model.query.contributor.helper.KeywordQueryContributorHelper;
@@ -42,41 +41,13 @@ public class ListTypeEntryKeywordQueryContributor
 		String keywords, BooleanQuery booleanQuery,
 		KeywordQueryContributorHelper keywordQueryContributorHelper) {
 
-		_addSearchLocalizedTerm(
-			booleanQuery, keywordQueryContributorHelper.getSearchContext(),
-			Field.NAME);
-		_addSearchTerm(
-			booleanQuery, keywordQueryContributorHelper.getSearchContext(),
-			"key");
-	}
+		SearchContext searchContext =
+			keywordQueryContributorHelper.getSearchContext();
 
-	private void _addSearchLocalizedTerm(
-		BooleanQuery booleanQuery, SearchContext searchContext,
-		String fieldName) {
+		ListTypeQueryContributorUtil.addMatchQuery(
+			booleanQuery, Field.NAME, searchContext);
 
-		if (Validator.isNull(searchContext.getAttribute(fieldName))) {
-			return;
-		}
-
-		searchContext.setAttribute(
-			LocalizationUtil.getLocalizedName(
-				fieldName, searchContext.getLanguageId()),
-			searchContext.getAttribute(fieldName));
-
-		_queryHelper.addSearchLocalizedTerm(
-			booleanQuery, searchContext, fieldName, false);
-	}
-
-	private void _addSearchTerm(
-		BooleanQuery booleanQuery, SearchContext searchContext,
-		String fieldName) {
-
-		if (Validator.isNull(searchContext.getAttribute(fieldName))) {
-			return;
-		}
-
-		_queryHelper.addSearchTerm(
-			booleanQuery, searchContext, fieldName, false);
+		_queryHelper.addSearchTerm(booleanQuery, searchContext, "key", false);
 	}
 
 	@Reference
