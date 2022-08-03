@@ -43,7 +43,6 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONDeserializer;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -66,7 +65,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
@@ -768,23 +766,18 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 			}
 		}
 
-		Map<String, Object> map = new TreeMap<>();
-
-		JSONDeserializer<Object> jsonDeserializer =
-			_jsonFactory.createJSONDeserializer();
+		JSONObject jsonObject = _jsonFactory.createJSONObject();
 
 		for (DDMFieldAttributeInfo ddmFieldAttributeInfo :
 				ddmFieldAttributeInfos) {
 
-			map.put(
+			jsonObject.put(
 				ddmFieldAttributeInfo._attributeName,
-				jsonDeserializer.deserialize(
+				_jsonFactory.looseDeserialize(
 					ddmFieldAttributeInfo._attributeValue));
 		}
 
-		JSONSerializer jsonSerializer = _jsonFactory.createJSONSerializer();
-
-		return jsonSerializer.serialize(map);
+		return jsonObject.toString();
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
