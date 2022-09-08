@@ -193,7 +193,26 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectDefinition(objectDefinitionId: ___){accountEntryRestricted, accountEntryRestrictedObjectFieldId, actions, active, dateCreated, dateModified, enableCategorization, enableComments, id, label, name, objectActions, objectFields, objectLayouts, objectRelationships, objectViews, panelAppOrder, panelCategoryKey, parameterRequired, pluralLabel, portlet, scope, status, storageType, system, titleObjectFieldId}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectDefinitionByExternalReferenceCode(externalReferenceCode: ___){accountEntryRestricted, accountEntryRestrictedObjectFieldId, actions, active, dateCreated, dateModified, enableCategorization, enableComments, externalReferenceCode, id, label, name, objectActions, objectFields, objectLayouts, objectRelationships, objectViews, panelAppOrder, panelCategoryKey, parameterRequired, pluralLabel, portlet, scope, status, storageType, system, titleObjectFieldId, titleObjectFieldName}}"}' -u 'test@liferay.com:test'
+	 */
+	@GraphQLField
+	public ObjectDefinition objectDefinitionByExternalReferenceCode(
+			@GraphQLName("externalReferenceCode") String externalReferenceCode)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectDefinitionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectDefinitionResource ->
+				objectDefinitionResource.
+					getObjectDefinitionByExternalReferenceCode(
+						externalReferenceCode));
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectDefinition(objectDefinitionId: ___){accountEntryRestricted, accountEntryRestrictedObjectFieldId, actions, active, dateCreated, dateModified, enableCategorization, enableComments, externalReferenceCode, id, label, name, objectActions, objectFields, objectLayouts, objectRelationships, objectViews, panelAppOrder, panelCategoryKey, parameterRequired, pluralLabel, portlet, scope, status, storageType, system, titleObjectFieldId, titleObjectFieldName}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public ObjectDefinition objectDefinition(
@@ -319,7 +338,7 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectRelationship(objectRelationshipId: ___){actions, deletionType, id, label, name, objectDefinitionId1, objectDefinitionId2, objectDefinitionName2, parameterObjectFieldId, reverse, type}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {objectRelationship(objectRelationshipId: ___){actions, deletionType, id, label, name, objectDefinitionExternalReferenceCode2, objectDefinitionId1, objectDefinitionId2, objectDefinitionName2, parameterObjectFieldId, reverse, type}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public ObjectRelationship objectRelationship(

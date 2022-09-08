@@ -82,7 +82,7 @@ public class ObjectLayoutColumn implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected Long id;
 
-	@Schema
+	@Schema(deprecated = true)
 	public Long getObjectFieldId() {
 		return objectFieldId;
 	}
@@ -106,9 +106,38 @@ public class ObjectLayoutColumn implements Serializable {
 		}
 	}
 
+	@Deprecated
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Long objectFieldId;
+
+	@Schema
+	public String getObjectFieldName() {
+		return objectFieldName;
+	}
+
+	public void setObjectFieldName(String objectFieldName) {
+		this.objectFieldName = objectFieldName;
+	}
+
+	@JsonIgnore
+	public void setObjectFieldName(
+		UnsafeSupplier<String, Exception> objectFieldNameUnsafeSupplier) {
+
+		try {
+			objectFieldName = objectFieldNameUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String objectFieldName;
 
 	@Schema
 	public Integer getPriority() {
@@ -209,6 +238,20 @@ public class ObjectLayoutColumn implements Serializable {
 			sb.append("\"objectFieldId\": ");
 
 			sb.append(objectFieldId);
+		}
+
+		if (objectFieldName != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"objectFieldName\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(objectFieldName));
+
+			sb.append("\"");
 		}
 
 		if (priority != null) {

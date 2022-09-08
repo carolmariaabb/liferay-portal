@@ -187,11 +187,13 @@ public abstract class BaseObjectDefinitionResourceTestCase {
 
 		ObjectDefinition objectDefinition = randomObjectDefinition();
 
+		objectDefinition.setExternalReferenceCode(regex);
 		objectDefinition.setName(regex);
 		objectDefinition.setPanelAppOrder(regex);
 		objectDefinition.setPanelCategoryKey(regex);
 		objectDefinition.setScope(regex);
 		objectDefinition.setStorageType(regex);
+		objectDefinition.setTitleObjectFieldName(regex);
 
 		String json = ObjectDefinitionSerDes.toJSON(objectDefinition);
 
@@ -199,11 +201,13 @@ public abstract class BaseObjectDefinitionResourceTestCase {
 
 		objectDefinition = ObjectDefinitionSerDes.toDTO(json);
 
+		Assert.assertEquals(regex, objectDefinition.getExternalReferenceCode());
 		Assert.assertEquals(regex, objectDefinition.getName());
 		Assert.assertEquals(regex, objectDefinition.getPanelAppOrder());
 		Assert.assertEquals(regex, objectDefinition.getPanelCategoryKey());
 		Assert.assertEquals(regex, objectDefinition.getScope());
 		Assert.assertEquals(regex, objectDefinition.getStorageType());
+		Assert.assertEquals(regex, objectDefinition.getTitleObjectFieldName());
 	}
 
 	@Test
@@ -605,6 +609,152 @@ public abstract class BaseObjectDefinitionResourceTestCase {
 	}
 
 	@Test
+	public void testGetObjectDefinitionByExternalReferenceCode()
+		throws Exception {
+
+		ObjectDefinition postObjectDefinition =
+			testGetObjectDefinitionByExternalReferenceCode_addObjectDefinition();
+
+		ObjectDefinition getObjectDefinition =
+			objectDefinitionResource.getObjectDefinitionByExternalReferenceCode(
+				postObjectDefinition.getExternalReferenceCode());
+
+		assertEquals(postObjectDefinition, getObjectDefinition);
+		assertValid(getObjectDefinition);
+	}
+
+	protected ObjectDefinition
+			testGetObjectDefinitionByExternalReferenceCode_addObjectDefinition()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testGraphQLGetObjectDefinitionByExternalReferenceCode()
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			testGraphQLGetObjectDefinitionByExternalReferenceCode_addObjectDefinition();
+
+		Assert.assertTrue(
+			equals(
+				objectDefinition,
+				ObjectDefinitionSerDes.toDTO(
+					JSONUtil.getValueAsString(
+						invokeGraphQLQuery(
+							new GraphQLField(
+								"objectDefinitionByExternalReferenceCode",
+								new HashMap<String, Object>() {
+									{
+										put(
+											"externalReferenceCode",
+											"\"" +
+												objectDefinition.
+													getExternalReferenceCode() +
+														"\"");
+									}
+								},
+								getGraphQLFields())),
+						"JSONObject/data",
+						"Object/objectDefinitionByExternalReferenceCode"))));
+	}
+
+	@Test
+	public void testGraphQLGetObjectDefinitionByExternalReferenceCodeNotFound()
+		throws Exception {
+
+		String irrelevantExternalReferenceCode =
+			"\"" + RandomTestUtil.randomString() + "\"";
+
+		Assert.assertEquals(
+			"Not Found",
+			JSONUtil.getValueAsString(
+				invokeGraphQLQuery(
+					new GraphQLField(
+						"objectDefinitionByExternalReferenceCode",
+						new HashMap<String, Object>() {
+							{
+								put(
+									"externalReferenceCode",
+									irrelevantExternalReferenceCode);
+							}
+						},
+						getGraphQLFields())),
+				"JSONArray/errors", "Object/0", "JSONObject/extensions",
+				"Object/code"));
+	}
+
+	protected ObjectDefinition
+			testGraphQLGetObjectDefinitionByExternalReferenceCode_addObjectDefinition()
+		throws Exception {
+
+		return testGraphQLObjectDefinition_addObjectDefinition();
+	}
+
+	@Test
+	public void testPutObjectDefinitionByExternalReferenceCode()
+		throws Exception {
+
+		ObjectDefinition postObjectDefinition =
+			testPutObjectDefinitionByExternalReferenceCode_addObjectDefinition();
+
+		ObjectDefinition randomObjectDefinition = randomObjectDefinition();
+
+		ObjectDefinition putObjectDefinition =
+			objectDefinitionResource.putObjectDefinitionByExternalReferenceCode(
+				postObjectDefinition.getExternalReferenceCode(),
+				randomObjectDefinition);
+
+		assertEquals(randomObjectDefinition, putObjectDefinition);
+		assertValid(putObjectDefinition);
+
+		ObjectDefinition getObjectDefinition =
+			objectDefinitionResource.getObjectDefinitionByExternalReferenceCode(
+				putObjectDefinition.getExternalReferenceCode());
+
+		assertEquals(randomObjectDefinition, getObjectDefinition);
+		assertValid(getObjectDefinition);
+
+		ObjectDefinition newObjectDefinition =
+			testPutObjectDefinitionByExternalReferenceCode_createObjectDefinition();
+
+		putObjectDefinition =
+			objectDefinitionResource.putObjectDefinitionByExternalReferenceCode(
+				newObjectDefinition.getExternalReferenceCode(),
+				newObjectDefinition);
+
+		assertEquals(newObjectDefinition, putObjectDefinition);
+		assertValid(putObjectDefinition);
+
+		getObjectDefinition =
+			objectDefinitionResource.getObjectDefinitionByExternalReferenceCode(
+				putObjectDefinition.getExternalReferenceCode());
+
+		assertEquals(newObjectDefinition, getObjectDefinition);
+
+		Assert.assertEquals(
+			newObjectDefinition.getExternalReferenceCode(),
+			putObjectDefinition.getExternalReferenceCode());
+	}
+
+	protected ObjectDefinition
+			testPutObjectDefinitionByExternalReferenceCode_createObjectDefinition()
+		throws Exception {
+
+		return randomObjectDefinition();
+	}
+
+	protected ObjectDefinition
+			testPutObjectDefinitionByExternalReferenceCode_addObjectDefinition()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
 	public void testDeleteObjectDefinition() throws Exception {
 		@SuppressWarnings("PMD.UnusedLocalVariable")
 		ObjectDefinition objectDefinition =
@@ -994,6 +1144,16 @@ public abstract class BaseObjectDefinitionResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals(
+					"externalReferenceCode", additionalAssertFieldName)) {
+
+				if (objectDefinition.getExternalReferenceCode() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("label", additionalAssertFieldName)) {
 				if (objectDefinition.getLabel() == null) {
 					valid = false;
@@ -1130,6 +1290,16 @@ public abstract class BaseObjectDefinitionResourceTestCase {
 					"titleObjectFieldId", additionalAssertFieldName)) {
 
 				if (objectDefinition.getTitleObjectFieldId() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"titleObjectFieldName", additionalAssertFieldName)) {
+
+				if (objectDefinition.getTitleObjectFieldName() == null) {
 					valid = false;
 				}
 
@@ -1321,6 +1491,19 @@ public abstract class BaseObjectDefinitionResourceTestCase {
 				if (!Objects.deepEquals(
 						objectDefinition1.getEnableComments(),
 						objectDefinition2.getEnableComments())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"externalReferenceCode", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						objectDefinition1.getExternalReferenceCode(),
+						objectDefinition2.getExternalReferenceCode())) {
 
 					return false;
 				}
@@ -1531,6 +1714,19 @@ public abstract class BaseObjectDefinitionResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals(
+					"titleObjectFieldName", additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						objectDefinition1.getTitleObjectFieldName(),
+						objectDefinition2.getTitleObjectFieldName())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			throw new IllegalArgumentException(
 				"Invalid additional assert field name " +
 					additionalAssertFieldName);
@@ -1727,6 +1923,15 @@ public abstract class BaseObjectDefinitionResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("externalReferenceCode")) {
+			sb.append("'");
+			sb.append(
+				String.valueOf(objectDefinition.getExternalReferenceCode()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
 		if (entityFieldName.equals("id")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
@@ -1832,6 +2037,15 @@ public abstract class BaseObjectDefinitionResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("titleObjectFieldName")) {
+			sb.append("'");
+			sb.append(
+				String.valueOf(objectDefinition.getTitleObjectFieldName()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
 		throw new IllegalArgumentException(
 			"Invalid entity field " + entityFieldName);
 	}
@@ -1884,6 +2098,8 @@ public abstract class BaseObjectDefinitionResourceTestCase {
 				dateModified = RandomTestUtil.nextDate();
 				enableCategorization = RandomTestUtil.randomBoolean();
 				enableComments = RandomTestUtil.randomBoolean();
+				externalReferenceCode = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 				id = RandomTestUtil.randomLong();
 				name = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				panelAppOrder = StringUtil.toLowerCase(
@@ -1897,6 +2113,8 @@ public abstract class BaseObjectDefinitionResourceTestCase {
 					RandomTestUtil.randomString());
 				system = RandomTestUtil.randomBoolean();
 				titleObjectFieldId = RandomTestUtil.randomLong();
+				titleObjectFieldName = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 			}
 		};
 	}

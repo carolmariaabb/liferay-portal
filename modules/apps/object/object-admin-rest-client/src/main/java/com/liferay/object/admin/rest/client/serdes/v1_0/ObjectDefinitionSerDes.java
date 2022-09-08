@@ -160,6 +160,20 @@ public class ObjectDefinitionSerDes {
 			sb.append(objectDefinition.getEnableComments());
 		}
 
+		if (objectDefinition.getExternalReferenceCode() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"externalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(objectDefinition.getExternalReferenceCode()));
+
+			sb.append("\"");
+		}
+
 		if (objectDefinition.getId() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -425,6 +439,20 @@ public class ObjectDefinitionSerDes {
 			sb.append(objectDefinition.getTitleObjectFieldId());
 		}
 
+		if (objectDefinition.getTitleObjectFieldName() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"titleObjectFieldName\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(objectDefinition.getTitleObjectFieldName()));
+
+			sb.append("\"");
+		}
+
 		sb.append("}");
 
 		return sb.toString();
@@ -516,6 +544,15 @@ public class ObjectDefinitionSerDes {
 			map.put(
 				"enableComments",
 				String.valueOf(objectDefinition.getEnableComments()));
+		}
+
+		if (objectDefinition.getExternalReferenceCode() == null) {
+			map.put("externalReferenceCode", null);
+		}
+		else {
+			map.put(
+				"externalReferenceCode",
+				String.valueOf(objectDefinition.getExternalReferenceCode()));
 		}
 
 		if (objectDefinition.getId() == null) {
@@ -666,6 +703,15 @@ public class ObjectDefinitionSerDes {
 				String.valueOf(objectDefinition.getTitleObjectFieldId()));
 		}
 
+		if (objectDefinition.getTitleObjectFieldName() == null) {
+			map.put("titleObjectFieldName", null);
+		}
+		else {
+			map.put(
+				"titleObjectFieldName",
+				String.valueOf(objectDefinition.getTitleObjectFieldName()));
+		}
+
 		return map;
 	}
 
@@ -738,6 +784,14 @@ public class ObjectDefinitionSerDes {
 				if (jsonParserFieldValue != null) {
 					objectDefinition.setEnableComments(
 						(Boolean)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(
+						jsonParserFieldName, "externalReferenceCode")) {
+
+				if (jsonParserFieldValue != null) {
+					objectDefinition.setExternalReferenceCode(
+						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "id")) {
@@ -879,6 +933,14 @@ public class ObjectDefinitionSerDes {
 				if (jsonParserFieldValue != null) {
 					objectDefinition.setTitleObjectFieldId(
 						Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(
+						jsonParserFieldName, "titleObjectFieldName")) {
+
+				if (jsonParserFieldValue != null) {
+					objectDefinition.setTitleObjectFieldName(
+						(String)jsonParserFieldValue);
 				}
 			}
 		}

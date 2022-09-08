@@ -295,6 +295,34 @@ public class ObjectDefinition implements Serializable {
 	protected Boolean enableComments;
 
 	@Schema
+	public String getExternalReferenceCode() {
+		return externalReferenceCode;
+	}
+
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		this.externalReferenceCode = externalReferenceCode;
+	}
+
+	@JsonIgnore
+	public void setExternalReferenceCode(
+		UnsafeSupplier<String, Exception> externalReferenceCodeUnsafeSupplier) {
+
+		try {
+			externalReferenceCode = externalReferenceCodeUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String externalReferenceCode;
+
+	@Schema
 	public Long getId() {
 		return id;
 	}
@@ -778,7 +806,7 @@ public class ObjectDefinition implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	protected Boolean system;
 
-	@Schema
+	@Schema(deprecated = true)
 	public Long getTitleObjectFieldId() {
 		return titleObjectFieldId;
 	}
@@ -802,9 +830,38 @@ public class ObjectDefinition implements Serializable {
 		}
 	}
 
+	@Deprecated
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected Long titleObjectFieldId;
+
+	@Schema
+	public String getTitleObjectFieldName() {
+		return titleObjectFieldName;
+	}
+
+	public void setTitleObjectFieldName(String titleObjectFieldName) {
+		this.titleObjectFieldName = titleObjectFieldName;
+	}
+
+	@JsonIgnore
+	public void setTitleObjectFieldName(
+		UnsafeSupplier<String, Exception> titleObjectFieldNameUnsafeSupplier) {
+
+		try {
+			titleObjectFieldName = titleObjectFieldNameUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String titleObjectFieldName;
 
 	@Override
 	public boolean equals(Object object) {
@@ -922,6 +979,20 @@ public class ObjectDefinition implements Serializable {
 			sb.append("\"enableComments\": ");
 
 			sb.append(enableComments);
+		}
+
+		if (externalReferenceCode != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"externalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(externalReferenceCode));
+
+			sb.append("\"");
 		}
 
 		if (id != null) {
@@ -1172,6 +1243,20 @@ public class ObjectDefinition implements Serializable {
 			sb.append("\"titleObjectFieldId\": ");
 
 			sb.append(titleObjectFieldId);
+		}
+
+		if (titleObjectFieldName != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"titleObjectFieldName\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(titleObjectFieldName));
+
+			sb.append("\"");
 		}
 
 		sb.append("}");

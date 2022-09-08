@@ -75,6 +75,20 @@ public class ObjectLayoutColumnSerDes {
 			sb.append(objectLayoutColumn.getObjectFieldId());
 		}
 
+		if (objectLayoutColumn.getObjectFieldName() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"objectFieldName\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(objectLayoutColumn.getObjectFieldName()));
+
+			sb.append("\"");
+		}
+
 		if (objectLayoutColumn.getPriority() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -132,6 +146,15 @@ public class ObjectLayoutColumnSerDes {
 				String.valueOf(objectLayoutColumn.getObjectFieldId()));
 		}
 
+		if (objectLayoutColumn.getObjectFieldName() == null) {
+			map.put("objectFieldName", null);
+		}
+		else {
+			map.put(
+				"objectFieldName",
+				String.valueOf(objectLayoutColumn.getObjectFieldName()));
+		}
+
 		if (objectLayoutColumn.getPriority() == null) {
 			map.put("priority", null);
 		}
@@ -178,6 +201,12 @@ public class ObjectLayoutColumnSerDes {
 				if (jsonParserFieldValue != null) {
 					objectLayoutColumn.setObjectFieldId(
 						Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "objectFieldName")) {
+				if (jsonParserFieldValue != null) {
+					objectLayoutColumn.setObjectFieldName(
+						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "priority")) {

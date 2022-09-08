@@ -211,6 +211,27 @@ public class ObjectDefinition implements Cloneable, Serializable {
 
 	protected Boolean enableComments;
 
+	public String getExternalReferenceCode() {
+		return externalReferenceCode;
+	}
+
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		this.externalReferenceCode = externalReferenceCode;
+	}
+
+	public void setExternalReferenceCode(
+		UnsafeSupplier<String, Exception> externalReferenceCodeUnsafeSupplier) {
+
+		try {
+			externalReferenceCode = externalReferenceCodeUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String externalReferenceCode;
+
 	public Long getId() {
 		return id;
 	}
@@ -588,6 +609,27 @@ public class ObjectDefinition implements Cloneable, Serializable {
 	}
 
 	protected Long titleObjectFieldId;
+
+	public String getTitleObjectFieldName() {
+		return titleObjectFieldName;
+	}
+
+	public void setTitleObjectFieldName(String titleObjectFieldName) {
+		this.titleObjectFieldName = titleObjectFieldName;
+	}
+
+	public void setTitleObjectFieldName(
+		UnsafeSupplier<String, Exception> titleObjectFieldNameUnsafeSupplier) {
+
+		try {
+			titleObjectFieldName = titleObjectFieldNameUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String titleObjectFieldName;
 
 	@Override
 	public ObjectDefinition clone() throws CloneNotSupportedException {
