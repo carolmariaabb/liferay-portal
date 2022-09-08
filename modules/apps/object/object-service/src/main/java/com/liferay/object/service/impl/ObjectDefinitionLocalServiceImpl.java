@@ -166,40 +166,20 @@ public class ObjectDefinitionLocalServiceImpl
 			long userId, String externalReferenceCode)
 		throws PortalException {
 
-		User user = _userLocalService.getUser(userId);
+		ObjectDefinition objectDefinition = _addObjectDefinition(
+			userId, null, null,
+			Collections.singletonMap(
+				LocaleUtil.getSiteDefault(), externalReferenceCode),
+			externalReferenceCode, null, null, null, null,
+			Collections.singletonMap(
+				LocaleUtil.getSiteDefault(), externalReferenceCode),
+			ObjectDefinitionConstants.SCOPE_COMPANY,
+			ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT, false, 0,
+			WorkflowConstants.STATUS_DRAFT, Collections.emptyList());
 
-		ObjectDefinition objectDefinition = objectDefinitionPersistence.create(
-			counterLocalService.increment());
-
-		objectDefinition.setCompanyId(user.getCompanyId());
-		objectDefinition.setUserId(user.getUserId());
-		objectDefinition.setUserName(user.getFullName());
-		objectDefinition.setActive(false);
 		objectDefinition.setExternalReferenceCode(externalReferenceCode);
-		objectDefinition.setName(externalReferenceCode);
-		objectDefinition.setStorageType(
-			ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT);
-		objectDefinition.setSystem(false);
-		objectDefinition.setStatus(WorkflowConstants.STATUS_DRAFT);
 
-		objectDefinition = objectDefinitionPersistence.update(objectDefinition);
-
-		_resourceLocalService.addResources(
-			objectDefinition.getCompanyId(), 0, objectDefinition.getUserId(),
-			ObjectDefinition.class.getName(),
-			objectDefinition.getObjectDefinitionId(), false, true, true);
-
-		_objectFieldLocalService.addSystemObjectField(
-			userId, objectDefinition.getObjectDefinitionId(),
-			ObjectFieldConstants.BUSINESS_TYPE_TEXT,
-			ObjectEntryTable.INSTANCE.status.getName(),
-			ObjectEntryTable.INSTANCE.getTableName(),
-			ObjectFieldConstants.DB_TYPE_INTEGER, null, false, false, null,
-			LocalizedMapUtil.getLocalizedMap(
-				_language.get(LocaleUtil.getDefault(), "status")),
-			"status", false, false);
-
-		return objectDefinition;
+		return objectDefinitionPersistence.update(objectDefinition);
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
