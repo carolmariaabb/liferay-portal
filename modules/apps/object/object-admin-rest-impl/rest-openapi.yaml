@@ -123,6 +123,10 @@ components:
                 system:
                     readOnly: true
                     type: boolean
+                titleObjectFieldId:
+                    deprecated: true
+                    format: int64
+                    type: integer
                 titleObjectFieldName:
                     type: string
             type: object
@@ -256,6 +260,10 @@ components:
                 id:
                     format: int64
                     readOnly: true
+                    type: integer
+                objectFieldId:
+                    deprecated: true
+                    format: int64
                     type: integer
                 objectFieldName:
                     type: string
