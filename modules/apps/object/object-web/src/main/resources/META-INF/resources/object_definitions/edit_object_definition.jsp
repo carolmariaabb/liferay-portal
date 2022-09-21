@@ -20,16 +20,35 @@
 ObjectDefinition objectDefinition = (ObjectDefinition)request.getAttribute(ObjectWebKeys.OBJECT_DEFINITION);
 %>
 
-<liferay-frontend:screen-navigation
-	context="<%= objectDefinition %>"
-	key="<%= ObjectDefinitionsScreenNavigationEntryConstants.SCREEN_NAVIGATION_KEY_OBJECT_DEFINITION %>"
-	portletURL='<%=
-		PortletURLBuilder.createRenderURL(
-			renderResponse
-		).setMVCRenderCommandName(
-			"/object_definitions/edit_object_definition"
-		).setParameter(
-			"objectDefinitionId", objectDefinition.getObjectDefinitionId()
-		).build()
-	%>'
-/>
+<div class="lfr-object-edit-object-definition">
+	<div>
+		<react:component
+			module="js/components/ManagementToolbar"
+			props='<%=
+				HashMapBuilder.<String, Object>put(
+					"externalReferenceCode", objectDefinition.getExternalReferenceCode()
+				).put(
+					"name", objectDefinition.getShortName()
+				).put(
+					"objectDefinitionId", objectDefinition.getObjectDefinitionId()
+				).put(
+					"system", objectDefinition.isSystem()
+				).build()
+			%>'
+		/>
+	</div>
+
+	<liferay-frontend:screen-navigation
+		context="<%= objectDefinition %>"
+		key="<%= ObjectDefinitionsScreenNavigationEntryConstants.SCREEN_NAVIGATION_KEY_OBJECT_DEFINITION %>"
+		portletURL='<%=
+			PortletURLBuilder.createRenderURL(
+				renderResponse
+			).setMVCRenderCommandName(
+				"/object_definitions/edit_object_definition"
+			).setParameter(
+				"objectDefinitionId", objectDefinition.getObjectDefinitionId()
+			).build()
+		%>'
+	/>
+</div>
