@@ -241,6 +241,22 @@ public class DDMFormDisplayContext {
 						_ddmFormWebConfiguration.
 							maximumRepetitionsForUploadFields());
 				}
+
+				if (Objects.equals(
+						ddmFormInstance.getStorageType(), "object")) {
+
+					DDMFormInstanceSettings ddmFormInstanceSettings =
+						ddmFormInstance.getSettingsModel();
+
+					ObjectField objectField =
+						_objectFieldLocalService.getObjectField(
+							GetterUtil.getLong(
+								ddmFormInstanceSettings.objectDefinitionId()),
+							_getObjectFieldName(ddmFormField));
+
+					ddmFormField.setProperty(
+						"objectFieldId", objectField.getObjectFieldId());
+				}
 			}
 			else if (Objects.equals(
 						ddmFormInstance.getStorageType(), "object") &&

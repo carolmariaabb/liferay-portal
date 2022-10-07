@@ -395,6 +395,7 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 	}
 
 	private String _getGuestUploadURL(
+		DDMFormField ddmFormField,
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext,
 		long folderId, HttpServletRequest httpServletRequest) {
 
@@ -418,6 +419,9 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 					ddmFormFieldRenderingContext.getDDMFormInstanceId()))
 		).setParameter(
 			"groupId", ddmFormFieldRenderingContext.getProperty("groupId")
+		).setParameter(
+			"objectFieldId",
+			GetterUtil.getLong(ddmFormField.getProperty("objectFieldId"))
 		).buildString();
 	}
 
@@ -621,8 +625,8 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 					}
 
 					return _getGuestUploadURL(
-						ddmFormFieldRenderingContext, ddmFormFolderId,
-						httpServletRequest);
+						ddmFormField, ddmFormFieldRenderingContext,
+						ddmFormFolderId, httpServletRequest);
 				}
 			).build();
 		}
