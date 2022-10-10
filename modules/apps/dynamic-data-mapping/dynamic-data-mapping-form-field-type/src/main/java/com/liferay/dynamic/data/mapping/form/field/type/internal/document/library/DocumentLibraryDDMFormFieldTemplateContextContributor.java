@@ -426,6 +426,7 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 	}
 
 	private String _getItemSelectorURL(
+		DDMFormField ddmFormField,
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext,
 		long folderId, long repositoryId, ThemeDisplay themeDisplay) {
 
@@ -452,6 +453,8 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 		ddmUserPersonalFolderItemSelectorCriterion.
 			setDesiredItemSelectorReturnTypes(
 				new FileEntryItemSelectorReturnType());
+		ddmUserPersonalFolderItemSelectorCriterion.setObjectFieldId(
+			GetterUtil.getLong(ddmFormField.getProperty("objectFieldId")));
 		ddmUserPersonalFolderItemSelectorCriterion.setRepositoryId(
 			repositoryId);
 
@@ -657,8 +660,9 @@ public class DocumentLibraryDDMFormFieldTemplateContextContributor
 				}
 
 				return _getItemSelectorURL(
-					ddmFormFieldRenderingContext, privateUserFolderId,
-					repository.getRepositoryId(), themeDisplay);
+					ddmFormField, ddmFormFieldRenderingContext,
+					privateUserFolderId, repository.getRepositoryId(),
+					themeDisplay);
 			}
 		).build();
 	}
