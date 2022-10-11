@@ -1249,12 +1249,11 @@ public class ObjectEntryLocalServiceImpl
 
 		String tableName = extensionDynamicObjectDefinitionTable.getTableName();
 
-		_finderCacheRemoveResult(
+		_clearFinderCache(
 			_getExtensionDynamicObjectDefinitionTableCountDSLQuery(
 				extensionDynamicObjectDefinitionTable, primaryKey),
 			primaryKey, tableName);
-
-		_finderCacheRemoveResult(
+		_clearFinderCache(
 			_getExtensionDynamicObjectDefinitionTableSelectDSLQuery(
 				extensionDynamicObjectDefinitionTable, primaryKey,
 				_getSelectExpressions(extensionDynamicObjectDefinitionTable)),
@@ -1406,7 +1405,7 @@ public class ObjectEntryLocalServiceImpl
 		return predicate.and(searchPredicate.withParentheses());
 	}
 
-	private void _finderCacheRemoveResult(
+	private void _clearFinderCache(
 		DSLQuery dslQuery, long primaryKey, String tableName) {
 
 		StringBundler sb = new StringBundler();
