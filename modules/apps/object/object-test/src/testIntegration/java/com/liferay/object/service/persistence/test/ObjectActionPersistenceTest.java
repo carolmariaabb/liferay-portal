@@ -146,6 +146,10 @@ public class ObjectActionPersistenceTest {
 
 		newObjectAction.setDescription(RandomTestUtil.randomString());
 
+		newObjectAction.setErrorMessage(RandomTestUtil.randomString());
+
+		newObjectAction.setLabel(RandomTestUtil.randomString());
+
 		newObjectAction.setName(RandomTestUtil.randomString());
 
 		newObjectAction.setObjectActionExecutorKey(
@@ -196,6 +200,11 @@ public class ObjectActionPersistenceTest {
 			existingObjectAction.getDescription(),
 			newObjectAction.getDescription());
 		Assert.assertEquals(
+			existingObjectAction.getErrorMessage(),
+			newObjectAction.getErrorMessage());
+		Assert.assertEquals(
+			existingObjectAction.getLabel(), newObjectAction.getLabel());
+		Assert.assertEquals(
 			existingObjectAction.getName(), newObjectAction.getName());
 		Assert.assertEquals(
 			existingObjectAction.getObjectActionExecutorKey(),
@@ -233,6 +242,15 @@ public class ObjectActionPersistenceTest {
 		_persistence.countByObjectDefinitionId(RandomTestUtil.nextLong());
 
 		_persistence.countByObjectDefinitionId(0L);
+	}
+
+	@Test
+	public void testCountByODI_N() throws Exception {
+		_persistence.countByODI_N(RandomTestUtil.nextLong(), "");
+
+		_persistence.countByODI_N(0L, "null");
+
+		_persistence.countByODI_N(0L, (String)null);
 	}
 
 	@Test
@@ -287,9 +305,9 @@ public class ObjectActionPersistenceTest {
 			"ObjectAction", "mvccVersion", true, "uuid", true, "objectActionId",
 			true, "companyId", true, "userId", true, "userName", true,
 			"createDate", true, "modifiedDate", true, "objectDefinitionId",
-			true, "active", true, "description", true, "name", true,
-			"objectActionExecutorKey", true, "objectActionTriggerKey", true,
-			"status", true);
+			true, "active", true, "description", true, "errorMessage", true,
+			"label", true, "name", true, "objectActionExecutorKey", true,
+			"objectActionTriggerKey", true, "status", true);
 	}
 
 	@Test
@@ -562,6 +580,17 @@ public class ObjectActionPersistenceTest {
 				objectAction, "getColumnOriginalValue",
 				new Class<?>[] {String.class}, "objectDefinitionId"));
 		Assert.assertEquals(
+			objectAction.getName(),
+			ReflectionTestUtil.invoke(
+				objectAction, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "name"));
+
+		Assert.assertEquals(
+			Long.valueOf(objectAction.getObjectDefinitionId()),
+			ReflectionTestUtil.<Long>invoke(
+				objectAction, "getColumnOriginalValue",
+				new Class<?>[] {String.class}, "objectDefinitionId"));
+		Assert.assertEquals(
 			Boolean.valueOf(objectAction.getActive()),
 			ReflectionTestUtil.<Boolean>invoke(
 				objectAction, "getColumnOriginalValue",
@@ -604,6 +633,10 @@ public class ObjectActionPersistenceTest {
 		objectAction.setConditionExpression(RandomTestUtil.randomString());
 
 		objectAction.setDescription(RandomTestUtil.randomString());
+
+		objectAction.setErrorMessage(RandomTestUtil.randomString());
+
+		objectAction.setLabel(RandomTestUtil.randomString());
 
 		objectAction.setName(RandomTestUtil.randomString());
 
