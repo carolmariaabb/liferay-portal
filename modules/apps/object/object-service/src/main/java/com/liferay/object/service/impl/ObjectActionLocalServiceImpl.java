@@ -196,10 +196,20 @@ public class ObjectActionLocalServiceImpl
 		ObjectAction objectAction = objectActionPersistence.findByPrimaryKey(
 			objectActionId);
 
+		ObjectDefinition objectDefinition =
+			_objectDefinitionPersistence.findByPrimaryKey(
+				objectAction.getObjectDefinitionId());
+
+		if (!objectDefinition.isApproved()) {
+			_validateName(
+				objectActionId, objectDefinition.getObjectDefinitionId(), name);
+
+			objectAction.setName(name);
+		}
+
 		objectAction.setActive(active);
 		objectAction.setConditionExpression(conditionExpression);
 		objectAction.setDescription(description);
-		objectAction.setName(name);
 		objectAction.setErrorMessageMap(
 			errorMessageMap, LocaleUtil.getSiteDefault());
 		objectAction.setLabelMap(labelMap, LocaleUtil.getSiteDefault());
