@@ -14,6 +14,8 @@
 
 package com.liferay.object.internal.system;
 
+import com.liferay.headless.admin.user.dto.v1_0.UserAccount;
+import com.liferay.headless.admin.user.resource.v1_0.UserAccountResource;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
@@ -44,6 +46,37 @@ import org.osgi.service.component.annotations.Reference;
 @Component(service = SystemObjectDefinitionMetadata.class)
 public class UserSystemObjectDefinitionMetadata
 	extends BaseSystemObjectDefinitionMetadata {
+
+	@Override
+	public long addBaseModel(User user, Map<String, Object> values)
+		throws Exception {
+
+		UserAccountResource.Builder builder =
+			_userAccountResourceFactory.create();
+
+		UserAccountResource userAccountResource = builder.checkPermissions(
+			false
+		).preferredLocale(
+			user.getLocale()
+		).user(
+			user
+		).build();
+
+		UserAccount userAccount = userAccountResource.postUserAccount(
+			new UserAccount() {
+				{
+					additionalName = (String)values.get("additionalName");
+					alternateName = (String)values.get("alternateName");
+					emailAddress = (String)values.get("emailAddress");
+					externalReferenceCode = (String)values.get(
+						"externalReferenceCode");
+					familyName = (String)values.get("familyName");
+					givenName = (String)values.get("givenName");
+				}
+			});
+
+		return userAccount.getId();
+	}
 
 	@Override
 	public BaseModel<?> deleteBaseModel(BaseModel<?> baseModel)
@@ -150,6 +183,9 @@ public class UserSystemObjectDefinitionMetadata
 	public int getVersion() {
 		return 1;
 	}
+
+	@Reference
+	private UserAccountResource.Factory _userAccountResourceFactory;
 
 	@Reference
 	private UserLocalService _userLocalService;
