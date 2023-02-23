@@ -51,16 +51,7 @@ public class UserSystemObjectDefinitionMetadata
 	public long addBaseModel(User user, Map<String, Object> values)
 		throws Exception {
 
-		UserAccountResource.Builder builder =
-			_userAccountResourceFactory.create();
-
-		UserAccountResource userAccountResource = builder.checkPermissions(
-			false
-		).preferredLocale(
-			user.getLocale()
-		).user(
-			user
-		).build();
+		UserAccountResource userAccountResource = _getUserAccountResource(user);
 
 		UserAccount userAccount = userAccountResource.postUserAccount(
 			new UserAccount() {
@@ -182,6 +173,41 @@ public class UserSystemObjectDefinitionMetadata
 	@Override
 	public int getVersion() {
 		return 1;
+	}
+
+	@Override
+	public void updateBaseModel(
+			long primaryKey, User user, Map<String, Object> values)
+		throws Exception {
+
+		UserAccountResource userAccountResource = _getUserAccountResource(user);
+
+		userAccountResource.putUserAccount(
+			primaryKey,
+			new UserAccount() {
+				{
+					additionalName = (String)values.get("additionalName");
+					alternateName = (String)values.get("alternateName");
+					emailAddress = (String)values.get("emailAddress");
+					externalReferenceCode = (String)values.get(
+						"externalReferenceCode");
+					familyName = (String)values.get("familyName");
+					givenName = (String)values.get("givenName");
+				}
+			});
+	}
+
+	private UserAccountResource _getUserAccountResource(User user) {
+		UserAccountResource.Builder builder =
+			_userAccountResourceFactory.create();
+
+		return builder.checkPermissions(
+			false
+		).preferredLocale(
+			user.getLocale()
+		).user(
+			user
+		).build();
 	}
 
 	@Reference

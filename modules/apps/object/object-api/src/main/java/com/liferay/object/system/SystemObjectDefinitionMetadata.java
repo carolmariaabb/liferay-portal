@@ -138,4 +138,9 @@ public interface SystemObjectDefinitionMetadata {
 
 	public int getVersion();
 
+	public default void updateBaseModel(
+			long primaryKey, User user, Map<String, Object> values)
+		throws Exception {
+	}
+
 }
