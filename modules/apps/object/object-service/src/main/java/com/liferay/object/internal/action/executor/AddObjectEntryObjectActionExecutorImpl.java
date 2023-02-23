@@ -123,7 +123,8 @@ public class AddObjectEntryObjectActionExecutorImpl
 					getSystemObjectDefinitionMetadata(
 						objectDefinition.getName());
 
-			return systemObjectDefinitionMetadata.addBaseModel(user, values);
+			return systemObjectDefinitionMetadata.addBaseModel(
+				objectDefinition, user, values);
 		}
 
 		ObjectEntryManager objectEntryManager =

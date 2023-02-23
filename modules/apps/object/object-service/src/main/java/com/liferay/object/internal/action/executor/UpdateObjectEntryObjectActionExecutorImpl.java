@@ -95,7 +95,7 @@ public class UpdateObjectEntryObjectActionExecutorImpl
 						objectDefinition.getName());
 
 			systemObjectDefinitionMetadata.updateBaseModel(
-				primaryKey, user, values);
+				objectDefinition, primaryKey, user, values);
 
 			return;
 		}

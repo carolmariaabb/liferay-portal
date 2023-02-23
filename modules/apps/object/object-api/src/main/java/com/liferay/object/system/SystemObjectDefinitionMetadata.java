@@ -36,7 +36,9 @@ import java.util.Map;
  */
 public interface SystemObjectDefinitionMetadata {
 
-	public default long addBaseModel(User user, Map<String, Object> values)
+	public default long addBaseModel(
+			ObjectDefinition objectDefinition, User user,
+			Map<String, Object> values)
 		throws Exception {
 
 		return 0;
@@ -139,7 +141,8 @@ public interface SystemObjectDefinitionMetadata {
 	public int getVersion();
 
 	public default void updateBaseModel(
-			long primaryKey, User user, Map<String, Object> values)
+			ObjectDefinition objectDefinition, long primaryKey, User user,
+			Map<String, Object> values)
 		throws Exception {
 	}
 
