@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserTable;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.util.GetterUtil;
 
 import java.io.Serializable;
 
@@ -64,17 +65,7 @@ public class UserSystemObjectDefinitionMetadata
 		UserAccountResource userAccountResource = _getUserAccountResource(user);
 
 		UserAccount userAccount = userAccountResource.postUserAccount(
-			new UserAccount() {
-				{
-					additionalName = (String)values.get("additionalName");
-					alternateName = (String)values.get("alternateName");
-					emailAddress = (String)values.get("emailAddress");
-					externalReferenceCode = (String)values.get(
-						"externalReferenceCode");
-					familyName = (String)values.get("familyName");
-					givenName = (String)values.get("givenName");
-				}
-			});
+			_getUserAccount(values));
 
 		_setExtendedProperties(
 			objectDefinition, userAccount.getId(), user, values);
@@ -128,7 +119,13 @@ public class UserSystemObjectDefinitionMetadata
 	public List<ObjectField> getObjectFields() {
 		return Arrays.asList(
 			createObjectField(
+				"Text", "screenName", "String", "screen-name", "alternateName",
+				true, true),
+			createObjectField(
 				"Text", "String", "email-address", "emailAddress", true, true),
+			createObjectField(
+				"Text", "lastName", "String", "last-name", "familyName", true,
+				true),
 			createObjectField(
 				"Text", "firstName", "String", "first-name", "givenName", true,
 				true),
@@ -185,7 +182,7 @@ public class UserSystemObjectDefinitionMetadata
 
 	@Override
 	public int getVersion() {
-		return 1;
+		return 2;
 	}
 
 	@Override
@@ -196,21 +193,25 @@ public class UserSystemObjectDefinitionMetadata
 
 		UserAccountResource userAccountResource = _getUserAccountResource(user);
 
-		userAccountResource.putUserAccount(
-			primaryKey,
-			new UserAccount() {
-				{
-					additionalName = (String)values.get("additionalName");
-					alternateName = (String)values.get("alternateName");
-					emailAddress = (String)values.get("emailAddress");
-					externalReferenceCode = (String)values.get(
-						"externalReferenceCode");
-					familyName = (String)values.get("familyName");
-					givenName = (String)values.get("givenName");
-				}
-			});
+		userAccountResource.putUserAccount(primaryKey, _getUserAccount(values));
 
 		_setExtendedProperties(objectDefinition, primaryKey, user, values);
+	}
+
+	private UserAccount _getUserAccount(Map<String, Object> values) {
+		return new UserAccount() {
+			{
+				additionalName = GetterUtil.getString(
+					values.get("additionalName"));
+				alternateName = GetterUtil.getString(
+					values.get("alternateName"));
+				emailAddress = GetterUtil.getString(values.get("emailAddress"));
+				externalReferenceCode = GetterUtil.getString(
+					values.get("externalReferenceCode"));
+				familyName = GetterUtil.getString(values.get("familyName"));
+				givenName = GetterUtil.getString(values.get("givenName"));
+			}
+		};
 	}
 
 	private UserAccountResource _getUserAccountResource(User user) {
