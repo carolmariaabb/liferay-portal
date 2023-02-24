@@ -458,6 +458,15 @@ public class ObjectDefinitionLocalServiceTest {
 				new BaseSystemObjectDefinitionMetadata() {
 
 					@Override
+					public long addBaseModel(
+							ObjectDefinition objectDefinition, User user,
+							Map<String, Object> values)
+						throws Exception {
+
+						return 0;
+					}
+
+					@Override
 					public BaseModel<?> deleteBaseModel(BaseModel<?> baseModel)
 						throws PortalException {
 
@@ -542,6 +551,13 @@ public class ObjectDefinitionLocalServiceTest {
 						return 1;
 					}
 
+					@Override
+					public void updateBaseModel(
+							ObjectDefinition objectDefinition, long primaryKey,
+							User user, Map<String, Object> values)
+						throws Exception {
+					}
+
 				});
 
 		Assert.assertEquals(
@@ -576,6 +592,15 @@ public class ObjectDefinitionLocalServiceTest {
 			_objectDefinitionLocalService.addOrUpdateSystemObjectDefinition(
 				TestPropsValues.getCompanyId(),
 				new BaseSystemObjectDefinitionMetadata() {
+
+					@Override
+					public long addBaseModel(
+							ObjectDefinition objectDefinition, User user,
+							Map<String, Object> values)
+						throws Exception {
+
+						return 0;
+					}
 
 					@Override
 					public BaseModel<?> deleteBaseModel(BaseModel<?> baseModel)
@@ -659,6 +684,13 @@ public class ObjectDefinitionLocalServiceTest {
 					@Override
 					public int getVersion() {
 						return 2;
+					}
+
+					@Override
+					public void updateBaseModel(
+							ObjectDefinition objectDefinition, long primaryKey,
+							User user, Map<String, Object> values)
+						throws Exception {
 					}
 
 				});

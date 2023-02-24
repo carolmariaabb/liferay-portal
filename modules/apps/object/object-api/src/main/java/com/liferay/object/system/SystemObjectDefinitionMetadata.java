@@ -36,13 +36,10 @@ import java.util.Map;
  */
 public interface SystemObjectDefinitionMetadata {
 
-	public default long addBaseModel(
+	public long addBaseModel(
 			ObjectDefinition objectDefinition, User user,
 			Map<String, Object> values)
-		throws Exception {
-
-		return 0;
-	}
+		throws Exception;
 
 	public BaseModel<?> deleteBaseModel(BaseModel<?> baseModel)
 		throws PortalException;
@@ -140,10 +137,9 @@ public interface SystemObjectDefinitionMetadata {
 
 	public int getVersion();
 
-	public default void updateBaseModel(
+	public void updateBaseModel(
 			ObjectDefinition objectDefinition, long primaryKey, User user,
 			Map<String, Object> values)
-		throws Exception {
-	}
+		throws Exception;
 
 }

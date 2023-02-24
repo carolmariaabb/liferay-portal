@@ -14,6 +14,7 @@
 
 package com.liferay.object.service.test.system;
 
+import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.system.BaseSystemObjectDefinitionMetadata;
 import com.liferay.object.system.JaxRsApplicationDescriptor;
@@ -24,6 +25,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.User;
 
 import java.util.List;
 import java.util.Locale;
@@ -41,6 +43,15 @@ public class TestSystemObjectDefinitionMetadata
 		_modelClass = modelClass;
 		_name = name;
 		_restContextPath = restContextPath;
+	}
+
+	@Override
+	public long addBaseModel(
+			ObjectDefinition objectDefinition, User user,
+			Map<String, Object> values)
+		throws Exception {
+
+		return 0;
 	}
 
 	@Override
@@ -121,6 +132,13 @@ public class TestSystemObjectDefinitionMetadata
 	@Override
 	public int getVersion() {
 		return 1;
+	}
+
+	@Override
+	public void updateBaseModel(
+			ObjectDefinition objectDefinition, long primaryKey, User user,
+			Map<String, Object> values)
+		throws Exception {
 	}
 
 	private final Class<?> _modelClass;
