@@ -15,6 +15,7 @@
 package com.liferay.object.internal.system;
 
 import com.liferay.object.constants.ObjectDefinitionConstants;
+import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.system.BaseSystemObjectDefinitionMetadata;
 import com.liferay.object.system.JaxRsApplicationDescriptor;
@@ -25,6 +26,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Address;
 import com.liferay.portal.kernel.model.AddressTable;
 import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.AddressLocalService;
 
 import java.util.Arrays;
@@ -41,6 +43,15 @@ import org.osgi.service.component.annotations.Reference;
 @Component(service = SystemObjectDefinitionMetadata.class)
 public class AddressSystemObjectDefinitionMetadata
 	extends BaseSystemObjectDefinitionMetadata {
+
+	@Override
+	public long addBaseModel(
+			ObjectDefinition objectDefinition, User user,
+			Map<String, Object> values)
+		throws Exception {
+
+		return 0;
+	}
 
 	@Override
 	public BaseModel<?> deleteBaseModel(BaseModel<?> baseModel)
@@ -121,6 +132,13 @@ public class AddressSystemObjectDefinitionMetadata
 	@Override
 	public int getVersion() {
 		return 1;
+	}
+
+	@Override
+	public void updateBaseModel(
+			ObjectDefinition objectDefinition, long primaryKey, User user,
+			Map<String, Object> values)
+		throws Exception {
 	}
 
 	@Reference

@@ -19,7 +19,10 @@ import com.liferay.commerce.product.model.CPDefinitionTable;
 import com.liferay.commerce.product.model.CProduct;
 import com.liferay.commerce.product.service.CPDefinitionLocalService;
 import com.liferay.commerce.product.service.CProductLocalService;
+import com.liferay.headless.commerce.admin.catalog.dto.v1_0.Product;
+import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ProductResource;
 import com.liferay.object.constants.ObjectDefinitionConstants;
+import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.system.BaseSystemObjectDefinitionMetadata;
 import com.liferay.object.system.JaxRsApplicationDescriptor;
@@ -28,6 +31,9 @@ import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +49,19 @@ import org.osgi.service.component.annotations.Reference;
 @Component(enabled = true, service = SystemObjectDefinitionMetadata.class)
 public class CPDefinitionSystemObjectDefinitionMetadata
 	extends BaseSystemObjectDefinitionMetadata {
+
+	@Override
+	public long addBaseModel(
+			ObjectDefinition objectDefinition, User user,
+			Map<String, Object> values)
+		throws Exception {
+
+		ProductResource productResource = _getProductResource(user);
+
+		Product product = productResource.postProduct(_getProduct(values));
+
+		return product.getId();
+	}
 
 	@Override
 	public BaseModel<?> deleteBaseModel(BaseModel<?> baseModel)
@@ -91,11 +110,17 @@ public class CPDefinitionSystemObjectDefinitionMetadata
 	public List<ObjectField> getObjectFields() {
 		return Arrays.asList(
 			createObjectField(
+				"Boolean", "Boolean", "active", "active", true, true),
+			createObjectField(
+				"LongInteger", "Long", "catalog-id", "catalogId", true, true),
+			createObjectField(
 				"Text", "String", "description", "description", false, true),
-			createObjectField("Text", "String", "name", "name", false, true),
+			createObjectField("Text", "String", "name", "name", true, true),
 			createObjectField(
 				"Text", "CPDefinitionId", "String", "product-id", "productId",
 				false, true),
+			createObjectField(
+				"Text", "String", "product-type", "productType", true, true),
 			createObjectField(
 				"Text", "String", "short-description", "shortDescription",
 				false, true),
@@ -138,7 +163,54 @@ public class CPDefinitionSystemObjectDefinitionMetadata
 
 	@Override
 	public int getVersion() {
-		return 1;
+		return 2;
+	}
+
+	@Override
+	public void updateBaseModel(
+			ObjectDefinition objectDefinition, long primaryKey, User user,
+			Map<String, Object> values)
+		throws Exception {
+
+		ProductResource productResource = _getProductResource(user);
+
+		productResource.patchProduct(primaryKey, _getProduct(values));
+	}
+
+	private Product _getProduct(Map<String, Object> values) {
+		return new Product() {
+			{
+				active = GetterUtil.getBoolean(values.get("active"));
+				catalogId = GetterUtil.getLong(values.get("catalogId"));
+				description = LocalizedMapUtil.getLanguageIdMap(
+					LocalizedMapUtil.getLocalizedMap(
+						GetterUtil.getString(values.get("description"))));
+				externalReferenceCode = GetterUtil.getString(
+					values.get("externalReferenceCode"));
+				name = LocalizedMapUtil.getLanguageIdMap(
+					LocalizedMapUtil.getLocalizedMap(
+						GetterUtil.getString(values.get("name"))));
+				productId = GetterUtil.getLong(values.get("productId"));
+				productType = GetterUtil.getString(values.get("productType"));
+				shortDescription = LocalizedMapUtil.getLanguageIdMap(
+					LocalizedMapUtil.getLocalizedMap(
+						GetterUtil.getString(values.get("shortDescription"))));
+				skuFormatted = GetterUtil.getString(values.get("skuFormatted"));
+				thumbnail = GetterUtil.getString(values.get("thumbnail"));
+			}
+		};
+	}
+
+	private ProductResource _getProductResource(User user) {
+		ProductResource.Builder builder = _productResourceFactory.create();
+
+		return builder.checkPermissions(
+			false
+		).preferredLocale(
+			user.getLocale()
+		).user(
+			user
+		).build();
 	}
 
 	@Reference
@@ -146,5 +218,8 @@ public class CPDefinitionSystemObjectDefinitionMetadata
 
 	@Reference
 	private CProductLocalService _cProductLocalService;
+
+	@Reference
+	private ProductResource.Factory _productResourceFactory;
 
 }

@@ -17,7 +17,10 @@ package com.liferay.commerce.internal.object.system;
 import com.liferay.commerce.pricing.model.CommercePricingClass;
 import com.liferay.commerce.pricing.model.CommercePricingClassTable;
 import com.liferay.commerce.pricing.service.CommercePricingClassLocalService;
+import com.liferay.headless.commerce.admin.catalog.dto.v1_0.ProductGroup;
+import com.liferay.headless.commerce.admin.catalog.resource.v1_0.ProductGroupResource;
 import com.liferay.object.constants.ObjectDefinitionConstants;
+import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.system.BaseSystemObjectDefinitionMetadata;
 import com.liferay.object.system.JaxRsApplicationDescriptor;
@@ -26,6 +29,9 @@ import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +47,21 @@ import org.osgi.service.component.annotations.Reference;
 @Component(enabled = true, service = SystemObjectDefinitionMetadata.class)
 public class CommercePricingClassSystemObjectDefinitionMetadata
 	extends BaseSystemObjectDefinitionMetadata {
+
+	@Override
+	public long addBaseModel(
+			ObjectDefinition objectDefinition, User user,
+			Map<String, Object> values)
+		throws Exception {
+
+		ProductGroupResource productGroupResource = _getProductGroupResource(
+			user);
+
+		ProductGroup productGroup = productGroupResource.postProductGroup(
+			_getProductGroup(values));
+
+		return productGroup.getId();
+	}
 
 	@Override
 	public BaseModel<?> deleteBaseModel(BaseModel<?> baseModel)
@@ -96,7 +117,7 @@ public class CommercePricingClassSystemObjectDefinitionMetadata
 			createObjectField(
 				"Integer", "Integer", "number-of-products", "productsCount",
 				false, true),
-			createObjectField("Text", "String", "title", "title", false, true));
+			createObjectField("Text", "String", "title", "title", true, true));
 	}
 
 	@Override
@@ -126,10 +147,56 @@ public class CommercePricingClassSystemObjectDefinitionMetadata
 
 	@Override
 	public int getVersion() {
-		return 1;
+		return 2;
+	}
+
+	@Override
+	public void updateBaseModel(
+			ObjectDefinition objectDefinition, long primaryKey, User user,
+			Map<String, Object> values)
+		throws Exception {
+
+		ProductGroupResource productGroupResource = _getProductGroupResource(
+			user);
+
+		productGroupResource.patchProductGroup(
+			primaryKey, _getProductGroup(values));
+	}
+
+	private ProductGroup _getProductGroup(Map<String, Object> values) {
+		return new ProductGroup() {
+			{
+				description = LocalizedMapUtil.getLanguageIdMap(
+					LocalizedMapUtil.getLocalizedMap(
+						GetterUtil.getString(values.get("description"))));
+				externalReferenceCode = GetterUtil.getString(
+					values.get("externalReferenceCode"));
+				productsCount = GetterUtil.getInteger(
+					values.get("productsCount"));
+				title = LocalizedMapUtil.getLanguageIdMap(
+					LocalizedMapUtil.getLocalizedMap(
+						GetterUtil.getString(values.get("title"))));
+			}
+		};
+	}
+
+	private ProductGroupResource _getProductGroupResource(User user) {
+		ProductGroupResource.Builder builder =
+			_productGroupResourceFactory.create();
+
+		return builder.checkPermissions(
+			false
+		).preferredLocale(
+			user.getLocale()
+		).user(
+			user
+		).build();
 	}
 
 	@Reference
 	private CommercePricingClassLocalService _commercePricingClassLocalService;
+
+	@Reference
+	private ProductGroupResource.Factory _productGroupResourceFactory;
 
 }

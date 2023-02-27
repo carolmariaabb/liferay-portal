@@ -26,7 +26,9 @@ import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManagerRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
+import com.liferay.object.system.SystemObjectDefinitionMetadata;
 import com.liferay.object.system.SystemObjectDefinitionMetadataRegistry;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.UserLocalService;
@@ -60,46 +62,18 @@ public class UpdateObjectEntryObjectActionExecutorImpl
 			_objectDefinitionLocalService.fetchObjectDefinition(
 				payloadJSONObject.getLong("objectDefinitionId"));
 
-		ObjectEntryManager objectEntryManager =
-			_objectEntryManagerRegistry.getObjectEntryManager(
-				objectDefinition.getStorageType());
-
-		User user = _userLocalService.getUser(userId);
-
 		TransactionCommitCallbackUtil.registerCallback(
 			() -> {
-				boolean skipObjectEntryResourcePermission =
-					ObjectEntryThreadLocal.
-						isSkipObjectEntryResourcePermission();
-
-				try {
-					ObjectEntryThreadLocal.setSkipObjectEntryResourcePermission(
-						true);
-
-					objectEntryManager.updateObjectEntry(
-						new DefaultDTOConverterContext(
-							false, Collections.emptyMap(),
-							_dtoConverterRegistry, null, user.getLocale(), null,
-							user),
-						objectDefinition,
-						GetterUtil.getLong(
-							payloadJSONObject.getLong("classPK")),
-						new ObjectEntry() {
-							{
-								properties = _getValues(
-									objectDefinition,
-									parametersUnicodeProperties,
-									ObjectEntryVariablesUtil.getActionVariables(
-										_dtoConverterRegistry, objectDefinition,
-										payloadJSONObject,
-										_systemObjectDefinitionMetadataRegistry));
-							}
-						});
-				}
-				finally {
-					ObjectEntryThreadLocal.setSkipObjectEntryResourcePermission(
-						skipObjectEntryResourcePermission);
-				}
+				_execute(
+					objectDefinition,
+					GetterUtil.getLong(payloadJSONObject.getLong("classPK")),
+					_userLocalService.getUser(userId),
+					_getValues(
+						objectDefinition, parametersUnicodeProperties,
+						ObjectEntryVariablesUtil.getActionVariables(
+							_dtoConverterRegistry, objectDefinition,
+							payloadJSONObject,
+							_systemObjectDefinitionMetadataRegistry)));
 
 				return null;
 			});
@@ -108,6 +82,56 @@ public class UpdateObjectEntryObjectActionExecutorImpl
 	@Override
 	public String getKey() {
 		return ObjectActionExecutorConstants.KEY_UPDATE_OBJECT_ENTRY;
+	}
+
+	private void _execute(
+			ObjectDefinition objectDefinition, long primaryKey, User user,
+			Map<String, Object> values)
+		throws Exception {
+
+		if (objectDefinition.isSystem()) {
+			if (!FeatureFlagManagerUtil.isEnabled(
+					objectDefinition.getCompanyId(), "LPS-173537")) {
+
+				throw new UnsupportedOperationException();
+			}
+
+			SystemObjectDefinitionMetadata systemObjectDefinitionMetadata =
+				_systemObjectDefinitionMetadataRegistry.
+					getSystemObjectDefinitionMetadata(
+						objectDefinition.getName());
+
+			systemObjectDefinitionMetadata.updateBaseModel(
+				objectDefinition, primaryKey, user, values);
+
+			return;
+		}
+
+		boolean skipObjectEntryResourcePermission =
+			ObjectEntryThreadLocal.isSkipObjectEntryResourcePermission();
+
+		try {
+			ObjectEntryThreadLocal.setSkipObjectEntryResourcePermission(true);
+
+			ObjectEntryManager objectEntryManager =
+				_objectEntryManagerRegistry.getObjectEntryManager(
+					objectDefinition.getStorageType());
+
+			objectEntryManager.updateObjectEntry(
+				new DefaultDTOConverterContext(
+					false, Collections.emptyMap(), _dtoConverterRegistry, null,
+					user.getLocale(), null, user),
+				objectDefinition, primaryKey,
+				new ObjectEntry() {
+					{
+						properties = values;
+					}
+				});
+		}
+		finally {
+			ObjectEntryThreadLocal.setSkipObjectEntryResourcePermission(
+				skipObjectEntryResourcePermission);
+		}
 	}
 
 	private Map<String, Object> _getValues(
@@ -121,7 +145,7 @@ public class UpdateObjectEntryObjectActionExecutorImpl
 
 		List<ObjectField> objectFields =
 			_objectFieldLocalService.getObjectFields(
-				objectDefinition.getObjectDefinitionId(), false);
+				objectDefinition.getObjectDefinitionId());
 
 		Map<String, Object> objectEntry = (Map<String, Object>)variables.get(
 			"baseModel");

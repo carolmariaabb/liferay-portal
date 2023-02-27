@@ -14,9 +14,15 @@
 
 package com.liferay.object.internal.system;
 
+import com.liferay.headless.admin.user.dto.v1_0.UserAccount;
+import com.liferay.headless.admin.user.resource.v1_0.UserAccountResource;
 import com.liferay.object.constants.ObjectDefinitionConstants;
+import com.liferay.object.field.business.type.ObjectFieldBusinessType;
+import com.liferay.object.field.business.type.ObjectFieldBusinessTypeRegistry;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.system.BaseSystemObjectDefinitionMetadata;
 import com.liferay.object.system.JaxRsApplicationDescriptor;
 import com.liferay.object.system.SystemObjectDefinitionMetadata;
@@ -27,9 +33,14 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserTable;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.util.GetterUtil;
+
+import java.io.Serializable;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -44,6 +55,23 @@ import org.osgi.service.component.annotations.Reference;
 @Component(service = SystemObjectDefinitionMetadata.class)
 public class UserSystemObjectDefinitionMetadata
 	extends BaseSystemObjectDefinitionMetadata {
+
+	@Override
+	public long addBaseModel(
+			ObjectDefinition objectDefinition, User user,
+			Map<String, Object> values)
+		throws Exception {
+
+		UserAccountResource userAccountResource = _getUserAccountResource(user);
+
+		UserAccount userAccount = userAccountResource.postUserAccount(
+			_getUserAccount(values));
+
+		_setExtendedProperties(
+			objectDefinition, userAccount.getId(), user, values);
+
+		return userAccount.getId();
+	}
 
 	@Override
 	public BaseModel<?> deleteBaseModel(BaseModel<?> baseModel)
@@ -91,7 +119,13 @@ public class UserSystemObjectDefinitionMetadata
 	public List<ObjectField> getObjectFields() {
 		return Arrays.asList(
 			createObjectField(
+				"Text", "screenName", "String", "screen-name", "alternateName",
+				true, true),
+			createObjectField(
 				"Text", "String", "email-address", "emailAddress", true, true),
+			createObjectField(
+				"Text", "lastName", "String", "last-name", "familyName", true,
+				true),
 			createObjectField(
 				"Text", "firstName", "String", "first-name", "givenName", true,
 				true),
@@ -148,8 +182,99 @@ public class UserSystemObjectDefinitionMetadata
 
 	@Override
 	public int getVersion() {
-		return 1;
+		return 2;
 	}
+
+	@Override
+	public void updateBaseModel(
+			ObjectDefinition objectDefinition, long primaryKey, User user,
+			Map<String, Object> values)
+		throws Exception {
+
+		UserAccountResource userAccountResource = _getUserAccountResource(user);
+
+		userAccountResource.putUserAccount(primaryKey, _getUserAccount(values));
+
+		_setExtendedProperties(objectDefinition, primaryKey, user, values);
+	}
+
+	private UserAccount _getUserAccount(Map<String, Object> values) {
+		return new UserAccount() {
+			{
+				additionalName = GetterUtil.getString(
+					values.get("additionalName"));
+				alternateName = GetterUtil.getString(
+					values.get("alternateName"));
+				emailAddress = GetterUtil.getString(values.get("emailAddress"));
+				externalReferenceCode = GetterUtil.getString(
+					values.get("externalReferenceCode"));
+				familyName = GetterUtil.getString(values.get("familyName"));
+				givenName = GetterUtil.getString(values.get("givenName"));
+			}
+		};
+	}
+
+	private UserAccountResource _getUserAccountResource(User user) {
+		UserAccountResource.Builder builder =
+			_userAccountResourceFactory.create();
+
+		return builder.checkPermissions(
+			false
+		).preferredLocale(
+			user.getLocale()
+		).user(
+			user
+		).build();
+	}
+
+	private void _setExtendedProperties(
+			ObjectDefinition objectDefinition, long primaryKey, User user,
+			Map<String, Object> values)
+		throws Exception {
+
+		Map<String, Serializable> extendedProperties = new HashMap<>();
+
+		for (ObjectField objectField :
+				_objectFieldLocalService.getObjectFields(
+					objectDefinition.getObjectDefinitionId(), false)) {
+
+			ObjectFieldBusinessType objectFieldBusinessType =
+				_objectFieldBusinessTypeRegistry.getObjectFieldBusinessType(
+					objectField.getBusinessType());
+
+			Object value = objectFieldBusinessType.getValue(
+				objectField, values);
+
+			if (value == null) {
+				continue;
+			}
+
+			extendedProperties.put(objectField.getName(), (Serializable)value);
+		}
+
+		_objectEntryLocalService.
+			addOrUpdateExtensionDynamicObjectDefinitionTableValues(
+				user.getUserId(), objectDefinition, primaryKey,
+				extendedProperties,
+				new ServiceContext() {
+					{
+						setCompanyId(user.getCompanyId());
+						setUserId(user.getUserId());
+					}
+				});
+	}
+
+	@Reference
+	private ObjectEntryLocalService _objectEntryLocalService;
+
+	@Reference
+	private ObjectFieldBusinessTypeRegistry _objectFieldBusinessTypeRegistry;
+
+	@Reference
+	private ObjectFieldLocalService _objectFieldLocalService;
+
+	@Reference
+	private UserAccountResource.Factory _userAccountResourceFactory;
 
 	@Reference
 	private UserLocalService _userLocalService;
