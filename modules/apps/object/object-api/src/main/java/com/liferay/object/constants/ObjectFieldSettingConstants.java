@@ -23,7 +23,11 @@ public class ObjectFieldSettingConstants {
 
 	public static final String NAME_DEFAULT_VALUE_TYPE = "defaultValueType";
 
+	public static final String NAME_FILE_SOURCE = "fileSource";
+
 	public static final String NAME_FILTERS = "filters";
+
+	public static final String NAME_MAX_FILE_SIZE = "maximumFileSize";
 
 	public static final String NAME_MAX_LENGTH = "maxLength";
 
@@ -35,15 +39,25 @@ public class ObjectFieldSettingConstants {
 
 	public static final String NAME_SHOW_COUNTER = "showCounter";
 
+	public static final String NAME_SHOW_FILES_IN_DOCS_AND_MEDIA =
+		"showFilesInDocumentsAndMedia";
+
 	public static final String NAME_STATE_FLOW = "stateFlow";
+
+	public static final String NAME_STORAGE_DL_FOLDER_PATH =
+		"storageDLFolderPath";
 
 	public static final String NAME_UNIQUE_VALUES = "uniqueValues";
 
 	public static final String NAME_UNIQUE_VALUES_ERROR_MESSAGE =
 		"uniqueValuesErrorMessage";
 
+	public static final String VALUE_DOCS_AND_MEDIA = "documentsAndMedia";
+
 	public static final String VALUE_EXPRESSION_BUILDER = "expressionBuilder";
 
 	public static final String VALUE_INPUT_AS_VALUE = "inputAsValue";
+
+	public static final String VALUE_USER_COMPUTER = "userComputer";
 
 }

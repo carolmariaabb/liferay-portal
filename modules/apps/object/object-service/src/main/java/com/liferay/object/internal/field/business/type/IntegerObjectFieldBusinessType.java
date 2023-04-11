@@ -40,7 +40,8 @@ import org.osgi.service.component.annotations.Reference;
 	property = "object.field.business.type.key=" + ObjectFieldConstants.BUSINESS_TYPE_INTEGER,
 	service = ObjectFieldBusinessType.class
 )
-public class IntegerObjectFieldBusinessType implements ObjectFieldBusinessType {
+public class IntegerObjectFieldBusinessType
+	extends BaseObjectFieldBusinessType {
 
 	@Override
 	public Set<String> getAllowedObjectFieldSettingsNames() {
