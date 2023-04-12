@@ -17,22 +17,18 @@ package com.liferay.object.admin.rest.internal.dto.v1_0.util;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectField;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectFieldSetting;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectStateFlow;
-import com.liferay.object.admin.rest.dto.v1_0.util.ObjectStateFlowUtil;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.field.setting.builder.ObjectFieldSettingBuilder;
-import com.liferay.object.filter.util.ObjectFilterUtil;
 import com.liferay.object.model.ObjectFieldSettingModel;
 import com.liferay.object.model.ObjectFilter;
 import com.liferay.object.service.ObjectFieldSettingLocalService;
 import com.liferay.object.service.ObjectFilterLocalService;
-import com.liferay.object.service.ObjectStateFlowLocalServiceUtil;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.util.ObjectMapperUtil;
@@ -46,52 +42,6 @@ import java.util.Objects;
  * @author Carolina Barbosa
  */
 public class ObjectFieldSettingUtil {
-
-	public static ObjectFieldSetting toObjectFieldSetting(
-		String businessType,
-		com.liferay.object.model.ObjectFieldSetting
-			serviceBuilderObjectFieldSetting) {
-
-		if ((serviceBuilderObjectFieldSetting == null) ||
-			(!FeatureFlagManagerUtil.isEnabled("LPS-163716") &&
-			 (serviceBuilderObjectFieldSetting.compareName(
-				 ObjectFieldSettingConstants.NAME_DEFAULT_VALUE) ||
-			  serviceBuilderObjectFieldSetting.compareName(
-				  ObjectFieldSettingConstants.NAME_DEFAULT_VALUE_TYPE)))) {
-
-			return null;
-		}
-
-		ObjectFieldSetting objectFieldSetting = new ObjectFieldSetting() {
-			{
-				name = serviceBuilderObjectFieldSetting.getName();
-				value = serviceBuilderObjectFieldSetting.getValue();
-			}
-		};
-
-		if (Objects.equals(
-				businessType, ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) &&
-			Objects.equals(
-				objectFieldSetting.getName(),
-				ObjectFieldSettingConstants.NAME_FILTERS)) {
-
-			objectFieldSetting.setValue(
-				ObjectFilterUtil.getObjectFiltersJSONArray(
-					serviceBuilderObjectFieldSetting.getObjectFilters()));
-		}
-		else if (Objects.equals(
-					ObjectFieldSettingConstants.NAME_STATE_FLOW,
-					objectFieldSetting.getName())) {
-
-			objectFieldSetting.setValue(
-				ObjectStateFlowUtil.toObjectStateFlow(
-					ObjectStateFlowLocalServiceUtil.fetchObjectStateFlow(
-						GetterUtil.getLong(
-							serviceBuilderObjectFieldSetting.getValue()))));
-		}
-
-		return objectFieldSetting;
-	}
 
 	public static List<com.liferay.object.model.ObjectFieldSetting>
 		toObjectFieldSettings(
@@ -163,12 +113,10 @@ public class ObjectFieldSettingUtil {
 				objectFieldSetting.getName())) {
 
 			serviceBuilderObjectFieldSetting.setObjectStateFlow(
-				com.liferay.object.admin.rest.internal.dto.v1_0.util.
-					ObjectStateFlowUtil.toObjectStateFlow(
-						listTypeDefinitionId,
-						ObjectMapperUtil.readValue(
-							ObjectStateFlow.class,
-							objectFieldSetting.getValue())));
+				ObjectStateFlowUtil.toObjectStateFlow(
+					listTypeDefinitionId,
+					ObjectMapperUtil.readValue(
+						ObjectStateFlow.class, objectFieldSetting.getValue())));
 		}
 
 		serviceBuilderObjectFieldSetting.setValue(
