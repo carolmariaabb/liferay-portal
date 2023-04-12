@@ -96,6 +96,10 @@ public class TextObjectFieldBusinessType extends BaseObjectFieldBusinessType {
 			objectField, ObjectFieldSettingConstants.NAME_SHOW_COUNTER,
 			ObjectFieldSettingConstants.NAME_MAX_LENGTH,
 			objectFieldSettingsValues);
+		validateRelatedObjectFieldSettings(
+			objectField, ObjectFieldSettingConstants.NAME_UNIQUE_VALUES,
+			ObjectFieldSettingConstants.NAME_UNIQUE_VALUES_ERROR_MESSAGE,
+			objectFieldSettingsValues);
 	}
 
 	@Reference

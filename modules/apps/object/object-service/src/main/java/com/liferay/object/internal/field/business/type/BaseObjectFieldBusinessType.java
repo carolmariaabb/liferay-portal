@@ -29,8 +29,12 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.util.Collections;
@@ -164,6 +168,45 @@ public abstract class BaseObjectFieldBusinessType
 				DLValidatorUtil.validateDirectoryName(directoryName);
 			}
 		}
+		else if (Objects.equals(
+					objectFieldSettingName,
+					ObjectFieldSettingConstants.
+						NAME_UNIQUE_VALUES_ERROR_MESSAGE)) {
+
+			Object object = null;
+
+			try {
+				object = jsonFactory.looseDeserialize(objectFieldSettingValue);
+			}
+			catch (Exception exception) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(exception);
+				}
+			}
+
+			if ((object == null) || !(object instanceof Map)) {
+				throw new ObjectFieldSettingValueException.InvalidValue(
+					objectField.getName(),
+					ObjectFieldSettingConstants.
+						NAME_UNIQUE_VALUES_ERROR_MESSAGE,
+					objectFieldSettingValue);
+			}
+
+			if (Validator.isNull(
+					MapUtil.getString(
+						(Map<String, String>)object,
+						LocaleUtil.toLanguageId(
+							LocaleUtil.getSiteDefault())))) {
+
+				throw new ObjectFieldSettingValueException.
+					MissingRequiredValues(
+						objectField.getName(),
+						Collections.singleton(objectFieldSettingName));
+			}
+		}
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		BaseObjectFieldBusinessType.class);
 
 }

@@ -90,6 +90,20 @@ public class IntegerObjectFieldBusinessType
 		return PropertyDefinition.PropertyType.INTEGER;
 	}
 
+	@Override
+	public void validateObjectFieldSettings(
+			ObjectField objectField,
+			List<ObjectFieldSetting> objectFieldSettings)
+		throws PortalException {
+
+		super.validateObjectFieldSettings(objectField, objectFieldSettings);
+
+		validateRelatedObjectFieldSettings(
+			objectField, ObjectFieldSettingConstants.NAME_UNIQUE_VALUES,
+			ObjectFieldSettingConstants.NAME_UNIQUE_VALUES_ERROR_MESSAGE,
+			getObjectFieldSettingsValues(objectFieldSettings));
+	}
+
 	@Reference
 	private Language _language;
 
