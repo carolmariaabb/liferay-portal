@@ -15,6 +15,8 @@
 package com.liferay.object.petra.sql.dsl;
 
 import com.liferay.object.constants.ObjectFieldConstants;
+import com.liferay.object.constants.ObjectFieldSettingConstants;
+import com.liferay.object.field.setting.util.ObjectFieldSettingUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.petra.sql.dsl.Column;
@@ -23,6 +25,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 
 import java.math.BigDecimal;
@@ -30,6 +33,7 @@ import java.math.BigDecimal;
 import java.sql.Blob;
 import java.sql.Types;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -124,6 +128,8 @@ public class DynamicObjectDefinitionTable
 		sb.append(_primaryKeyColumnName);
 		sb.append(" LONG not null primary key");
 
+		List<String> uniqueObjectFieldDBColumnNames = new ArrayList<>();
+
 		for (ObjectField objectField : _objectFields) {
 			if (objectField.compareBusinessType(
 					ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) ||
@@ -138,6 +144,25 @@ public class DynamicObjectDefinitionTable
 			sb.append(" ");
 			sb.append(_getDataType(objectField.getDBType()));
 			sb.append(_getSQLColumnNull(objectField.getDBType()));
+
+			if (GetterUtil.getBoolean(
+					ObjectFieldSettingUtil.getValue(
+						ObjectFieldSettingConstants.NAME_UNIQUE_VALUES,
+						objectField))) {
+
+				uniqueObjectFieldDBColumnNames.add(
+					objectField.getDBColumnName());
+			}
+		}
+
+		for (String uniqueObjectFieldDBColumnName :
+				uniqueObjectFieldDBColumnNames) {
+
+			sb.append(", constraint uc_");
+			sb.append(uniqueObjectFieldDBColumnName);
+			sb.append(" unique (");
+			sb.append(uniqueObjectFieldDBColumnName);
+			sb.append(")");
 		}
 
 		sb.append(")");

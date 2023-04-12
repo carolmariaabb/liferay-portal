@@ -1063,7 +1063,7 @@ public class ObjectDefinitionLocalServiceImpl
 		DynamicObjectDefinitionTable dynamicObjectDefinitionTable =
 			new DynamicObjectDefinitionTable(
 				objectDefinition,
-				_objectFieldPersistence.findByODI_DTN(
+				_objectFieldLocalService.getObjectFields(
 					objectDefinition.getObjectDefinitionId(), dbTableName),
 				dbTableName);
 
