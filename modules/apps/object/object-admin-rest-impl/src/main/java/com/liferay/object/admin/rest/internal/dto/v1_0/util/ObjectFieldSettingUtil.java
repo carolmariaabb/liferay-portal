@@ -17,7 +17,6 @@ package com.liferay.object.admin.rest.internal.dto.v1_0.util;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectField;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectFieldSetting;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectStateFlow;
-import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.field.setting.builder.ObjectFieldSettingBuilder;
 import com.liferay.object.model.ObjectFieldSettingModel;
@@ -36,7 +35,6 @@ import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * @author Carolina Barbosa
@@ -53,9 +51,8 @@ public class ObjectFieldSettingUtil {
 			TransformUtil.transformToList(
 				objectField.getObjectFieldSettings(),
 				objectFieldSetting -> _toObjectFieldSetting(
-					objectField.getBusinessTypeAsString(), listTypeDefinitionId,
-					objectFieldSetting, objectFieldSettingLocalService,
-					objectFilterLocalService));
+					listTypeDefinitionId, objectFieldSetting,
+					objectFieldSettingLocalService, objectFilterLocalService));
 
 		List<String> objectFieldSettingNames = ListUtil.toList(
 			objectFieldSettings, ObjectFieldSettingModel::getName);
@@ -96,7 +93,7 @@ public class ObjectFieldSettingUtil {
 
 	private static com.liferay.object.model.ObjectFieldSetting
 			_toObjectFieldSetting(
-				String businessType, long listTypeDefinitionId,
+				long listTypeDefinitionId,
 				ObjectFieldSetting objectFieldSetting,
 				ObjectFieldSettingLocalService objectFieldSettingLocalService,
 				ObjectFilterLocalService objectFilterLocalService)
@@ -108,9 +105,8 @@ public class ObjectFieldSettingUtil {
 
 		serviceBuilderObjectFieldSetting.setName(objectFieldSetting.getName());
 
-		if (Objects.equals(
-				ObjectFieldSettingConstants.NAME_STATE_FLOW,
-				objectFieldSetting.getName())) {
+		if (serviceBuilderObjectFieldSetting.compareName(
+				ObjectFieldSettingConstants.NAME_STATE_FLOW)) {
 
 			serviceBuilderObjectFieldSetting.setObjectStateFlow(
 				ObjectStateFlowUtil.toObjectStateFlow(
@@ -119,13 +115,18 @@ public class ObjectFieldSettingUtil {
 						ObjectStateFlow.class, objectFieldSetting.getValue())));
 		}
 
-		serviceBuilderObjectFieldSetting.setValue(
-			String.valueOf(objectFieldSetting.getValue()));
+		if (serviceBuilderObjectFieldSetting.compareName(
+				ObjectFieldSettingConstants.NAME_UNIQUE_VALUES_ERROR_MESSAGE)) {
 
-		if (Objects.equals(
-				businessType, ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) &&
-			Objects.equals(
-				objectFieldSetting.getName(),
+			serviceBuilderObjectFieldSetting.setValue(
+				JSONFactoryUtil.looseSerialize(objectFieldSetting.getValue()));
+		}
+		else {
+			serviceBuilderObjectFieldSetting.setValue(
+				String.valueOf(objectFieldSetting.getValue()));
+		}
+
+		if (serviceBuilderObjectFieldSetting.compareName(
 				ObjectFieldSettingConstants.NAME_FILTERS)) {
 
 			List<ObjectFilter> objectFilters = new ArrayList<>();
