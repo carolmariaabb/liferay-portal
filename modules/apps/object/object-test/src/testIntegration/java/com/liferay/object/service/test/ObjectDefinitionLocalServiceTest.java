@@ -1802,13 +1802,6 @@ public class ObjectDefinitionLocalServiceTest {
 				objectFieldRelationshipTypeException.getMessage());
 		}
 		finally {
-
-			// TODO Deleting an object definition should delete any of its
-			// object relationships
-
-			//_objectRelationshipLocalService.deleteObjectRelationship(
-			//	objectRelationship);
-
 			_objectDefinitionLocalService.deleteObjectDefinition(
 				objectDefinition2);
 		}

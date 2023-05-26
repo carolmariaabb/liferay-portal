@@ -385,12 +385,6 @@ public class ObjectDefinitionLocalServiceImpl
 			}
 		}
 
-		_objectFieldLocalService.deleteObjectFieldByObjectDefinitionId(
-			objectDefinition.getObjectDefinitionId());
-
-		_objectLayoutLocalService.deleteObjectLayouts(
-			objectDefinition.getObjectDefinitionId());
-
 		for (ObjectRelationship objectRelationship :
 				_objectRelationshipPersistence.findByODI1_R(
 					objectDefinition.getObjectDefinitionId(), false)) {
@@ -406,6 +400,12 @@ public class ObjectDefinitionLocalServiceImpl
 			_objectRelationshipLocalService.deleteObjectRelationship(
 				objectRelationship);
 		}
+
+		_objectFieldLocalService.deleteObjectFieldByObjectDefinitionId(
+			objectDefinition.getObjectDefinitionId());
+
+		_objectLayoutLocalService.deleteObjectLayouts(
+			objectDefinition.getObjectDefinitionId());
 
 		_objectValidationRuleLocalService.deleteObjectValidationRules(
 			objectDefinition.getObjectDefinitionId());
