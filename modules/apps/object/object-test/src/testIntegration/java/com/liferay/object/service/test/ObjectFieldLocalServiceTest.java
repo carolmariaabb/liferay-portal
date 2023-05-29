@@ -107,7 +107,7 @@ import org.junit.runner.RunWith;
  * @author Marco Leo
  * @author Brian Wing Shun Chan
  */
-@FeatureFlags({"LPS-146755", "LPS-163716"})
+@FeatureFlags({"LPS-146755", "LPS-163716", "LPS-179803"})
 @RunWith(Arquillian.class)
 public class ObjectFieldLocalServiceTest {
 
@@ -777,7 +777,21 @@ public class ObjectFieldLocalServiceTest {
 				Collections.emptyList()
 			).build());
 
-		_assertDeleteObjectField(true, customObjectDefinition, "baker");
+		_assertDeleteObjectField(true, customObjectDefinition, "able");
+
+		_addCustomObjectField(
+			new TextObjectFieldBuilder(
+			).labelMap(
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString())
+			).name(
+				"charlie"
+			).objectDefinitionId(
+				customObjectDefinition.getObjectDefinitionId()
+			).objectFieldSettings(
+				Collections.emptyList()
+			).build());
+
+		_assertDeleteObjectField(true, customObjectDefinition, "charlie");
 
 		// Delete object field business type attachment
 
