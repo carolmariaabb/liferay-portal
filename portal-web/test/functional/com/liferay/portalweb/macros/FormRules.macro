@@ -245,15 +245,15 @@ definition {
 
 	@summary = "Default summary"
 	macro selectConditionOperator(conditionOperator = null, conditionRowNumber = null) {
-		var key_selectValue = ${conditionOperator};
-		var key_conditionRowNumber = ${conditionRowNumber};
-		var key_fieldColumnNumber = 2;
+		Click(
+			key_conditionRowNumber = ${conditionRowNumber},
+			key_fieldColumnNumber = 2,
+			locator1 = "FormRules#RULE_BUILDER_CONDITION_FIELD"
+		);
 
-		Click(locator1 = "FormRules#RULE_BUILDER_CONDITION_FIELD");
-
-		AssertClick(
-			locator1 = "FormRules#RULE_BUILDER_FIELD_SELECT_VALUE",
-			value1 = ${conditionOperator});
+		Click.clickAtNotVisible(
+			key_selectValue = ${conditionOperator},
+			locator1 = "FormRules#RULE_BUILDER_FIELD_SELECT_VALUE");
 	}
 
 	@summary = "Default summary"
