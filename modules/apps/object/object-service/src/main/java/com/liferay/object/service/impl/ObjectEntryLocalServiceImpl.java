@@ -3882,9 +3882,16 @@ public class ObjectEntryLocalServiceImpl
 			if (DBManagerUtil.getDBType() == DBType.POSTGRESQL) {
 				preparedStatement.setString(index, String.valueOf(value));
 			}
+			else if (value != null) {
+				String string = (String)value;
+
+				StringReader stringReader = new StringReader(string);
+
+				preparedStatement.setCharacterStream(
+					index, stringReader, string.length());
+			}
 			else {
-				preparedStatement.setClob(
-					index, new StringReader(String.valueOf(value)));
+				preparedStatement.setNull(index, Types.CLOB);
 			}
 		}
 		else if ((sqlType == Types.DATE) || (sqlType == Types.TIMESTAMP)) {
