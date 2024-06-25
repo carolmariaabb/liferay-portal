@@ -30,7 +30,7 @@ public class DDMDataProviderInstanceSettingsImpl
 	@Override
 	public <T> T getSettings(
 		DDMDataProviderInstance ddmDataProviderInstance, Class<T> clazz) {
-
+        // test
 		DDMDataProvider ddmDataProvider =
 			ddmDataProviderRegistry.getDDMDataProvider(
 				ddmDataProviderInstance.getType());
