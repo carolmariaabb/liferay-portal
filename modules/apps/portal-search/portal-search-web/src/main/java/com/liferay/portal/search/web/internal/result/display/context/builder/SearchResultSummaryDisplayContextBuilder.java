@@ -11,6 +11,7 @@ import com.liferay.asset.kernel.model.AssetRenderer;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
 import com.liferay.asset.kernel.service.AssetEntryLocalService;
 import com.liferay.asset.util.AssetRendererFactoryLookup;
+import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.petra.function.transform.TransformUtil;
@@ -797,15 +798,18 @@ public class SearchResultSummaryDisplayContextBuilder {
 		String modelResource = _resourceActions.getModelResource(
 			_themeDisplay.getLocale(), className);
 
-		if (className.startsWith(ObjectDefinition.class.getName() + "#")) {
-			String[] parts = StringUtil.split(className, "#");
+		if (className.startsWith(
+				ObjectDefinitionConstants.
+					CLASS_NAME_PREFIX_CUSTOM_OBJECT_DEFINITION)) {
 
 			ObjectDefinition objectDefinition =
-				_objectDefinitionLocalService.fetchObjectDefinition(
-					Long.valueOf(parts[1]));
+				_objectDefinitionLocalService.fetchObjectDefinitionByClassName(
+					_themeDisplay.getCompanyId(), className);
 
-			modelResource = objectDefinition.getLabel(
-				_themeDisplay.getLocale());
+			if (objectDefinition != null) {
+				modelResource = objectDefinition.getLabel(
+					_themeDisplay.getLocale());
+			}
 		}
 
 		if (!Validator.isBlank(modelResource)) {
