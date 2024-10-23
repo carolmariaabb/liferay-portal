@@ -193,14 +193,12 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 		InfoItemFormProvider<ObjectEntry> infoItemFormProvider =
 			new ObjectEntryInfoItemFormProvider(
-				_displayPageInfoItemFieldSetProvider, objectDefinition,
-				_infoItemFieldReaderFieldSetProvider,
-				_listTypeEntryLocalService, _objectActionLocalService,
-				_objectDefinitionLocalService, objectFieldInfoFieldConverter,
-				_objectFieldLocalService, _objectFieldSettingLocalService,
-				_objectRelationshipLocalService, _objectScopeProviderRegistry,
-				_restContextPathResolverRegistry,
-				_templateInfoItemFieldSetProvider, _userLocalService);
+				_displayPageInfoItemFieldSetProvider,
+				_infoItemFieldReaderFieldSetProvider, _objectActionLocalService,
+				objectDefinition, _objectDefinitionLocalService,
+				objectFieldInfoFieldConverter, _objectFieldLocalService,
+				_objectRelationshipLocalService,
+				_templateInfoItemFieldSetProvider);
 
 		PortletResourcePermission portletResourcePermission =
 			_getPortletResourcePermission(_getResourceName(objectDefinition));
