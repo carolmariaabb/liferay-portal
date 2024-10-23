@@ -23,6 +23,7 @@ import com.liferay.object.exception.NoSuchObjectFieldException;
 import com.liferay.object.exception.ObjectDefinitionAccountEntryRestrictedException;
 import com.liferay.object.exception.ObjectDefinitionAccountEntryRestrictedObjectFieldIdException;
 import com.liferay.object.exception.ObjectDefinitionActiveException;
+import com.liferay.object.exception.ObjectDefinitionClassNameException;
 import com.liferay.object.exception.ObjectDefinitionEnableCategorizationException;
 import com.liferay.object.exception.ObjectDefinitionEnableCommentsException;
 import com.liferay.object.exception.ObjectDefinitionEnableLocalizationException;
@@ -182,16 +183,17 @@ public class ObjectDefinitionLocalServiceImpl
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public ObjectDefinition addCustomObjectDefinition(
-			long userId, long objectFolderId, boolean enableComments,
-			boolean enableIndexSearch, boolean enableLocalization,
-			boolean enableObjectEntryDraft, Map<Locale, String> labelMap,
-			String name, String panelAppOrder, String panelCategoryKey,
-			Map<Locale, String> pluralLabelMap, boolean portlet, String scope,
-			String storageType, List<ObjectField> objectFields)
+			long userId, long objectFolderId, String className,
+			boolean enableComments, boolean enableIndexSearch,
+			boolean enableLocalization, boolean enableObjectEntryDraft,
+			Map<Locale, String> labelMap, String name, String panelAppOrder,
+			String panelCategoryKey, Map<Locale, String> pluralLabelMap,
+			boolean portlet, String scope, String storageType,
+			List<ObjectField> objectFields)
 		throws PortalException {
 
 		return _addObjectDefinition(
-			null, userId, objectFolderId, null, null, enableComments,
+			null, userId, objectFolderId, className, null, enableComments,
 			enableIndexSearch, enableLocalization, enableObjectEntryDraft,
 			labelMap, true, name, panelAppOrder, panelCategoryKey, null, null,
 			pluralLabelMap, portlet, scope, storageType, false, null, 0,
@@ -1166,7 +1168,7 @@ public class ObjectDefinitionLocalServiceImpl
 			long accountEntryRestrictedObjectFieldId,
 			long descriptionObjectFieldId, long objectFolderId,
 			long titleObjectFieldId, boolean accountEntryRestricted,
-			boolean active, boolean enableCategorization,
+			boolean active, String className, boolean enableCategorization,
 			boolean enableComments, boolean enableIndexSearch,
 			boolean enableLocalization, boolean enableObjectEntryDraft,
 			boolean enableObjectEntryHistory, Map<Locale, String> labelMap,
@@ -1224,8 +1226,8 @@ public class ObjectDefinitionLocalServiceImpl
 			externalReferenceCode, objectDefinition,
 			accountEntryRestrictedObjectFieldId, descriptionObjectFieldId,
 			objectFolderId, titleObjectFieldId, accountEntryRestricted, active,
-			null, enableCategorization, enableComments, enableIndexSearch,
-			enableLocalization, enableObjectEntryDraft,
+			className, null, enableCategorization, enableComments,
+			enableIndexSearch, enableLocalization, enableObjectEntryDraft,
 			enableObjectEntryHistory, labelMap, name, panelAppOrder,
 			panelCategoryKey, portlet, null, null, pluralLabelMap, scope,
 			status);
@@ -1466,6 +1468,8 @@ public class ObjectDefinitionLocalServiceImpl
 
 		_validateExternalReferenceCode(
 			true, externalReferenceCode, modifiable, name, system);
+		_validateClassName(
+			0, user.getCompanyId(), className, modifiable, system);
 		_validateEnableComments(
 			enableComments, modifiable, storageType, system);
 		_validateLabel(labelMap);
@@ -1775,11 +1779,14 @@ public class ObjectDefinitionLocalServiceImpl
 		long objectDefinitionId, String className, boolean modifiable,
 		boolean system) {
 
-		if (_isUnmodifiableSystemObject(modifiable, system)) {
+		if (Validator.isNotNull(className) ||
+			_isUnmodifiableSystemObject(modifiable, system)) {
+
 			return className;
 		}
 
-		return ObjectDefinition.class.getName() + "#" + objectDefinitionId;
+		return ObjectDefinitionConstants.
+			CLASS_NAME_PREFIX_CUSTOM_OBJECT_DEFINITION + objectDefinitionId;
 	}
 
 	private String _getDBTableName(
@@ -2136,14 +2143,14 @@ public class ObjectDefinitionLocalServiceImpl
 			long accountEntryRestrictedObjectFieldId,
 			long descriptionObjectFieldId, long objectFolderId,
 			long titleObjectFieldId, boolean accountEntryRestricted,
-			boolean active, String dbTableName, boolean enableCategorization,
-			boolean enableComments, boolean enableIndexSearch,
-			boolean enableLocalization, boolean enableObjectEntryDraft,
-			boolean enableObjectEntryHistory, Map<Locale, String> labelMap,
-			String name, String panelAppOrder, String panelCategoryKey,
-			boolean portlet, String pkObjectFieldDBColumnName,
-			String pkObjectFieldName, Map<Locale, String> pluralLabelMap,
-			String scope, int status)
+			boolean active, String className, String dbTableName,
+			boolean enableCategorization, boolean enableComments,
+			boolean enableIndexSearch, boolean enableLocalization,
+			boolean enableObjectEntryDraft, boolean enableObjectEntryHistory,
+			Map<Locale, String> labelMap, String name, String panelAppOrder,
+			String panelCategoryKey, boolean portlet,
+			String pkObjectFieldDBColumnName, String pkObjectFieldName,
+			Map<Locale, String> pluralLabelMap, String scope, int status)
 		throws PortalException {
 
 		long oldObjectFolderId = objectDefinition.getObjectFolderId();
@@ -2158,6 +2165,16 @@ public class ObjectDefinitionLocalServiceImpl
 		_validateObjectFieldId(objectDefinition, descriptionObjectFieldId);
 		_validateObjectFieldId(objectDefinition, titleObjectFieldId);
 		_validateActive(active, status);
+
+		if (Validator.isNotNull(objectDefinition.getClassName())) {
+			className = objectDefinition.getClassName();
+		}
+
+		_validateClassName(
+			objectDefinition.getObjectDefinitionId(),
+			objectDefinition.getCompanyId(), className,
+			objectDefinition.isModifiable(), objectDefinition.isSystem());
+
 		_validateEnableCategorization(
 			enableCategorization, objectDefinition.isModifiable(),
 			objectDefinition.getStorageType(), objectDefinition.isSystem());
@@ -2197,8 +2214,7 @@ public class ObjectDefinitionLocalServiceImpl
 		objectDefinition.setActive(active);
 		objectDefinition.setClassName(
 			_getClassName(
-				objectDefinition.getObjectDefinitionId(),
-				objectDefinition.getClassName(),
+				objectDefinition.getObjectDefinitionId(), className,
 				objectDefinition.isModifiable(), objectDefinition.isSystem()));
 		objectDefinition.setEnableCategorization(enableCategorization);
 		objectDefinition.setEnableComments(enableComments);
@@ -2380,6 +2396,37 @@ public class ObjectDefinitionLocalServiceImpl
 
 			throw new ObjectDefinitionActiveException(
 				"Object definitions must be published before being activated");
+		}
+	}
+
+	private void _validateClassName(
+			long objectDefinitionId, long companyId, String className,
+			boolean modifiable, boolean system)
+		throws PortalException {
+
+		if (Validator.isNull(className) ||
+			_isUnmodifiableSystemObject(modifiable, system)) {
+
+			return;
+		}
+
+		if (!StringUtil.startsWith(
+				className,
+				ObjectDefinitionConstants.
+					CLASS_NAME_PREFIX_CUSTOM_OBJECT_DEFINITION)) {
+
+			throw new ObjectDefinitionClassNameException.MustStartWithPrefix();
+		}
+
+		ObjectDefinition existingObjectDefinition =
+			objectDefinitionPersistence.fetchByC_C(companyId, className);
+
+		if ((existingObjectDefinition != null) &&
+			(existingObjectDefinition.getObjectDefinitionId() !=
+				objectDefinitionId)) {
+
+			throw new ObjectDefinitionClassNameException.MustNotBeDuplicate(
+				className);
 		}
 	}
 
