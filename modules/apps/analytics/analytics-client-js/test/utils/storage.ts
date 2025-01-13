@@ -13,31 +13,8 @@ import {
 
 const STORAGE_KEY = 'some-key';
 
-window.Liferay = {
-	FeatureFlags: {
-		'LPD-10588': false,
-	},
-	Util: {
-		Cookie: {
-			get: jest.fn(),
-		},
-		LocalStorage: {
-			TYPES: {
-				PERFORMANCE: 'performance',
-			},
-			getItem: jest.fn(),
-			removeItem: jest.fn(),
-			setItem: jest.fn(),
-		},
-	},
-};
-
 describe('Storage Utils', () => {
 	beforeEach(() => {
-
-		// @ts-ignore
-
-		window.Liferay.FeatureFlags['LPD-10588'] = false;
 
 		// @ts-ignore
 
@@ -57,21 +34,6 @@ describe('Storage Utils', () => {
 			).not.toBeCalled();
 			expect(removeItem(STORAGE_KEY)).toEqual(expected);
 		});
-
-		it('Removes an item from localStorage by using Liferay Instance', () => {
-
-			// @ts-ignore
-
-			window.Liferay.FeatureFlags['LPD-10588'] = true;
-
-			// @ts-ignore
-
-			window.Liferay.Util.Cookie.get = () => 'true';
-
-			removeItem(STORAGE_KEY);
-
-			expect(window.Liferay?.Util?.LocalStorage?.removeItem).toBeCalled();
-		});
 	});
 
 	describe('getItem', () => {
@@ -85,21 +47,6 @@ describe('Storage Utils', () => {
 			).not.toBeCalled();
 
 			expect(getItem(STORAGE_KEY)).toEqual(expected);
-		});
-
-		it('Retrieves an item from localStorage by using Liferay Instance', () => {
-
-			// @ts-ignore
-
-			window.Liferay.FeatureFlags['LPD-10588'] = true;
-
-			// @ts-ignore
-
-			window.Liferay.Util.Cookie.get = () => 'true';
-
-			getItem(STORAGE_KEY);
-
-			expect(window.Liferay?.Util?.LocalStorage?.getItem).toBeCalled();
 		});
 	});
 
@@ -124,21 +71,6 @@ describe('Storage Utils', () => {
 			expect(
 				JSON.parse(localStorage.getItem(STORAGE_KEY) as string)
 			).toEqual(expected);
-		});
-
-		it('Sets an item in localStorage by using Liferay Instance', () => {
-
-			// @ts-ignore
-
-			window.Liferay.FeatureFlags['LPD-10588'] = true;
-
-			// @ts-ignore
-
-			window.Liferay.Util.Cookie.get = () => 'true';
-
-			setItem(STORAGE_KEY, {name: 'foo'});
-
-			expect(window.Liferay?.Util?.LocalStorage?.setItem).toBeCalled();
 		});
 	});
 
