@@ -181,6 +181,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.osgi.framework.BundleContext;
@@ -965,6 +966,13 @@ public class ObjectDefinitionLocalServiceImpl
 
 		ObjectDefinition objectDefinition =
 			objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
+
+		System.out.println("===================================");
+		System.out.println(objectDefinition.getName());
+		System.out.println(objectDefinition.getExternalReferenceCode());
+		System.out.println(objectDefinition.getCompanyId());
+		System.out.println(objectDefinition.getClassName());
+		System.out.println("===================================");
 
 		return _publishObjectDefinition(userId, objectDefinition);
 	}
@@ -1908,9 +1916,9 @@ public class ObjectDefinitionLocalServiceImpl
 				ObjectDefinitionConstants.
 					CLASS_NAME_PREFIX_CUSTOM_OBJECT_DEFINITION);
 			sb.append(StringUtil.toUpperCase(StringUtil.randomId(1)));
-			sb.append(RandomUtil.nextInt(10));
+			sb.append(ThreadLocalRandom.current().nextInt());
 			sb.append(StringUtil.toUpperCase(StringUtil.randomId(1)));
-			sb.append(RandomUtil.nextInt(10));
+			sb.append(ThreadLocalRandom.current().nextInt());
 
 			ObjectDefinition existingObjectDefinition =
 				objectDefinitionPersistence.fetchByC_C(
