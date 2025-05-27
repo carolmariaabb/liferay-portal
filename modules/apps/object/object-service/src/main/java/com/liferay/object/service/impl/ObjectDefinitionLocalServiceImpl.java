@@ -127,7 +127,6 @@ import com.liferay.portal.kernel.model.WorkflowInstanceLink;
 import com.liferay.portal.kernel.module.framework.service.IdentifiableOSGiService;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
-import com.liferay.portal.kernel.security.RandomUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
@@ -181,6 +180,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.osgi.framework.BundleContext;
@@ -965,6 +965,13 @@ public class ObjectDefinitionLocalServiceImpl
 
 		ObjectDefinition objectDefinition =
 			objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
+
+		System.out.println("===================================");
+		System.out.println(objectDefinition.getName());
+		System.out.println(objectDefinition.getExternalReferenceCode());
+		System.out.println(objectDefinition.getCompanyId());
+		System.out.println(objectDefinition.getClassName());
+		System.out.println("===================================");
 
 		return _publishObjectDefinition(userId, objectDefinition);
 	}
@@ -1908,9 +1915,13 @@ public class ObjectDefinitionLocalServiceImpl
 				ObjectDefinitionConstants.
 					CLASS_NAME_PREFIX_CUSTOM_OBJECT_DEFINITION);
 			sb.append(StringUtil.toUpperCase(StringUtil.randomId(1)));
-			sb.append(RandomUtil.nextInt(10));
+
+			ThreadLocalRandom threadLocalRandom = ThreadLocalRandom.current();
+
+			sb.append(threadLocalRandom.nextInt(10));
+
 			sb.append(StringUtil.toUpperCase(StringUtil.randomId(1)));
-			sb.append(RandomUtil.nextInt(10));
+			sb.append(threadLocalRandom.nextInt(10));
 
 			ObjectDefinition existingObjectDefinition =
 				objectDefinitionPersistence.fetchByC_C(
