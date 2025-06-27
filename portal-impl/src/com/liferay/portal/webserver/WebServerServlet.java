@@ -276,6 +276,8 @@ public class WebServerServlet extends HttpServlet {
 			message.put("companyId", user.getCompanyId());
 
 			message.put(
+				"groupId", ParamUtil.getLong(httpServletRequest, "groupId"));
+			message.put(
 				"objectDefinitionExternalReferenceCode",
 				objectDefinitionExternalReferenceCode);
 			message.put(

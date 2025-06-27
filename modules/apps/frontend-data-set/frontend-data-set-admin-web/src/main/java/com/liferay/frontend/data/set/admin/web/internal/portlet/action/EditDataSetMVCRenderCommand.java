@@ -63,7 +63,8 @@ public class EditDataSetMVCRenderCommand implements MVCRenderCommand {
 			}
 
 			ObjectEntry objectEntry = _objectEntryLocalService.getObjectEntry(
-				dataSetERC, objectDefinition.getObjectDefinitionId());
+				dataSetERC, 0, objectDefinition.getCompanyId(),
+				objectDefinition.getObjectDefinitionId());
 
 			ThemeDisplay themeDisplay =
 				(ThemeDisplay)renderRequest.getAttribute(WebKeys.THEME_DISPLAY);

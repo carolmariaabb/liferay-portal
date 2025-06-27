@@ -92,8 +92,8 @@ public class ObjectActionDownloadTriggerMessageListener
 			"objectEntryExternalReferenceCode");
 
 		ObjectEntry objectEntry = _objectEntryLocalService.fetchObjectEntry(
-			objectEntryExternalReferenceCode,
-			objectDefinition.getObjectDefinitionId());
+			objectEntryExternalReferenceCode, message.getLong("groupId"),
+			companyId, objectDefinition.getObjectDefinitionId());
 
 		if (objectEntry == null) {
 			if (_log.isDebugEnabled()) {

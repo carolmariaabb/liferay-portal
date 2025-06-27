@@ -6627,6 +6627,7 @@ public class DefaultObjectEntryManagerImplTest
 				repositoryFileEntry, repositoryFileEntry.getFileVersion(), null,
 				StringPool.BLANK);
 
+			url = HttpComponentsUtil.addParameter(url, "groupId", 0);
 			url = HttpComponentsUtil.addParameter(
 				url, "objectDefinitionExternalReferenceCode",
 				_objectDefinition2.getExternalReferenceCode());
@@ -7879,9 +7880,10 @@ public class DefaultObjectEntryManagerImplTest
 			NoSuchObjectEntryException.class,
 			String.format(
 				"No ObjectEntry exists with the key {externalReference" +
-					"Code=%s, groupId=%s, companyId=%s}",
+					"Code=%s, groupId=%s, companyId=%s, objectDefinitionId=%s}",
 				parentExternalReferenceCode, groupId,
-				parentObjectDefinition.getCompanyId()),
+				parentObjectDefinition.getCompanyId(),
+				parentObjectDefinition.getObjectDefinitionId()),
 			() -> _defaultObjectEntryManager.getObjectEntry(
 				parentObjectDefinition.getCompanyId(),
 				_simpleDTOConverterContext, parentExternalReferenceCode,
@@ -8041,7 +8043,7 @@ public class DefaultObjectEntryManagerImplTest
 					};
 				}
 			},
-			ObjectDefinitionConstants.SCOPE_COMPANY);
+			objectEntry.getScopeKey());
 	}
 
 	private static DefaultObjectEntryManager _defaultObjectEntryManager;

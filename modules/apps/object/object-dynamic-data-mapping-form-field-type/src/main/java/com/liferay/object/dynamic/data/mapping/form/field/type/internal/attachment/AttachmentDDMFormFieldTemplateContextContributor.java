@@ -212,6 +212,10 @@ public class AttachmentDDMFormFieldTemplateContextContributor
 						StringPool.BLANK);
 
 					url = HttpComponentsUtil.addParameter(
+						url, "groupId",
+						GetterUtil.getLong(
+							ddmFormField.getProperty("groupId")));
+					url = HttpComponentsUtil.addParameter(
 						url, "objectDefinitionExternalReferenceCode",
 						GetterUtil.getString(
 							ddmFormField.getProperty(

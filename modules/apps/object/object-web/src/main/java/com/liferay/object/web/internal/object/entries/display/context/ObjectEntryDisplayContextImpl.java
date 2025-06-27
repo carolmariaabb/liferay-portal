@@ -1163,6 +1163,8 @@ public class ObjectEntryDisplayContextImpl
 					ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT) &&
 				 (objectEntry != null)) {
 
+			ddmFormField.setProperty("groupId", _getGroupId());
+
 			ObjectDefinition objectDefinition = getObjectDefinition1();
 
 			ddmFormField.setProperty(
@@ -1486,7 +1488,8 @@ public class ObjectEntryDisplayContextImpl
 		else {
 			com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 				_objectEntryLocalService.getObjectEntry(
-					objectEntry.getExternalReferenceCode(),
+					objectEntry.getExternalReferenceCode(), _getGroupId(),
+					objectField.getCompanyId(),
 					objectField.getObjectDefinitionId());
 
 			existingValues.putAll(

@@ -210,6 +210,7 @@ public class BatchEnginePortletDataHandlerTest {
 		Assert.assertNull(
 			_objectEntryLocalService.fetchObjectEntry(
 				objectEntry.getExternalReferenceCode(),
+				objectEntry.getGroupId(), objectDefinition.getCompanyId(),
 				objectDefinition.getObjectDefinitionId()));
 		Assert.assertNotEquals(
 			objectEntry.getExternalReferenceCode(),
@@ -596,6 +597,7 @@ public class BatchEnginePortletDataHandlerTest {
 			Assert.assertNull(
 				_objectEntryLocalService.fetchObjectEntry(
 					objectEntry.getExternalReferenceCode(),
+					objectEntry.getGroupId(), objectEntry.getCompanyId(),
 					objectDefinitionId));
 		}
 	}
@@ -607,7 +609,9 @@ public class BatchEnginePortletDataHandlerTest {
 		for (ObjectEntry objectEntry : objectEntries) {
 			ObjectEntry importedObjectEntry =
 				_objectEntryLocalService.getObjectEntry(
-					objectEntry.getExternalReferenceCode(), objectDefinitionId);
+					objectEntry.getExternalReferenceCode(),
+					objectEntry.getGroupId(), objectEntry.getCompanyId(),
+					objectDefinitionId);
 
 			DLFileEntry dlFileEntry = _dlFileEntryLocalService.getFileEntry(
 				MapUtil.getLong(

@@ -24,7 +24,8 @@ public class LinkUtil {
 
 	public static Link toLink(
 		DLAppService dlAppService, DLFileEntry dlFileEntry,
-		DLURLHelper dlURLHelper, String objectDefinitionExternalReferenceCode,
+		DLURLHelper dlURLHelper, long groupId,
+		String objectDefinitionExternalReferenceCode,
 		String objectEntryExternalReferenceCode, Portal portal) {
 
 		return new Link() {
@@ -39,6 +40,8 @@ public class LinkUtil {
 								fileEntry, fileEntry.getFileVersion(), null,
 								StringPool.BLANK);
 
+							downloadURL = HttpComponentsUtil.addParameter(
+								downloadURL, "groupId", groupId);
 							downloadURL = HttpComponentsUtil.addParameter(
 								downloadURL,
 								"objectDefinitionExternalReferenceCode",

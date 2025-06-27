@@ -114,6 +114,7 @@ public class CommerceReturnItemObjectEntryValuesContributor
 					values.get(
 						"r_commerceReturnToCommerceReturnItems_l_" +
 							"commerceReturnERC")),
+				0, objectDefinition.getCompanyId(),
 				objectDefinition.getObjectDefinitionId());
 
 			if (originalObjectEntry == null) {
@@ -136,12 +137,13 @@ public class CommerceReturnItemObjectEntryValuesContributor
 		values.put(
 			"returnItemStatus",
 			_getNextReturnItemStatus(
+				objectDefinition.getCompanyId(),
 				objectEntryContext.getObjectDefinitionId(), returnStatus,
 				values));
 	}
 
 	private String _getNextReturnItemStatus(
-			long objectDefinitionId, String returnStatus,
+			long companyId, long objectDefinitionId, String returnStatus,
 			Map<String, Serializable> values)
 		throws Exception {
 
@@ -196,7 +198,7 @@ public class CommerceReturnItemObjectEntryValuesContributor
 					_objectEntryLocalService.getObjectEntry(
 						GetterUtil.getString(
 							values.get("externalReferenceCode")),
-						objectDefinitionId);
+						0, companyId, objectDefinitionId);
 
 				Map<String, Serializable> originalValues =
 					originalObjectEntry.getValues();

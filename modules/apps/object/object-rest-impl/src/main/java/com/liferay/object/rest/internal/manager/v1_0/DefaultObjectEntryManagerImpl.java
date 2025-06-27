@@ -173,9 +173,10 @@ public class DefaultObjectEntryManagerImpl
 			String scopeKey)
 		throws Exception {
 
-		validateReadOnlyObjectFields(null, objectDefinition, objectEntry);
-
 		long groupId = getGroupId(objectDefinition, scopeKey);
+
+		validateReadOnlyObjectFields(
+			null, groupId, objectDefinition, objectEntry);
 
 		ServiceContext serviceContext = _createServiceContext(
 			dtoConverterContext, objectDefinition, objectEntry, scopeKey);
@@ -290,8 +291,8 @@ public class DefaultObjectEntryManagerImpl
 
 		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 			_objectEntryService.getObjectEntry(
-				externalReferenceCode, companyId,
-				getGroupId(objectDefinition, scopeKey));
+				externalReferenceCode, getGroupId(objectDefinition, scopeKey),
+				companyId, objectDefinition.getObjectDefinitionId());
 
 		_checkObjectEntryObjectDefinitionId(
 			objectDefinition, serviceBuilderObjectEntry);
@@ -341,8 +342,9 @@ public class DefaultObjectEntryManagerImpl
 
 		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 			_objectEntryService.getObjectEntry(
-				externalReferenceCode, objectDefinition.getCompanyId(),
-				getGroupId(objectDefinition, scopeKey));
+				externalReferenceCode, getGroupId(objectDefinition, scopeKey),
+				objectDefinition.getCompanyId(),
+				objectDefinition.getObjectDefinitionId());
 
 		_checkObjectEntryObjectDefinitionId(
 			objectDefinition, serviceBuilderObjectEntry);
@@ -393,8 +395,8 @@ public class DefaultObjectEntryManagerImpl
 		_executeObjectAction(
 			dtoConverterContext, objectActionName, objectDefinition,
 			objectEntryLocalService.getObjectEntry(
-				externalReferenceCode, companyId,
-				getGroupId(objectDefinition, scopeKey)));
+				externalReferenceCode, getGroupId(objectDefinition, scopeKey),
+				companyId, objectDefinition.getObjectDefinitionId()));
 	}
 
 	@Override
@@ -431,8 +433,9 @@ public class DefaultObjectEntryManagerImpl
 		return _expireObjectEntryVersion(
 			dtoConverterContext, objectDefinition,
 			_objectEntryService.getObjectEntry(
-				externalReferenceCode, objectDefinition.getCompanyId(),
-				getGroupId(objectDefinition, scopeKey)),
+				externalReferenceCode, getGroupId(objectDefinition, scopeKey),
+				objectDefinition.getCompanyId(),
+				objectDefinition.getObjectDefinitionId()),
 			version);
 	}
 
@@ -725,8 +728,8 @@ public class DefaultObjectEntryManagerImpl
 
 		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 			_objectEntryService.getObjectEntry(
-				externalReferenceCode, companyId,
-				getGroupId(objectDefinition, scopeKey));
+				externalReferenceCode, getGroupId(objectDefinition, scopeKey),
+				companyId, objectDefinition.getObjectDefinitionId());
 
 		_checkObjectEntryObjectDefinitionId(
 			objectDefinition, serviceBuilderObjectEntry);
@@ -944,8 +947,9 @@ public class DefaultObjectEntryManagerImpl
 
 		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 			objectEntryLocalService.getObjectEntry(
-				externalReferenceCode, objectDefinition.getCompanyId(),
-				getGroupId(objectDefinition, scopeKey));
+				externalReferenceCode, getGroupId(objectDefinition, scopeKey),
+				objectDefinition.getCompanyId(),
+				objectDefinition.getObjectDefinitionId());
 
 		return getVersionedObjectEntries(
 			dtoConverterContext, serviceBuilderObjectEntry.getObjectEntryId(),
@@ -1015,8 +1019,10 @@ public class DefaultObjectEntryManagerImpl
 			ObjectEntry objectEntry, String scopeKey)
 		throws Exception {
 
+		long groupId = getGroupId(objectDefinition, scopeKey);
+
 		validateReadOnlyObjectFields(
-			externalReferenceCode, objectDefinition, objectEntry);
+			externalReferenceCode, groupId, objectDefinition, objectEntry);
 
 		ServiceContext serviceContext = _createServiceContext(
 			dtoConverterContext, objectDefinition, objectEntry, scopeKey);
@@ -1025,7 +1031,7 @@ public class DefaultObjectEntryManagerImpl
 
 		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 			_objectEntryService.addOrUpdateObjectEntry(
-				externalReferenceCode, getGroupId(objectDefinition, scopeKey),
+				externalReferenceCode, groupId,
 				objectDefinition.getObjectDefinitionId(),
 				ObjectEntryFolderConstants.
 					PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT,
@@ -2338,7 +2344,8 @@ public class DefaultObjectEntryManagerImpl
 
 		validateReadOnlyObjectFields(
 			serviceBuilderObjectEntry.getExternalReferenceCode(),
-			objectDefinition, objectEntry);
+			serviceBuilderObjectEntry.getGroupId(), objectDefinition,
+			objectEntry);
 
 		String scopeKey = String.valueOf(
 			serviceBuilderObjectEntry.getGroupId());
