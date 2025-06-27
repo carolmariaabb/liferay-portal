@@ -166,14 +166,6 @@ public class ObjectEntryLocalServiceUtil {
 		return getService().deleteObjectEntry(objectEntry);
 	}
 
-	public static ObjectEntry deleteObjectEntry(
-			String externalReferenceCode, long companyId, long groupId)
-		throws PortalException {
-
-		return getService().deleteObjectEntry(
-			externalReferenceCode, companyId, groupId);
-	}
-
 	/**
 	 * @throws PortalException
 	 */
@@ -308,10 +300,11 @@ public class ObjectEntryLocalServiceUtil {
 	}
 
 	public static ObjectEntry fetchObjectEntry(
-		String externalReferenceCode, long objectDefinitionId) {
+		String externalReferenceCode, long groupId, long companyId,
+		long objectDefinitionId) {
 
 		return getService().fetchObjectEntry(
-			externalReferenceCode, objectDefinitionId);
+			externalReferenceCode, groupId, companyId, objectDefinitionId);
 	}
 
 	/**
@@ -500,19 +493,12 @@ public class ObjectEntryLocalServiceUtil {
 	}
 
 	public static ObjectEntry getObjectEntry(
-			String externalReferenceCode, long objectDefinitionId)
+			String externalReferenceCode, long groupId, long companyId,
+			long objectDefinitionId)
 		throws PortalException {
 
 		return getService().getObjectEntry(
-			externalReferenceCode, objectDefinitionId);
-	}
-
-	public static ObjectEntry getObjectEntry(
-			String externalReferenceCode, long companyId, long groupId)
-		throws PortalException {
-
-		return getService().getObjectEntry(
-			externalReferenceCode, companyId, groupId);
+			externalReferenceCode, groupId, companyId, objectDefinitionId);
 	}
 
 	/**
