@@ -140,7 +140,7 @@ public class RelationshipObjectFieldBusinessType
 				}
 
 				ObjectEntry objectEntry = _objectEntryService.getObjectEntry(
-					externalReferenceCode,
+					externalReferenceCode, 0, objectDefinition.getCompanyId(),
 					objectDefinition.getObjectDefinitionId());
 
 				if (!Objects.equals(

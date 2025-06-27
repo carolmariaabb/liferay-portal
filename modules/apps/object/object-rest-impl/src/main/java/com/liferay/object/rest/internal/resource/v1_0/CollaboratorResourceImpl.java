@@ -80,9 +80,10 @@ public class CollaboratorResourceImpl extends BaseCollaboratorResourceImpl {
 		}
 
 		ObjectEntry objectEntry = _objectEntryLocalService.getObjectEntry(
-			externalReferenceCode, contextCompany.getCompanyId(),
+			externalReferenceCode,
 			CollaboratorUtil.getGroupId(
-				contextCompany.getCompanyId(), _groupLocalService, scopeKey));
+				contextCompany.getCompanyId(), _groupLocalService, scopeKey),
+			contextCompany.getCompanyId(), 0);
 
 		CollaboratorUtil.deleteCollaborator(
 			_classNameLocalService.getClassNameId(
@@ -146,9 +147,10 @@ public class CollaboratorResourceImpl extends BaseCollaboratorResourceImpl {
 		}
 
 		ObjectEntry objectEntry = _objectEntryLocalService.getObjectEntry(
-			externalReferenceCode, contextCompany.getCompanyId(),
+			externalReferenceCode,
 			CollaboratorUtil.getGroupId(
-				contextCompany.getCompanyId(), _groupLocalService, scopeKey));
+				contextCompany.getCompanyId(), _groupLocalService, scopeKey),
+			contextCompany.getCompanyId(), 0);
 
 		return CollaboratorUtil.getCollaborator(
 			contextAcceptLanguage,
@@ -171,9 +173,10 @@ public class CollaboratorResourceImpl extends BaseCollaboratorResourceImpl {
 		}
 
 		ObjectEntry objectEntry = _objectEntryLocalService.getObjectEntry(
-			externalReferenceCode, contextCompany.getCompanyId(),
+			externalReferenceCode,
 			CollaboratorUtil.getGroupId(
-				contextCompany.getCompanyId(), _groupLocalService, scopeKey));
+				contextCompany.getCompanyId(), _groupLocalService, scopeKey),
+			contextCompany.getCompanyId(), 0);
 
 		return CollaboratorUtil.getCollaborators(
 			contextAcceptLanguage,
@@ -219,9 +222,10 @@ public class CollaboratorResourceImpl extends BaseCollaboratorResourceImpl {
 		}
 
 		ObjectEntry objectEntry = _objectEntryLocalService.getObjectEntry(
-			externalReferenceCode, contextCompany.getCompanyId(),
+			externalReferenceCode,
 			CollaboratorUtil.getGroupId(
-				contextCompany.getCompanyId(), _groupLocalService, scopeKey));
+				contextCompany.getCompanyId(), _groupLocalService, scopeKey),
+			contextCompany.getCompanyId(), 0);
 
 		return CollaboratorUtil.addOrUpdateCollaborators(
 			contextAcceptLanguage,
@@ -269,9 +273,10 @@ public class CollaboratorResourceImpl extends BaseCollaboratorResourceImpl {
 		}
 
 		ObjectEntry objectEntry = _objectEntryLocalService.getObjectEntry(
-			externalReferenceCode, contextCompany.getCompanyId(),
+			externalReferenceCode,
 			CollaboratorUtil.getGroupId(
-				contextCompany.getCompanyId(), _groupLocalService, scopeKey));
+				contextCompany.getCompanyId(), _groupLocalService, scopeKey),
+			contextCompany.getCompanyId(), 0);
 
 		return CollaboratorUtil.addOrUpdateCollaborator(
 			contextAcceptLanguage,
