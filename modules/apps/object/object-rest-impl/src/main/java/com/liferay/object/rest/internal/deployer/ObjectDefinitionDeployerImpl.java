@@ -201,12 +201,15 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 		_bundleContext = bundleContext;
 	}
 
-	private CollaboratorResourceImpl _createCollaboratorResourceImpl() {
+	private CollaboratorResourceImpl _createCollaboratorResourceImpl(
+		ObjectDefinition objectDefinition) {
+
 		return new CollaboratorResourceImpl(
 			_classNameLocalService, _collaboratorDTOConverter,
-			_dtoConverterRegistry, _groupLocalService, _objectEntryLocalService,
-			_sharingEntryService, _sharingEntryLocalService,
-			_userGroupLocalService, _userLocalService);
+			_dtoConverterRegistry, _groupLocalService, objectDefinition,
+			_objectEntryLocalService, _sharingEntryService,
+			_sharingEntryLocalService, _userGroupLocalService,
+			_userLocalService);
 	}
 
 	private ObjectEntryResourceImpl _createObjectEntryResourceImpl(
@@ -460,7 +463,8 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 							ServiceRegistration<CollaboratorResource>
 								serviceRegistration) {
 
-							return _createCollaboratorResourceImpl();
+							return _createCollaboratorResourceImpl(
+								objectDefinition);
 						}
 
 						@Override
@@ -652,10 +656,12 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 						CollaboratorResource.Factory.class,
 						new CollaboratorResourceFactoryImpl(
 							_companyLocalService,
-							() -> _createCollaboratorResourceImpl(),
+							() -> _createCollaboratorResourceImpl(
+								objectDefinition),
 							_defaultPermissionCheckerFactory,
 							_expressionConvert, _filterParserProvider,
-							_groupLocalService, _resourceActionLocalService,
+							_groupLocalService, objectDefinition,
+							_resourceActionLocalService,
 							_resourcePermissionLocalService, _roleLocalService,
 							_sortParserProvider, _userLocalService),
 						HashMapDictionaryBuilder.<String, Object>put(
