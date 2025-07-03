@@ -9425,6 +9425,214 @@ public class ObjectEntryResourceTest {
 	}
 
 	@Test
+	public void testPostCustomObjectEntryWithRelatedObjectEntryAndDifferentScopes()
+		throws Exception {
+
+		ObjectDefinition siteObjectDefinition1 =
+			ObjectDefinitionTestUtil.publishObjectDefinition(
+				Collections.singletonList(
+					new TextObjectFieldBuilder(
+					).labelMap(
+						LocalizedMapUtil.getLocalizedMap(
+							RandomTestUtil.randomString())
+					).name(
+						"name"
+					).build()),
+				ObjectDefinitionConstants.SCOPE_SITE);
+
+		Group group = GroupTestUtil.addGroup();
+
+		ObjectEntry objectEntry = ObjectEntryTestUtil.addObjectEntry(
+			group.getGroupId(), siteObjectDefinition1,
+			HashMapBuilder.<String, Serializable>put(
+				"externalReferenceCode", _ERC_VALUE_1
+			).build());
+
+		ObjectDefinition siteObjectDefinition2 =
+			ObjectDefinitionTestUtil.publishObjectDefinition(
+				Collections.singletonList(
+					new TextObjectFieldBuilder(
+					).labelMap(
+						LocalizedMapUtil.getLocalizedMap(
+							RandomTestUtil.randomString())
+					).name(
+						"name"
+					).build()),
+				ObjectDefinitionConstants.SCOPE_SITE);
+
+		ObjectRelationship objectRelationship =
+			ObjectRelationshipTestUtil.addObjectRelationship(
+				siteObjectDefinition1, siteObjectDefinition2,
+				TestPropsValues.getUserId(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+
+		ObjectField objectField = _objectFieldLocalService.getObjectField(
+			objectRelationship.getObjectFieldId2());
+
+		JSONObject jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				StringUtil.replaceLast(objectField.getName(), "Id", "ERC"),
+				_ERC_VALUE_1
+			).toString(),
+			_getEndpoint(siteObjectDefinition2, TestPropsValues.getGroupId()),
+			Http.Method.POST);
+
+		Assert.assertEquals("NOT_FOUND", jsonObject.getString("status"));
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				StringUtil.replaceLast(objectField.getName(), "Id", "ERC"),
+				_ERC_VALUE_1
+			).toString(),
+			_getEndpoint(siteObjectDefinition2, group.getGroupId()),
+			Http.Method.POST);
+
+		Assert.assertEquals(
+			objectEntry.getObjectEntryId(),
+			jsonObject.getLong(objectField.getName()));
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				objectRelationship.getName(),
+				JSONUtil.put("externalReferenceCode", _ERC_VALUE_1)
+			).toString(),
+			_getEndpoint(siteObjectDefinition2, TestPropsValues.getGroupId()),
+			Http.Method.POST);
+
+		Assert.assertEquals(
+			_ERC_VALUE_1, jsonObject.getString("externalReferenceCode"));
+		Assert.assertEquals(
+			TestPropsValues.getGroupId(), jsonObject.getLong("scopeId"));
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				objectRelationship.getName(),
+				JSONUtil.put("externalReferenceCode", _ERC_VALUE_1)
+			).toString(),
+			_getEndpoint(siteObjectDefinition2, group.getGroupId()),
+			Http.Method.POST);
+
+		Assert.assertEquals(
+			objectEntry.getObjectEntryId(),
+			jsonObject.getLong(objectField.getName()));
+
+		_objectRelationshipLocalService.deleteObjectRelationship(
+			objectRelationship);
+
+		ObjectDefinition companyObjectDefinition =
+			ObjectDefinitionTestUtil.publishObjectDefinition();
+
+		objectRelationship = ObjectRelationshipTestUtil.addObjectRelationship(
+			siteObjectDefinition1, companyObjectDefinition,
+			TestPropsValues.getUserId(),
+			ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+
+		objectField = _objectFieldLocalService.getObjectField(
+			objectRelationship.getObjectFieldId2());
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				StringUtil.replaceLast(objectField.getName(), "Id", "ERC"),
+				_ERC_VALUE_1
+			).toString(),
+			_getEndpoint(companyObjectDefinition, null), Http.Method.POST);
+
+		Assert.assertEquals("NOT_FOUND", jsonObject.getString("status"));
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				StringUtil.replaceLast(objectField.getName(), "Id", "ERC"),
+				_ERC_VALUE_1
+			).put(
+				StringUtil.replaceLast(objectField.getName(), "Id", "ScopeKey"),
+				group.getGroupKey()
+			).toString(),
+			_getEndpoint(companyObjectDefinition, null), Http.Method.POST);
+
+		Assert.assertEquals(
+			objectEntry.getObjectEntryId(),
+			jsonObject.getLong(objectField.getName()));
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				objectRelationship.getName(),
+				JSONUtil.put("externalReferenceCode", _ERC_VALUE_1)
+			).toString(),
+			_getEndpoint(companyObjectDefinition, null), Http.Method.POST);
+
+		Assert.assertEquals("BAD_REQUEST", jsonObject.getString("status"));
+		Assert.assertEquals(
+			"Group ID 0 is not valid for scope \"site\"",
+			jsonObject.getString("title"));
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				objectRelationship.getName(),
+				JSONUtil.put(
+					"externalReferenceCode", _ERC_VALUE_1
+				).put(
+					"scopeKey", group.getGroupKey()
+				)
+			).toString(),
+			_getEndpoint(companyObjectDefinition, null), Http.Method.POST);
+
+		Assert.assertEquals(
+			objectEntry.getObjectEntryId(),
+			jsonObject.getLong(objectField.getName()));
+
+		_objectRelationshipLocalService.deleteObjectRelationship(
+			objectRelationship);
+
+		objectEntry = ObjectEntryTestUtil.addObjectEntry(
+			companyObjectDefinition,
+			HashMapBuilder.<String, Serializable>put(
+				"externalReferenceCode", _ERC_VALUE_2
+			).build());
+
+		objectRelationship = ObjectRelationshipTestUtil.addObjectRelationship(
+			companyObjectDefinition, siteObjectDefinition1,
+			TestPropsValues.getUserId(),
+			ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+
+		objectField = _objectFieldLocalService.getObjectField(
+			objectRelationship.getObjectFieldId2());
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				StringUtil.replaceLast(objectField.getName(), "Id", "ERC"),
+				_ERC_VALUE_2
+			).toString(),
+			_getEndpoint(siteObjectDefinition1, group.getGroupId()),
+			Http.Method.POST);
+
+		Assert.assertEquals(
+			objectEntry.getObjectEntryId(),
+			jsonObject.getLong(objectField.getName()));
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				objectRelationship.getName(),
+				JSONUtil.put("externalReferenceCode", _ERC_VALUE_2)
+			).toString(),
+			_getEndpoint(siteObjectDefinition1, TestPropsValues.getGroupId()),
+			Http.Method.POST);
+
+		Assert.assertEquals(
+			objectEntry.getObjectEntryId(),
+			jsonObject.getLong(objectField.getName()));
+
+		_objectRelationshipLocalService.deleteObjectRelationship(
+			objectRelationship);
+
+		_objectDefinitionLocalService.deleteObjectDefinition(
+			companyObjectDefinition);
+		_objectDefinitionLocalService.deleteObjectDefinition(
+			siteObjectDefinition1);
+		_objectDefinitionLocalService.deleteObjectDefinition(
+			siteObjectDefinition2);
+	}
+
+	@Test
 	public void testPostCustomObjectEntryWithStatus() throws Exception {
 
 		// With code inside status
