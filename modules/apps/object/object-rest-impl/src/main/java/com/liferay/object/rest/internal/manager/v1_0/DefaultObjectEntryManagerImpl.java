@@ -1192,6 +1192,14 @@ public class DefaultObjectEntryManagerImpl
 							serviceBuilderObjectEntry.getPrimaryKey());
 					}
 
+					long relatedGroupId =
+						ObjectRelationshipUtil.getRelatedGroupId(
+							groupLocalService, objectDefinition,
+							objectScopeProviderRegistry,
+							relatedObjectDefinition, scopeKey,
+							GetterUtil.getString(
+								nestedObjectEntry.getScopeKey()));
+
 					try {
 						nestedObjectEntry =
 							objectEntryManager.updateObjectEntry(
@@ -1199,7 +1207,7 @@ public class DefaultObjectEntryManagerImpl
 								dtoConverterContext,
 								nestedObjectEntry.getExternalReferenceCode(),
 								relatedObjectDefinition, nestedObjectEntry,
-								scopeKey);
+								String.valueOf(relatedGroupId));
 					}
 					catch (ObjectEntryValuesException.Required
 								objectEntryValuesException) {
@@ -1208,23 +1216,14 @@ public class DefaultObjectEntryManagerImpl
 							throw objectEntryValuesException;
 						}
 
-						long groupId = 0;
-
-						if ((serviceBuilderObjectEntry.getGroupId() > 0) &&
-							Objects.equals(
-								relatedObjectDefinition.getScope(),
-								ObjectDefinitionConstants.SCOPE_SITE)) {
-
-							groupId = serviceBuilderObjectEntry.getGroupId();
-						}
-
 						nestedObjectEntry = _toObjectEntry(
 							dtoConverterContext, relatedObjectDefinition,
 							objectEntryLocalService.
 								getOrAddIncompleteObjectEntry(
 									nestedObjectEntry.
 										getExternalReferenceCode(),
-									groupId, dtoConverterContext.getUserId(),
+									relatedGroupId,
+									dtoConverterContext.getUserId(),
 									relatedObjectDefinition.
 										getObjectDefinitionId()));
 					}
