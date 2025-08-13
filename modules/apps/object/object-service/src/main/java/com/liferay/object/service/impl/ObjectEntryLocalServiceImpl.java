@@ -2150,7 +2150,7 @@ public class ObjectEntryLocalServiceImpl
 				_updateLatestObjectEntryVersion(objectDefinition, objectEntry);
 			}
 		}
-		else {
+		else if (!objectEntry.isInTrash() && !originalObjectEntry.isInTrash()) {
 			objectEntry = _addObjectEntryVersion(objectDefinition, objectEntry);
 		}
 
