@@ -206,6 +206,12 @@ public interface DefaultObjectEntryManager extends ObjectEntryManager {
 			long parentObjectEntryId)
 		throws Exception;
 
+	public ObjectEntry restoreObjectEntry(
+			DTOConverterContext dtoConverterContext,
+			String externalReferenceCode, ObjectDefinition objectDefinition,
+			String scopeKey)
+		throws Exception;
+
 	public ObjectEntry restoreObjectEntryByVersion(
 			DTOConverterContext dtoConverterContext,
 			ObjectDefinition objectDefinition, long objectEntryId, int version)
