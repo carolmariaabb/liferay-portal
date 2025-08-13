@@ -412,6 +412,16 @@ public class ObjectEntryFolderWrapper
 	}
 
 	/**
+	 * Returns the class primary key of the trash entry for this object entry folder.
+	 *
+	 * @return the class primary key of the trash entry for this object entry folder
+	 */
+	@Override
+	public long getTrashEntryClassPK() {
+		return model.getTrashEntryClassPK();
+	}
+
+	/**
 	 * Returns the tree path of this object entry folder.
 	 *
 	 * @return the tree path of this object entry folder
@@ -459,6 +469,16 @@ public class ObjectEntryFolderWrapper
 	@Override
 	public String getUuid() {
 		return model.getUuid();
+	}
+
+	/**
+	 * Returns <code>true</code> if this object entry folder is in the Recycle Bin.
+	 *
+	 * @return <code>true</code> if this object entry folder is in the Recycle Bin; <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isInTrash() {
+		return model.isInTrash();
 	}
 
 	@Override

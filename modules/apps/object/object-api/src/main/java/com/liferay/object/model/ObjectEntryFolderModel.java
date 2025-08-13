@@ -15,6 +15,7 @@ import com.liferay.portal.kernel.model.LocalizedModel;
 import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.portal.kernel.model.ShardedModel;
 import com.liferay.portal.kernel.model.StagedAuditedModel;
+import com.liferay.portal.kernel.model.TrashedModel;
 
 import java.util.Date;
 import java.util.Locale;
@@ -37,7 +38,7 @@ import org.osgi.annotation.versioning.ProviderType;
 public interface ObjectEntryFolderModel
 	extends BaseModel<ObjectEntryFolder>, ContainerModel,
 			ExternalReferenceCodeModel, GroupedModel, LocalizedModel, MVCCModel,
-			ShardedModel, StagedAuditedModel {
+			ShardedModel, StagedAuditedModel, TrashedModel {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -407,6 +408,22 @@ public interface ObjectEntryFolderModel
 	 * @param status the status of this object entry folder
 	 */
 	public void setStatus(int status);
+
+	/**
+	 * Returns the class primary key of the trash entry for this object entry folder.
+	 *
+	 * @return the class primary key of the trash entry for this object entry folder
+	 */
+	@Override
+	public long getTrashEntryClassPK();
+
+	/**
+	 * Returns <code>true</code> if this object entry folder is in the Recycle Bin.
+	 *
+	 * @return <code>true</code> if this object entry folder is in the Recycle Bin; <code>false</code> otherwise
+	 */
+	@Override
+	public boolean isInTrash();
 
 	/**
 	 * Returns the container model ID of this object entry folder.
