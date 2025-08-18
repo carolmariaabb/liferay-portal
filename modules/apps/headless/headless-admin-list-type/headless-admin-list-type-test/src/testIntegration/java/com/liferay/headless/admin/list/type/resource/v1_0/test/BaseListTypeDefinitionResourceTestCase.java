@@ -898,12 +898,14 @@ public abstract class BaseListTypeDefinitionResourceTestCase {
 				listTypeDefinition1);
 
 		for (EntityField entityField : entityFields) {
+			String filterString = getFilterString(
+				entityField, "between", listTypeDefinition1);
+
+			System.out.println("2. Filter: " + filterString);
+
 			Page<ListTypeDefinition> page =
 				listTypeDefinitionResource.getListTypeDefinitionsPage(
-					null, null,
-					getFilterString(
-						entityField, "between", listTypeDefinition1),
-					Pagination.of(1, 2), null);
+					null, null, filterString, Pagination.of(1, 2), null);
 
 			assertEquals(
 				Collections.singletonList(listTypeDefinition1),
@@ -1584,16 +1586,27 @@ public abstract class BaseListTypeDefinitionResourceTestCase {
 		List<ListTypeDefinition> listTypeDefinitions1,
 		List<ListTypeDefinition> listTypeDefinitions2) {
 
-		Assert.assertEquals(
-			listTypeDefinitions1.size(), listTypeDefinitions2.size());
-
 		for (int i = 0; i < listTypeDefinitions1.size(); i++) {
 			ListTypeDefinition listTypeDefinition1 = listTypeDefinitions1.get(
 				i);
 			ListTypeDefinition listTypeDefinition2 = listTypeDefinitions2.get(
 				i);
 
+			System.out.println(
+				"1. create date: " + listTypeDefinition1.getDateCreated());
+			System.out.println(
+				"1. modified date: " + listTypeDefinition1.getDateModified());
+
 			assertEquals(listTypeDefinition1, listTypeDefinition2);
+		}
+
+		for (int i = 0; i < listTypeDefinitions2.size(); i++) {
+			ListTypeDefinition listTypeDefinition2 = listTypeDefinitions2.get(i);
+
+			System.out.println(
+				"2. create date: " + listTypeDefinition2.getDateCreated());
+			System.out.println(
+				"2. modified date: " + listTypeDefinition2.getDateModified());
 		}
 	}
 

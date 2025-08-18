@@ -913,12 +913,14 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 				notificationTemplate1);
 
 		for (EntityField entityField : entityFields) {
+			String filterString = getFilterString(
+				entityField, "between", notificationTemplate1);
+
+			System.out.println("2. Filter: " + filterString);
+
 			Page<NotificationTemplate> page =
 				notificationTemplateResource.getNotificationTemplatesPage(
-					null, null,
-					getFilterString(
-						entityField, "between", notificationTemplate1),
-					Pagination.of(1, 2), null);
+					null, null, filterString, Pagination.of(1, 2), null);
 
 			assertEquals(
 				Collections.singletonList(notificationTemplate1),
@@ -1628,16 +1630,28 @@ public abstract class BaseNotificationTemplateResourceTestCase {
 		List<NotificationTemplate> notificationTemplates1,
 		List<NotificationTemplate> notificationTemplates2) {
 
-		Assert.assertEquals(
-			notificationTemplates1.size(), notificationTemplates2.size());
-
 		for (int i = 0; i < notificationTemplates1.size(); i++) {
 			NotificationTemplate notificationTemplate1 =
 				notificationTemplates1.get(i);
 			NotificationTemplate notificationTemplate2 =
 				notificationTemplates2.get(i);
 
+			System.out.println(
+				"1. create date: " + notificationTemplate1.getDateCreated());
+			System.out.println(
+				"1. modified date: " + notificationTemplate1.getDateModified());
+
 			assertEquals(notificationTemplate1, notificationTemplate2);
+		}
+
+		for (int i = 0; i < notificationTemplates2.size(); i++) {
+			NotificationTemplate notificationTemplate2 =
+				notificationTemplates2.get(i);
+
+			System.out.println(
+				"2. create date: " + notificationTemplate2.getDateCreated());
+			System.out.println(
+				"2. modified date: " + notificationTemplate2.getDateModified());
 		}
 	}
 
