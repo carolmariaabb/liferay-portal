@@ -1799,38 +1799,12 @@ public class ObjectEntryLocalServiceImpl
 		TrashEntry trashEntry = _trashEntryLocalService.getEntry(
 			objectDefinition.getClassName(), objectEntry.getObjectEntryId());
 
-		long objectEntryFolderId = GetterUtil.getLong(
-			trashEntry.getTypeSettingsProperty("objectEntryFolderId"));
-
-		if (objectEntryFolderId !=
-				ObjectEntryFolderConstants.
-					PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT) {
-
-			ObjectEntryFolder objectEntryFolder =
-				_objectEntryFolderPersistence.fetchByPrimaryKey(
-					objectEntryFolderId);
-
-			while ((objectEntryFolder != null) &&
-				   (objectEntryFolder.getStatus() ==
-					   WorkflowConstants.STATUS_IN_TRASH)) {
-
-				objectEntryFolder =
-					_objectEntryFolderPersistence.fetchByPrimaryKey(
-						objectEntryFolder.getParentObjectEntryFolderId());
-			}
-
-			if (objectEntryFolder == null) {
-				objectEntry.setObjectEntryFolderId(
-					ObjectEntryFolderUtil.getRootObjectEntryFolderId(
-						objectEntry.getObjectEntryFolderId()));
-			}
-			else {
-				objectEntry.setObjectEntryFolderId(
-					objectEntryFolder.getObjectEntryFolderId());
-			}
-
-			objectEntry = objectEntryPersistence.update(objectEntry);
-		}
+		objectEntry.setObjectEntryFolderId(
+			ObjectEntryFolderUtil.getObjectEntryFolderId(
+				objectEntry.getObjectEntryFolderId(),
+				GetterUtil.getLong(
+					trashEntry.getTypeSettingsProperty(
+						"objectEntryFolderId"))));
 
 		return _restoreObjectEntryFromTrash(
 			userId, objectDefinition, objectEntry, trashEntry, serviceContext);
