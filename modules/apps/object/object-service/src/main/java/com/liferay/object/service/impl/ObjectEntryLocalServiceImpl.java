@@ -1752,6 +1752,37 @@ public class ObjectEntryLocalServiceImpl
 	}
 
 	@Override
+	public void restoreObjectEntriesFromTrash(
+			long userId, ObjectEntryFolder objectEntryFolder,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		for (ObjectEntry objectEntry :
+				objectEntryPersistence.findByG_OEFI(
+					objectEntryFolder.getGroupId(),
+					objectEntryFolder.getObjectEntryFolderId())) {
+
+			if (!objectEntry.isInTrash()) {
+				continue;
+			}
+
+			ObjectDefinition objectDefinition =
+				_objectDefinitionPersistence.findByPrimaryKey(
+					objectEntry.getObjectDefinitionId());
+
+			TrashEntry trashEntry = _trashEntryLocalService.getEntry(
+				objectDefinition.getClassName(),
+				objectEntry.getObjectEntryId());
+
+			objectEntry = _restoreObjectEntryFromTrash(
+				userId, objectDefinition, objectEntry, trashEntry,
+				serviceContext);
+
+			_reindex(objectEntry);
+		}
+	}
+
+	@Override
 	public ObjectEntry restoreObjectEntryFromTrash(
 			long userId, ObjectEntry objectEntry, ServiceContext serviceContext)
 		throws PortalException {
@@ -1801,43 +1832,8 @@ public class ObjectEntryLocalServiceImpl
 			objectEntry = objectEntryPersistence.update(objectEntry);
 		}
 
-		objectEntry = updateStatus(
-			userId, objectEntry, trashEntry.getStatus(), serviceContext);
-
-		for (TrashVersion trashVersion :
-				_trashVersionLocalService.getVersions(
-					trashEntry.getEntryId())) {
-
-			ObjectEntryVersion objectEntryVersion =
-				_objectEntryVersionPersistence.findByPrimaryKey(
-					trashVersion.getClassPK());
-
-			objectEntryVersion.setStatus(trashVersion.getStatus());
-
-			_objectEntryVersionPersistence.update(objectEntryVersion);
-		}
-
-		_trashEntryLocalService.deleteEntry(
-			objectDefinition.getClassName(), objectEntry.getObjectEntryId());
-
-		if (objectDefinition.isEnableComments()) {
-			_commentManager.restoreDiscussionFromTrash(
-				objectDefinition.getClassName(),
-				objectEntry.getObjectEntryId());
-		}
-
-		try {
-			ObjectEntryThreadLocal.setSkipObjectEntryResourcePermission(true);
-
-			_restoreRelatedModelsFromTrash(
-				objectEntry.getGroupId(), objectEntry.getObjectDefinitionId(),
-				objectEntry.getObjectEntryId());
-		}
-		finally {
-			ObjectEntryThreadLocal.setSkipObjectEntryResourcePermission(false);
-		}
-
-		return objectEntry;
+		return _restoreObjectEntryFromTrash(
+			userId, objectDefinition, objectEntry, trashEntry, serviceContext);
 	}
 
 	@Override
@@ -5446,6 +5442,51 @@ public class ObjectEntryLocalServiceImpl
 
 			indexer.reindex(objectEntry);
 		}
+	}
+
+	private ObjectEntry _restoreObjectEntryFromTrash(
+			long userId, ObjectDefinition objectDefinition,
+			ObjectEntry objectEntry, TrashEntry trashEntry,
+			ServiceContext serviceContext)
+		throws PortalException {
+
+		objectEntry = updateStatus(
+			userId, objectEntry, trashEntry.getStatus(), serviceContext);
+
+		for (TrashVersion trashVersion :
+				_trashVersionLocalService.getVersions(
+					trashEntry.getEntryId())) {
+
+			ObjectEntryVersion objectEntryVersion =
+				_objectEntryVersionPersistence.findByPrimaryKey(
+					trashVersion.getClassPK());
+
+			objectEntryVersion.setStatus(trashVersion.getStatus());
+
+			_objectEntryVersionPersistence.update(objectEntryVersion);
+		}
+
+		_trashEntryLocalService.deleteEntry(
+			objectDefinition.getClassName(), objectEntry.getObjectEntryId());
+
+		if (objectDefinition.isEnableComments()) {
+			_commentManager.restoreDiscussionFromTrash(
+				objectDefinition.getClassName(),
+				objectEntry.getObjectEntryId());
+		}
+
+		try {
+			ObjectEntryThreadLocal.setSkipObjectEntryResourcePermission(true);
+
+			_restoreRelatedModelsFromTrash(
+				objectEntry.getGroupId(), objectEntry.getObjectDefinitionId(),
+				objectEntry.getObjectEntryId());
+		}
+		finally {
+			ObjectEntryThreadLocal.setSkipObjectEntryResourcePermission(false);
+		}
+
+		return objectEntry;
 	}
 
 	private void _restoreRelatedModelsFromTrash(
