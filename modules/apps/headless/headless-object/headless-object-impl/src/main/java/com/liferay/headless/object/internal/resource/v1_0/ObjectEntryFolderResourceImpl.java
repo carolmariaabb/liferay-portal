@@ -35,6 +35,7 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.search.expando.ExpandoBridgeIndexer;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
@@ -74,6 +75,25 @@ public class ObjectEntryFolderResourceImpl
 			throw new UnsupportedOperationException();
 		}
 
+		com.liferay.object.model.ObjectEntryFolder
+			serviceBuilderObjectEntryFolder =
+				_objectEntryFolderLocalService.getObjectEntryFolder(
+					objectEntryFolderId);
+
+		if (FeatureFlagManagerUtil.isEnabled("LPD-53981") &&
+			(serviceBuilderObjectEntryFolder.getStatus() !=
+				WorkflowConstants.STATUS_IN_TRASH)) {
+
+			_objectEntryFolderService.moveObjectEntryFolderToTrash(
+				contextUser.getUserId(), serviceBuilderObjectEntryFolder,
+				ServiceContextBuilder.create(
+					serviceBuilderObjectEntryFolder.getGroupId(),
+					contextHttpServletRequest, null
+				).build());
+
+			return;
+		}
+
 		_objectEntryFolderService.deleteObjectEntryFolder(objectEntryFolderId);
 	}
 
@@ -86,10 +106,32 @@ public class ObjectEntryFolderResourceImpl
 			throw new UnsupportedOperationException();
 		}
 
+		long groupId = _getGroupId(scopeKey);
+
+		com.liferay.object.model.ObjectEntryFolder
+			serviceBuilderObjectEntryFolder =
+				_objectEntryFolderLocalService.
+					getObjectEntryFolderByExternalReferenceCode(
+						externalReferenceCode, groupId,
+						contextCompany.getCompanyId());
+
+		if (FeatureFlagManagerUtil.isEnabled("LPD-53981") &&
+			(serviceBuilderObjectEntryFolder.getStatus() !=
+				WorkflowConstants.STATUS_IN_TRASH)) {
+
+			_objectEntryFolderService.moveObjectEntryFolderToTrash(
+				contextUser.getUserId(), serviceBuilderObjectEntryFolder,
+				ServiceContextBuilder.create(
+					serviceBuilderObjectEntryFolder.getGroupId(),
+					contextHttpServletRequest, null
+				).build());
+
+			return;
+		}
+
 		_objectEntryFolderService.
 			deleteObjectEntryFolderByExternalReferenceCode(
-				externalReferenceCode, _getGroupId(scopeKey),
-				contextCompany.getCompanyId());
+				externalReferenceCode, groupId, contextCompany.getCompanyId());
 	}
 
 	@Override
