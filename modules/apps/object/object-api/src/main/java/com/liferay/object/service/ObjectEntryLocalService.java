@@ -508,6 +508,11 @@ public interface ObjectEntryLocalService
 			ServiceContext serviceContext)
 		throws PortalException;
 
+	public void restoreObjectEntriesFromTrash(
+			long userId, ObjectEntryFolder objectEntryFolder,
+			ServiceContext serviceContext)
+		throws PortalException;
+
 	public ObjectEntry restoreObjectEntryFromTrash(
 			long userId, ObjectEntry objectEntry, ServiceContext serviceContext)
 		throws PortalException;

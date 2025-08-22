@@ -791,6 +791,17 @@ public class ObjectEntryLocalServiceWrapper
 	}
 
 	@Override
+	public void restoreObjectEntriesFromTrash(
+			long userId,
+			com.liferay.object.model.ObjectEntryFolder objectEntryFolder,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		_objectEntryLocalService.restoreObjectEntriesFromTrash(
+			userId, objectEntryFolder, serviceContext);
+	}
+
+	@Override
 	public com.liferay.object.model.ObjectEntry restoreObjectEntryFromTrash(
 			long userId, com.liferay.object.model.ObjectEntry objectEntry,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)

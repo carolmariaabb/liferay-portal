@@ -125,6 +125,15 @@ public class ObjectEntryFolderServiceUtil {
 			userId, objectEntryFolder, serviceContext);
 	}
 
+	public static ObjectEntryFolder restoreObjectEntryFolderFromTrash(
+			long userId, ObjectEntryFolder objectEntryFolder,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws PortalException {
+
+		return getService().restoreObjectEntryFolderFromTrash(
+			userId, objectEntryFolder, serviceContext);
+	}
+
 	public static void subscribeObjectEntryFolder(
 			long userId, long groupId, long objectEntryFolderId)
 		throws PortalException {

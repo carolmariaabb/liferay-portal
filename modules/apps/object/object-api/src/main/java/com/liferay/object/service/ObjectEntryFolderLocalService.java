@@ -347,13 +347,24 @@ public interface ObjectEntryFolderLocalService
 		throws PortalException;
 
 	public void moveObjectEntryFoldersToTrash(
-			long userId, ObjectEntryFolder objectEntryFolder,
+			long userId, ObjectEntryFolder parentObjectEntryFolder,
 			ServiceContext serviceContext)
 		throws PortalException;
 
 	@Indexable(type = IndexableType.REINDEX)
 	public ObjectEntryFolder moveObjectEntryFolderToTrash(
 			long userId, ObjectEntryFolder objectEntryFolder,
+			ServiceContext serviceContext)
+		throws PortalException;
+
+	@Indexable(type = IndexableType.REINDEX)
+	public ObjectEntryFolder restoreObjectEntryFolderFromTrash(
+			long userId, ObjectEntryFolder objectEntryFolder,
+			ServiceContext serviceContext)
+		throws PortalException;
+
+	public void restoreObjectEntryFoldersFromTrash(
+			long userId, ObjectEntryFolder parentObjectEntryFolder,
 			ServiceContext serviceContext)
 		throws PortalException;
 

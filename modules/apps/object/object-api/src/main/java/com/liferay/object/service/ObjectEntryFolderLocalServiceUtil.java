@@ -417,12 +417,12 @@ public class ObjectEntryFolderLocalServiceUtil {
 	}
 
 	public static void moveObjectEntryFoldersToTrash(
-			long userId, ObjectEntryFolder objectEntryFolder,
+			long userId, ObjectEntryFolder parentObjectEntryFolder,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws PortalException {
 
 		getService().moveObjectEntryFoldersToTrash(
-			userId, objectEntryFolder, serviceContext);
+			userId, parentObjectEntryFolder, serviceContext);
 	}
 
 	public static ObjectEntryFolder moveObjectEntryFolderToTrash(
@@ -432,6 +432,24 @@ public class ObjectEntryFolderLocalServiceUtil {
 
 		return getService().moveObjectEntryFolderToTrash(
 			userId, objectEntryFolder, serviceContext);
+	}
+
+	public static ObjectEntryFolder restoreObjectEntryFolderFromTrash(
+			long userId, ObjectEntryFolder objectEntryFolder,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws PortalException {
+
+		return getService().restoreObjectEntryFolderFromTrash(
+			userId, objectEntryFolder, serviceContext);
+	}
+
+	public static void restoreObjectEntryFoldersFromTrash(
+			long userId, ObjectEntryFolder parentObjectEntryFolder,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws PortalException {
+
+		getService().restoreObjectEntryFoldersFromTrash(
+			userId, parentObjectEntryFolder, serviceContext);
 	}
 
 	public static void subscribeObjectEntryFolder(
