@@ -1806,6 +1806,60 @@ public abstract class BaseObjectEntryFolderResourceTestCase {
 	}
 
 	@Test
+	public void testPutScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore()
+		throws Exception {
+
+		ObjectEntryFolder postObjectEntryFolder =
+			testPutScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore_addObjectEntryFolder();
+
+		ObjectEntryFolder randomObjectEntryFolder = randomObjectEntryFolder();
+
+		ObjectEntryFolder putObjectEntryFolder =
+			objectEntryFolderResource.
+				putScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore(
+					testPutScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore_getScopeKey(
+						postObjectEntryFolder),
+					postObjectEntryFolder.getExternalReferenceCode());
+
+		assertEquals(randomObjectEntryFolder, putObjectEntryFolder);
+		assertValid(putObjectEntryFolder);
+
+		ObjectEntryFolder getObjectEntryFolder =
+			testPutScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore_getObjectEntryFolder(
+				testPutScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore_getScopeKey(
+					putObjectEntryFolder),
+				putObjectEntryFolder.getExternalReferenceCode());
+
+		assertEquals(randomObjectEntryFolder, getObjectEntryFolder);
+		assertValid(getObjectEntryFolder);
+	}
+
+	protected ObjectEntryFolder
+		testPutScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore_getObjectEntryFolder(
+			String scopeKey, String externalReferenceCode) {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected ObjectEntryFolder
+			testPutScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore_addObjectEntryFolder()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected String
+			testPutScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore_getScopeKey(
+				ObjectEntryFolder objectEntryFolder)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
 	public void testBatchEngineDeleteImportTask() throws Exception {
 		ObjectEntryFolder objectEntryFolder1 =
 			testBatchEngineDeleteImportTask_addObjectEntryFolder();

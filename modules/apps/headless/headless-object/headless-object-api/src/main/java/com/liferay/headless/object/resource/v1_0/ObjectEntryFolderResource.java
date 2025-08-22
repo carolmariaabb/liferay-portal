@@ -123,6 +123,11 @@ public interface ObjectEntryFolderResource {
 				ObjectEntryFolder objectEntryFolder)
 		throws Exception;
 
+	public ObjectEntryFolder
+			putScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore(
+				String scopeKey, String externalReferenceCode)
+		throws Exception;
+
 	public default void setContextAcceptLanguage(
 		AcceptLanguage contextAcceptLanguage) {
 	}
