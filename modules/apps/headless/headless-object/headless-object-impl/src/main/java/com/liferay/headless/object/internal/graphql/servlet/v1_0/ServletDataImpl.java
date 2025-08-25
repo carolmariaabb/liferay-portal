@@ -176,6 +176,11 @@ public class ServletDataImpl implements ServletData {
 						new ObjectValuePair<>(
 							ObjectEntryFolderResourceImpl.class,
 							"putScopeScopeKeyObjectEntryFolderByExternalReferenceCode"));
+					put(
+						"mutation#updateScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore",
+						new ObjectValuePair<>(
+							ObjectEntryFolderResourceImpl.class,
+							"putScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore"));
 
 					put(
 						"query#objectEntryFolderCollaboratorByTypeCollaborator",
