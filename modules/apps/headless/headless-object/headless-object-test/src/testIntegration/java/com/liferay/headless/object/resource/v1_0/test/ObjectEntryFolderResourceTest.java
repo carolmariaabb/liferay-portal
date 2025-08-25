@@ -319,6 +319,54 @@ public class ObjectEntryFolderResourceTest
 		_testPutScopeScopeKeyObjectEntryFolderByExternalReferenceCodeWithNonexistentParentObjectEntryFolderByObjectEntryFolderId();
 	}
 
+	@FeatureFlag("LPD-53981")
+	@Override
+	@Test
+	public void testPutScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore()
+		throws Exception {
+
+		ObjectEntryFolder postObjectEntryFolder =
+			objectEntryFolderResource.postScopeScopeKeyObjectEntryFolder(
+				String.valueOf(_testDepotEntry.getGroupId()),
+				randomObjectEntryFolder());
+
+		objectEntryFolderResource.
+			deleteScopeScopeKeyObjectEntryFolderByExternalReferenceCode(
+				String.valueOf(_testDepotEntry.getGroupId()),
+				postObjectEntryFolder.getExternalReferenceCode());
+
+		ObjectEntryFolder getObjectEntryFolder =
+			objectEntryFolderResource.getObjectEntryFolder(
+				postObjectEntryFolder.getId());
+
+		assertEquals(postObjectEntryFolder, getObjectEntryFolder);
+		assertValid(getObjectEntryFolder);
+
+		Map<String, Map<String, String>> actions =
+			getObjectEntryFolder.getActions();
+
+		Assert.assertTrue(actions.containsKey("restore"));
+
+		Assert.assertNotNull(getObjectEntryFolder.getRemovedBy());
+		Assert.assertNotNull(getObjectEntryFolder.getRemovedDate());
+
+		ObjectEntryFolder putObjectEntryFolder =
+			objectEntryFolderResource.
+				putScopeScopeKeyObjectEntryFolderByExternalReferenceCodeRestore(
+					String.valueOf(_testDepotEntry.getGroupId()),
+					postObjectEntryFolder.getExternalReferenceCode());
+
+		assertEquals(postObjectEntryFolder, putObjectEntryFolder);
+		assertValid(putObjectEntryFolder);
+
+		actions = putObjectEntryFolder.getActions();
+
+		Assert.assertFalse(actions.containsKey("restore"));
+
+		Assert.assertNull(putObjectEntryFolder.getRemovedBy());
+		Assert.assertNull(putObjectEntryFolder.getRemovedDate());
+	}
+
 	@Override
 	protected String[] getAdditionalAssertFieldNames() {
 		return new String[] {"description", "label", "title"};
