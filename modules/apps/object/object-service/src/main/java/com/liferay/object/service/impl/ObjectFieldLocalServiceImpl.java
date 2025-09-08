@@ -1404,6 +1404,12 @@ public class ObjectFieldLocalServiceImpl
 			newObjectField.getObjectDefinitionId());
 
 		_validateListTypeDefinitionId(listTypeDefinitionId, businessType);
+
+		if (!Objects.equals(oldObjectField.getBusinessType(), businessType)) {
+			_validateBusinessTypeAssignee(
+				newObjectField.getObjectDefinitionId(), businessType);
+		}
+
 		_validateBusinessTypeEncrypted(
 			newObjectField.getObjectDefinitionId(), businessType);
 		_validateIndexed(
@@ -1526,8 +1532,31 @@ public class ObjectFieldLocalServiceImpl
 					"attachment business types");
 		}
 
+		_validateBusinessTypeAssignee(
+			objectDefinition.getObjectDefinitionId(), businessType);
 		_validateBusinessTypeEncrypted(
 			objectDefinition.getObjectDefinitionId(), businessType);
+	}
+
+	private void _validateBusinessTypeAssignee(
+			long objectDefinitionId, String businessType)
+		throws PortalException {
+
+		if (!Objects.equals(
+				businessType, ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
+
+			return;
+		}
+
+		int count = objectFieldPersistence.countByODI_BT(
+			objectDefinitionId, ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE);
+
+		if (count > 0) {
+			throw new ObjectFieldBusinessTypeException(
+				"An object definition can only have one assignee field",
+				"an-object-definition-can-only-have-one-assignee-field.-" +
+					"choose-another-business-type");
+		}
 	}
 
 	private void _validateBusinessTypeEncrypted(
