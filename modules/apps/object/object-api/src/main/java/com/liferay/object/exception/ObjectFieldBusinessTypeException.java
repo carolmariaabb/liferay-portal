@@ -27,4 +27,16 @@ public class ObjectFieldBusinessTypeException extends PortalException {
 		super(throwable);
 	}
 
+	public ObjectFieldBusinessTypeException(String message, String messageKey) {
+		super(message);
+
+		_messageKey = messageKey;
+	}
+
+	public String getMessageKey() {
+		return _messageKey;
+	}
+
+	private String _messageKey;
+
 }

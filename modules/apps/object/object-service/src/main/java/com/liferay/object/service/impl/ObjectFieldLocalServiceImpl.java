@@ -1526,9 +1526,33 @@ public class ObjectFieldLocalServiceImpl
 					"attachment business types");
 		}
 
+		_validateBusinessTypeAssignee(objectDefinition.getObjectDefinitionId(), businessType);
+
 		_validateBusinessTypeEncrypted(
 			objectDefinition.getObjectDefinitionId(), businessType);
 	}
+
+	private  void _validateBusinessTypeAssignee(long ObjectDefinitionId, String businessType)
+		throws PortalException {
+			if (!Objects.equals(
+				businessType, ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
+
+				return;
+			}
+
+			for (ObjectField objectField :
+				objectFieldPersistence.findByObjectDefinitionId(
+					ObjectDefinitionId)) {
+
+				// Error should be localized
+
+				if (Objects.equals(
+					objectField.getBusinessType(), ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
+					throw new ObjectFieldBusinessTypeException(
+						"An object definition can only have one Assignee field. Choose another field type.");
+				}
+			}
+		}
 
 	private void _validateBusinessTypeEncrypted(
 			long objectDefinitionId, String businessType)

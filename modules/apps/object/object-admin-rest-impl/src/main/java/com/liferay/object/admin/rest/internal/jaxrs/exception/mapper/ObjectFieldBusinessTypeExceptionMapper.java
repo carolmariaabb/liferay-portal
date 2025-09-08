@@ -5,10 +5,16 @@
 
 package com.liferay.object.admin.rest.internal.jaxrs.exception.mapper;
 
+import com.liferay.object.exception.ObjectDefinitionStatusException;
 import com.liferay.object.exception.ObjectFieldBusinessTypeException;
+import com.liferay.object.jaxrs.exception.mapper.util.ObjectExceptionMapperUtil;
+import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.jaxrs.exception.mapper.BaseExceptionMapper;
 import com.liferay.portal.vulcan.jaxrs.exception.mapper.Problem;
 
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 
 import org.osgi.service.component.annotations.Component;
@@ -27,11 +33,29 @@ import org.osgi.service.component.annotations.Component;
 public class ObjectFieldBusinessTypeExceptionMapper
 	extends BaseExceptionMapper<ObjectFieldBusinessTypeException> {
 
+//	@Override
+//	protected Problem getProblem(
+//		ObjectFieldBusinessTypeException objectFieldBusinessTypeException) {
+//
+//		return new Problem(objectFieldBusinessTypeException);
+//	}
+
 	@Override
 	protected Problem getProblem(
 		ObjectFieldBusinessTypeException objectFieldBusinessTypeException) {
 
-		return new Problem(objectFieldBusinessTypeException);
+		return new Problem(
+			Response.Status.BAD_REQUEST,
+			ObjectExceptionMapperUtil.getTitle(
+				_acceptLanguage, null, _language,
+				objectFieldBusinessTypeException.getMessage(),
+				objectFieldBusinessTypeException.getMessageKey()));
 	}
+
+	@Context
+	private AcceptLanguage _acceptLanguage;
+
+	@Reference
+	private Language _language;
 
 }
