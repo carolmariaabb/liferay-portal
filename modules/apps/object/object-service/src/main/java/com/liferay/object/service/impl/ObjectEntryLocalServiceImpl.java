@@ -4713,27 +4713,54 @@ public class ObjectEntryLocalServiceImpl
 
 			if (columnName.endsWith(StringPool.UNDERLINE)) {
 				columnName = columnName.substring(0, columnName.length() - 1);
+				String[] parts = {};
+
+				if (columnName.startsWith("classNameId_") ||
+					columnName.startsWith("classPK_")) {
+
+					parts = StringUtil.split(columnName, StringPool.UNDERLINE);
+
+					if (parts.length > 1) {
+						columnName = parts[1];
+					}
+				}
 
 				ObjectField objectField =
 					_objectFieldLocalService.fetchObjectField(
 						objectDefinitionId, columnName);
 
-				if ((object != null) && (objectField != null) &&
-					objectField.compareBusinessType(
-						ObjectFieldConstants.BUSINESS_TYPE_ENCRYPTED)) {
+				if ((object != null) && (objectField != null)) {
+					if (objectField.compareBusinessType(
+							ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE) &&
+						(parts.length > 1)) {
 
-					try {
-						object = _encryptor.decrypt(_getKey(), (String)object);
+						_putValue(
+							javaTypeClass, parts[0], object,
+							(Map<String, Serializable>)values.computeIfAbsent(
+								objectField.getName(), key -> new HashMap<>()));
+
+						continue;
 					}
-					catch (IllegalArgumentException illegalArgumentException) {
-						throw new IllegalArgumentException(
-							"Please insert an encryption key or remove the " +
-								"object's encryption field to recover these " +
-									"entries.",
-							illegalArgumentException);
-					}
-					catch (Exception exception) {
-						throw new PortalException(exception);
+
+					if (objectField.compareBusinessType(
+							ObjectFieldConstants.BUSINESS_TYPE_ENCRYPTED)) {
+
+						try {
+							object = _encryptor.decrypt(
+								_getKey(), (String)object);
+						}
+						catch (IllegalArgumentException
+									illegalArgumentException) {
+
+							throw new IllegalArgumentException(
+								"Please insert an encryption key or remove " +
+									"the object's encryption field to " +
+										"recover these entries.",
+								illegalArgumentException);
+						}
+						catch (Exception exception) {
+							throw new PortalException(exception);
+						}
 					}
 				}
 			}
@@ -4978,12 +5005,27 @@ public class ObjectEntryLocalServiceImpl
 					dynamicObjectDefinitionTable);
 			}
 
-			columnNames.add(objectField.getDBColumnName());
+			if (objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
 
-			count++;
+				columnNames.add("classNameId_" + objectField.getDBColumnName());
+				columnNames.add("classPK_" + objectField.getDBColumnName());
 
-			sb.append(", ");
-			sb.append(objectField.getDBColumnName());
+				count += 2;
+
+				sb.append(", classNameId_");
+				sb.append(objectField.getDBColumnName());
+				sb.append(", classPK_");
+				sb.append(objectField.getDBColumnName());
+			}
+			else {
+				columnNames.add(objectField.getDBColumnName());
+
+				count++;
+
+				sb.append(", ");
+				sb.append(objectField.getDBColumnName());
+			}
 		}
 
 		sb.append(") values (?");
@@ -5061,11 +5103,31 @@ public class ObjectEntryLocalServiceImpl
 					continue;
 				}
 
-				_setColumn(
-					dynamicObjectDefinitionTable.getColumn(
-						objectField.getDBColumnName()),
-					columnNames, index++, insertedValues, objectField,
-					preparedStatement, values.get(objectField.getName()));
+				if (objectField.compareBusinessType(
+						ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
+
+					Map<String, Long> value =
+						(Map<String, Long>)values.getOrDefault(
+							objectField.getName(), new HashMap<>());
+
+					_setColumn(
+						dynamicObjectDefinitionTable.getColumn(
+							"classNameId_" + objectField.getDBColumnName()),
+						columnNames, index++, insertedValues, objectField,
+						preparedStatement, value.get("classNameId"));
+					_setColumn(
+						dynamicObjectDefinitionTable.getColumn(
+							"classPK_" + objectField.getDBColumnName()),
+						columnNames, index++, insertedValues, objectField,
+						preparedStatement, value.get("classPK"));
+				}
+				else {
+					_setColumn(
+						dynamicObjectDefinitionTable.getColumn(
+							objectField.getDBColumnName()),
+						columnNames, index++, insertedValues, objectField,
+						preparedStatement, values.get(objectField.getName()));
+				}
 			}
 
 			preparedStatement.executeUpdate();
@@ -6311,16 +6373,36 @@ public class ObjectEntryLocalServiceImpl
 					dynamicObjectDefinitionTable, objectEntryId);
 			}
 
-			columnNames.add(objectField.getDBColumnName());
+			if (objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
 
-			count++;
+				columnNames.add("classNameId_" + objectField.getDBColumnName());
+				columnNames.add("classPK_" + objectField.getDBColumnName());
 
-			if (count > 1) {
-				sb.append(", ");
+				count += 2;
+
+				if (count > 2) {
+					sb.append(", ");
+				}
+
+				sb.append("classNameId_");
+				sb.append(objectField.getDBColumnName());
+				sb.append(" = ?, classPK_");
+				sb.append(objectField.getDBColumnName());
+				sb.append(" = ?");
 			}
+			else {
+				columnNames.add(objectField.getDBColumnName());
 
-			sb.append(objectField.getDBColumnName());
-			sb.append(" = ?");
+				count++;
+
+				if (count > 1) {
+					sb.append(", ");
+				}
+
+				sb.append(objectField.getDBColumnName());
+				sb.append(" = ?");
+			}
 		}
 
 		if (count == 0) {
@@ -6371,11 +6453,31 @@ public class ObjectEntryLocalServiceImpl
 					continue;
 				}
 
-				_setColumn(
-					dynamicObjectDefinitionTable.getColumn(
-						objectField.getDBColumnName()),
-					columnNames, index++, insertedValues, objectField,
-					preparedStatement, values.get(objectField.getName()));
+				if (objectField.compareBusinessType(
+						ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
+
+					Map<String, Long> value =
+						(Map<String, Long>)values.getOrDefault(
+							objectField.getName(), new HashMap<>());
+
+					_setColumn(
+						dynamicObjectDefinitionTable.getColumn(
+							"classNameId_" + objectField.getDBColumnName()),
+						columnNames, index++, insertedValues, objectField,
+						preparedStatement, value.get("classNameId"));
+					_setColumn(
+						dynamicObjectDefinitionTable.getColumn(
+							"classPK_" + objectField.getDBColumnName()),
+						columnNames, index++, insertedValues, objectField,
+						preparedStatement, value.get("classPK"));
+				}
+				else {
+					_setColumn(
+						dynamicObjectDefinitionTable.getColumn(
+							objectField.getDBColumnName()),
+						columnNames, index++, insertedValues, objectField,
+						preparedStatement, values.get(objectField.getName()));
+				}
 			}
 
 			_setColumn(
@@ -7074,7 +7176,9 @@ public class ObjectEntryLocalServiceImpl
 		}
 		else if (StringUtil.equals(
 					objectField.getDBType(),
-					ObjectFieldConstants.DB_TYPE_LONG)) {
+					ObjectFieldConstants.DB_TYPE_LONG) &&
+				 !objectField.compareBusinessType(
+					 ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
 
 			String entryValueString = String.valueOf(value);
 

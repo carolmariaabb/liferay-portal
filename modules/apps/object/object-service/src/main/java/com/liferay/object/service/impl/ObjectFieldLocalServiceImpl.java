@@ -945,6 +945,23 @@ public class ObjectFieldLocalServiceImpl
 	private void _addObjectFieldColumn(
 		String dbTableName, ObjectField objectField) {
 
+		if (objectField.compareBusinessType(
+				ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
+
+			runSQL(
+				DynamicObjectDefinitionTableUtil.getAlterTableAddColumnSQL(
+					dbTableName, objectField.getBusinessType(),
+					"classNameId_" + objectField.getDBColumnName(),
+					objectField.getDBType()));
+			runSQL(
+				DynamicObjectDefinitionTableUtil.getAlterTableAddColumnSQL(
+					dbTableName, objectField.getBusinessType(),
+					"classPK_" + objectField.getDBColumnName(),
+					objectField.getDBType()));
+
+			return;
+		}
+
 		runSQL(
 			DynamicObjectDefinitionTableUtil.getAlterTableAddColumnSQL(
 				dbTableName, objectField.getBusinessType(),
@@ -1234,6 +1251,19 @@ public class ObjectFieldLocalServiceImpl
 			return objectField;
 		}
 
+		if (objectField.compareBusinessType(
+				ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
+
+			_alterTableDropColumn(
+				objectField.getDBTableName(),
+				"classNameId_" + objectField.getDBColumnName());
+			_alterTableDropColumn(
+				objectField.getDBTableName(),
+				"classPK_" + objectField.getDBColumnName());
+
+			return objectField;
+		}
+
 		_alterTableDropColumn(
 			objectField.getDBTableName(), objectField.getDBColumnName());
 
@@ -1407,6 +1437,7 @@ public class ObjectFieldLocalServiceImpl
 
 		if (!Objects.equals(oldObjectField.getBusinessType(), businessType)) {
 			_validateBusinessTypeAssignee(
+				newObjectField.getCompanyId(),
 				newObjectField.getObjectDefinitionId(), businessType);
 		}
 
@@ -1533,19 +1564,24 @@ public class ObjectFieldLocalServiceImpl
 		}
 
 		_validateBusinessTypeAssignee(
+			objectDefinition.getCompanyId(),
 			objectDefinition.getObjectDefinitionId(), businessType);
 		_validateBusinessTypeEncrypted(
 			objectDefinition.getObjectDefinitionId(), businessType);
 	}
 
 	private void _validateBusinessTypeAssignee(
-			long objectDefinitionId, String businessType)
+			long companyId, long objectDefinitionId, String businessType)
 		throws PortalException {
 
 		if (!Objects.equals(
 				businessType, ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
 
 			return;
+		}
+
+		if (!FeatureFlagManagerUtil.isEnabled(companyId, "LPD-6233")) {
+			throw new UnsupportedOperationException();
 		}
 
 		int count = objectFieldPersistence.countByODI_BT(

@@ -307,6 +307,8 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 		}
 
 		if (!Objects.equals(
+				businessType, ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE) &&
+			!Objects.equals(
 				businessType, ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) &&
 			!Objects.equals(
 				businessType, ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT) &&
@@ -427,6 +429,12 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 	private String _getFieldName(String businessType, String fieldName) {
 		if (fieldName.contains(".creator")) {
 			return StringUtil.replaceLast(fieldName, "creator", "creator.name");
+		}
+
+		if (Objects.equals(
+				businessType, ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
+
+			return fieldName + ".name";
 		}
 
 		if (Objects.equals(

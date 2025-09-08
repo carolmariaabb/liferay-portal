@@ -46,6 +46,19 @@ public class DynamicObjectDefinitionTable
 				continue;
 			}
 
+			if (objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
+
+				_createColumn(
+					"classNameId_" + objectField.getDBColumnName(),
+					objectField.getDBType());
+				_createColumn(
+					"classPK_" + objectField.getDBColumnName(),
+					objectField.getDBType());
+
+				continue;
+			}
+
 			_createColumn(
 				objectField.getDBColumnName(), objectField.getDBType());
 
@@ -85,6 +98,21 @@ public class DynamicObjectDefinitionTable
 
 		for (ObjectField objectField : _objectFields) {
 			if (!objectField.hasInsertValues() || objectField.isLocalized()) {
+				continue;
+			}
+
+			if (objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
+
+				_append(
+					sb, objectField.getBusinessType(),
+					"classNameId_" + objectField.getDBColumnName(),
+					objectField.getDBType());
+				_append(
+					sb, objectField.getBusinessType(),
+					"classPK_" + objectField.getDBColumnName(),
+					objectField.getDBType());
+
 				continue;
 			}
 

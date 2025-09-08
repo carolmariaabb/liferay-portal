@@ -12,6 +12,7 @@ import com.liferay.object.field.setting.util.ObjectFieldSettingUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectRelationship;
+import com.liferay.object.rest.dto.v1_0.Assignee;
 import com.liferay.object.rest.dto.v1_0.FileEntry;
 import com.liferay.object.rest.dto.v1_0.ListEntry;
 import com.liferay.object.rest.internal.resource.v1_0.CollaboratorResourceImpl;
@@ -185,7 +186,32 @@ public class ObjectEntryOpenAPIResourceImpl
 	private List<DTOProperty> _getDTOProperties(ObjectField objectField) {
 		if (Objects.equals(
 				objectField.getBusinessType(),
-				ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT)) {
+				ObjectFieldConstants.BUSINESS_TYPE_ASSIGNEE)) {
+
+			DTOProperty dtoProperty = new DTOProperty(
+				HashMapBuilder.<String, Object>put(
+					"x-parent-map", "properties"
+				).build(),
+				objectField.getName(), Assignee.class.getSimpleName());
+
+			dtoProperty.setDTOProperties(
+				Arrays.asList(
+					new DTOProperty(
+						Collections.singletonMap("x-parent-map", "properties"),
+						"externalReferenceCode", String.class.getSimpleName()),
+					new DTOProperty(
+						Collections.singletonMap("x-parent-map", "properties"),
+						"name", String.class.getSimpleName()),
+					new DTOProperty(
+						Collections.singletonMap("x-parent-map", "properties"),
+						"type", Assignee.Type.class.getSimpleName())));
+			dtoProperty.setRequired(objectField.isRequired());
+
+			return ListUtil.fromArray(dtoProperty);
+		}
+		else if (Objects.equals(
+					objectField.getBusinessType(),
+					ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT)) {
 
 			DTOProperty dtoProperty = new DTOProperty(
 				HashMapBuilder.<String, Object>put(
