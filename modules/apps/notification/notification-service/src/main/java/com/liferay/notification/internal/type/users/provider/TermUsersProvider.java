@@ -7,23 +7,20 @@ package com.liferay.notification.internal.type.users.provider;
 
 import com.liferay.notification.constants.NotificationRecipientConstants;
 import com.liferay.notification.context.NotificationContext;
-import com.liferay.notification.model.NotificationRecipient;
-import com.liferay.notification.model.NotificationRecipientSetting;
-import com.liferay.notification.model.NotificationTemplate;
+import com.liferay.notification.internal.type.util.NotificationTypeUtil;
 import com.liferay.notification.term.evaluator.NotificationTermEvaluator;
 import com.liferay.notification.term.evaluator.NotificationTermEvaluatorTracker;
-import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactory;
-import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,88 +45,46 @@ public class TermUsersProvider implements UsersProvider {
 	}
 
 	@Override
-	public List<User> provide(NotificationContext notificationContext)
+	public List<User> provide(
+			NotificationContext notificationContext, List<String> values)
 		throws PortalException {
 
-		List<User> users = new ArrayList<>();
+		Set<User> users = new HashSet<>();
 
-		List<String> screenNames = new ArrayList<>();
-		List<String> terms = new ArrayList<>();
+		for (String value : values) {
+			Matcher matcher = _pattern.matcher(value);
 
-		NotificationTemplate notificationTemplate =
-			notificationContext.getNotificationTemplate();
+			if (!matcher.find()) {
+				NotificationTypeUtil.addUser(
+					notificationContext, _permissionCheckerFactory,
+					_userLocalService.getUserByScreenName(
+						notificationContext.getCompanyId(), value),
+					users);
 
-		NotificationRecipient notificationRecipient =
-			notificationTemplate.getNotificationRecipient();
-
-		for (NotificationRecipientSetting notificationRecipientSetting :
-				notificationRecipient.getNotificationRecipientSettings()) {
-
-			Matcher matcher = _pattern.matcher(
-				notificationRecipientSetting.getValue());
-
-			if (matcher.find()) {
-				terms.add(notificationRecipientSetting.getValue());
+				continue;
 			}
-			else {
-				screenNames.add(notificationRecipientSetting.getValue());
+
+			for (NotificationTermEvaluator notificationTermEvaluator :
+					_notificationTermEvaluatorTracker.
+						getNotificationTermEvaluators(
+							notificationContext.getClassName())) {
+
+				String termValue = notificationTermEvaluator.evaluate(
+					NotificationTermEvaluator.Context.RECIPIENT,
+					notificationContext.getTermValues(), value);
+
+				if (Objects.equals(value, termValue)) {
+					continue;
+				}
+
+				NotificationTypeUtil.addUser(
+					notificationContext, _permissionCheckerFactory,
+					_userLocalService.getUser(GetterUtil.getLong(termValue)),
+					users);
 			}
 		}
 
-		users.addAll(
-			TransformUtil.unsafeTransform(
-				screenNames,
-				screenName -> {
-					User user = _userLocalService.getUserByScreenName(
-						notificationRecipient.getCompanyId(), screenName);
-
-					if (!ModelResourcePermissionUtil.contains(
-							_permissionCheckerFactory.create(user),
-							notificationContext.getGroupId(),
-							notificationContext.getClassName(),
-							notificationContext.getClassPK(),
-							ActionKeys.VIEW)) {
-
-						return null;
-					}
-
-					return user;
-				}));
-
-		for (NotificationTermEvaluator notificationTermEvaluator :
-				_notificationTermEvaluatorTracker.getNotificationTermEvaluators(
-					notificationContext.getClassName())) {
-
-			users.addAll(
-				TransformUtil.unsafeTransform(
-					terms,
-					term -> {
-						String termValue = notificationTermEvaluator.evaluate(
-							NotificationTermEvaluator.Context.RECIPIENT,
-							notificationContext.getTermValues(), term);
-
-						if (Objects.equals(term, termValue)) {
-							return null;
-						}
-
-						User user = _userLocalService.getUser(
-							GetterUtil.getLong(termValue));
-
-						if (!ModelResourcePermissionUtil.contains(
-								_permissionCheckerFactory.create(user),
-								notificationContext.getGroupId(),
-								notificationContext.getClassName(),
-								notificationContext.getClassPK(),
-								ActionKeys.VIEW)) {
-
-							return null;
-						}
-
-						return user;
-					}));
-		}
-
-		return users;
+		return new ArrayList<>(users);
 	}
 
 	private static final Pattern _pattern = Pattern.compile(

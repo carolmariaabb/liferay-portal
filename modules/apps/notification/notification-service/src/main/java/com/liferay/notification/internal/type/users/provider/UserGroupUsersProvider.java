@@ -7,18 +7,13 @@ package com.liferay.notification.internal.type.users.provider;
 
 import com.liferay.notification.constants.NotificationRecipientConstants;
 import com.liferay.notification.context.NotificationContext;
-import com.liferay.notification.model.NotificationRecipient;
-import com.liferay.notification.model.NotificationRecipientSetting;
-import com.liferay.notification.model.NotificationTemplate;
+import com.liferay.notification.internal.type.util.NotificationTypeUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserGroup;
-import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactory;
-import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
 import com.liferay.portal.kernel.service.UserGroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.util.ListUtil;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,36 +41,27 @@ public class UserGroupUsersProvider implements UsersProvider {
 	}
 
 	@Override
-	public List<User> provide(NotificationContext notificationContext)
+	public List<User> provide(
+			NotificationContext notificationContext, List<String> values)
 		throws PortalException {
 
 		Set<User> users = new HashSet<>();
 
-		NotificationTemplate notificationTemplate =
-			notificationContext.getNotificationTemplate();
-
-		NotificationRecipient notificationRecipient =
-			notificationTemplate.getNotificationRecipient();
-
-		for (NotificationRecipientSetting notificationRecipientSetting :
-				notificationRecipient.getNotificationRecipientSettings()) {
-
+		for (String value : values) {
 			UserGroup userGroup = _userGroupLocalService.getUserGroup(
-				notificationRecipientSetting.getCompanyId(),
-				notificationRecipientSetting.getValue());
+				notificationContext.getCompanyId(), value);
 
-			users.addAll(
-				_userLocalService.getUserGroupUsers(
-					userGroup.getUserGroupId()));
+			for (User user :
+					_userLocalService.getUserGroupUsers(
+						userGroup.getUserGroupId())) {
+
+				NotificationTypeUtil.addUser(
+					notificationContext, _permissionCheckerFactory, user,
+					users);
+			}
 		}
 
-		return ListUtil.filter(
-			new ArrayList<>(users),
-			user -> ModelResourcePermissionUtil.contains(
-				_permissionCheckerFactory.create(user),
-				notificationContext.getGroupId(),
-				notificationContext.getClassName(),
-				notificationContext.getClassPK(), ActionKeys.VIEW));
+		return new ArrayList<>(users);
 	}
 
 	private final PermissionCheckerFactory _permissionCheckerFactory;
