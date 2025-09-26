@@ -13,6 +13,7 @@ import com.liferay.account.service.AccountEntryOrganizationRelLocalService;
 import com.liferay.account.service.AccountEntryUserRelLocalService;
 import com.liferay.notification.constants.NotificationRecipientSettingConstants;
 import com.liferay.notification.context.NotificationContext;
+import com.liferay.notification.internal.type.util.NotificationTypeUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.service.ObjectDefinitionLocalService;
@@ -27,9 +28,7 @@ import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
-import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactory;
-import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.OrganizationLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -201,19 +200,9 @@ public class RoleEmailProvider implements EmailProvider {
 					_userLocalService.getInheritedRoleUsers(
 						role.getRoleId(), QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 						null),
-					user -> {
-						if (!ModelResourcePermissionUtil.contains(
-								_permissionCheckerFactory.create(user),
-								notificationContext.getGroupId(),
-								notificationContext.getClassName(),
-								notificationContext.getClassPK(),
-								ActionKeys.VIEW)) {
-
-							return;
-						}
-
-						emailAddresses.add(user.getEmailAddress());
-					});
+					user -> NotificationTypeUtil.addEmailAddress(
+						emailAddresses, notificationContext,
+						_permissionCheckerFactory, user));
 
 				continue;
 			}

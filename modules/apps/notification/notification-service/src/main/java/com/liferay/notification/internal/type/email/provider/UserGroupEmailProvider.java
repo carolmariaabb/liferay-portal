@@ -7,12 +7,11 @@ package com.liferay.notification.internal.type.email.provider;
 
 import com.liferay.notification.constants.NotificationRecipientSettingConstants;
 import com.liferay.notification.context.NotificationContext;
+import com.liferay.notification.internal.type.util.NotificationTypeUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.UserGroup;
-import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactory;
-import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionUtil;
 import com.liferay.portal.kernel.service.UserGroupLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -63,19 +62,9 @@ public class UserGroupEmailProvider implements EmailProvider {
 
 			ListUtil.isNotEmptyForEach(
 				_userLocalService.getUserGroupUsers(userGroup.getUserGroupId()),
-				user -> {
-					if (!ModelResourcePermissionUtil.contains(
-							_permissionCheckerFactory.create(user),
-							notificationContext.getGroupId(),
-							notificationContext.getClassName(),
-							notificationContext.getClassPK(),
-							ActionKeys.VIEW)) {
-
-						return;
-					}
-
-					emailAddresses.add(user.getEmailAddress());
-				});
+				user -> NotificationTypeUtil.addEmailAddress(
+					emailAddresses, notificationContext,
+					_permissionCheckerFactory, user));
 		}
 
 		return StringUtil.merge(emailAddresses);
