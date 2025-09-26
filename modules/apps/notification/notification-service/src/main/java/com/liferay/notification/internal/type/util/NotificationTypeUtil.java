@@ -18,19 +18,34 @@ import java.util.Set;
  */
 public class NotificationTypeUtil {
 
+	public static void addEmailAddress(
+		Set<String> emailAddresses, NotificationContext notificationContext,
+		PermissionCheckerFactory permissionCheckerFactory, User user) {
+
+		if (_contains(notificationContext, permissionCheckerFactory, user)) {
+			emailAddresses.add(user.getEmailAddress());
+		}
+	}
+
 	public static void addUser(
 		NotificationContext notificationContext,
 		PermissionCheckerFactory permissionCheckerFactory, User user,
 		Set<User> users) {
 
-		if (ModelResourcePermissionUtil.contains(
-				permissionCheckerFactory.create(user),
-				notificationContext.getGroupId(),
-				notificationContext.getClassName(),
-				notificationContext.getClassPK(), ActionKeys.VIEW)) {
-
+		if (_contains(notificationContext, permissionCheckerFactory, user)) {
 			users.add(user);
 		}
+	}
+
+	private static boolean _contains(
+		NotificationContext notificationContext,
+		PermissionCheckerFactory permissionCheckerFactory, User user) {
+
+		return ModelResourcePermissionUtil.contains(
+			permissionCheckerFactory.create(user),
+			notificationContext.getGroupId(),
+			notificationContext.getClassName(),
+			notificationContext.getClassPK(), ActionKeys.VIEW);
 	}
 
 }

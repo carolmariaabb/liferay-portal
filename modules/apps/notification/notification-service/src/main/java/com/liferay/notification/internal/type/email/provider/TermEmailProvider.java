@@ -1,72 +1,63 @@
 /**
- * SPDX-FileCopyrightText: (c) 2000 Liferay, Inc. https://liferay.com
+ * SPDX-FileCopyrightText: (c) 2025 Liferay, Inc. https://liferay.com
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-package com.liferay.notification.internal.type.users.provider;
+package com.liferay.notification.internal.type.email.provider;
 
-import com.liferay.notification.constants.NotificationRecipientConstants;
+import com.liferay.notification.constants.NotificationRecipientSettingConstants;
 import com.liferay.notification.context.NotificationContext;
 import com.liferay.notification.internal.type.util.NotificationTypeUtil;
 import com.liferay.notification.term.evaluator.NotificationTermEvaluator;
 import com.liferay.notification.term.evaluator.NotificationTermEvaluatorTracker;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Role;
-import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.permission.PermissionCheckerFactory;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * @author Feliphe Marinho
+ * @author Carolina Barbosa
  */
-public class TermUsersProvider implements UsersProvider {
+public class TermEmailProvider implements EmailProvider {
 
-	public TermUsersProvider(
+	public TermEmailProvider(
 		PermissionCheckerFactory permissionCheckerFactory,
 		NotificationTermEvaluatorTracker notificationTermEvaluatorTracker,
-		RoleLocalService roleLocalService, RoleUsersProvider roleUsersProvider,
+		RoleEmailProvider roleEmailProvider, RoleLocalService roleLocalService,
 		UserLocalService userLocalService) {
 
 		_permissionCheckerFactory = permissionCheckerFactory;
 		_notificationTermEvaluatorTracker = notificationTermEvaluatorTracker;
+		_roleEmailProvider = roleEmailProvider;
 		_roleLocalService = roleLocalService;
-		_roleUsersProvider = roleUsersProvider;
 		_userLocalService = userLocalService;
 	}
 
 	@Override
-	public String getRecipientType() {
-		return NotificationRecipientConstants.TYPE_TERM;
-	}
-
-	@Override
-	public List<User> provide(
-			NotificationContext notificationContext, List<String> values)
+	public String provide(NotificationContext notificationContext, Object value)
 		throws PortalException {
 
-		Set<User> users = new HashSet<>();
+		if (value == null) {
+			return StringPool.BLANK;
+		}
 
-		for (String value : values) {
-			Matcher matcher = _pattern.matcher(value);
+		Set<String> emailAddresses = new HashSet<>();
+
+		for (String term : StringUtil.split(GetterUtil.getString(value))) {
+			Matcher matcher = _pattern.matcher(term);
 
 			if (!matcher.find()) {
-				NotificationTypeUtil.addUser(
-					notificationContext, _permissionCheckerFactory,
-					_userLocalService.getUserByScreenName(
-						notificationContext.getCompanyId(), value),
-					users);
-
 				continue;
 			}
 
@@ -77,9 +68,17 @@ public class TermUsersProvider implements UsersProvider {
 
 				String termValue = notificationTermEvaluator.evaluate(
 					NotificationTermEvaluator.Context.RECIPIENT,
-					notificationContext.getTermValues(), value);
+					notificationContext.getTermValues(), term);
 
-				if (Objects.equals(value, termValue)) {
+				if (Objects.equals(term, termValue)) {
+					continue;
+				}
+
+				matcher = _emailAddressPattern.matcher(termValue);
+
+				if (matcher.find()) {
+					emailAddresses.add(termValue);
+
 					continue;
 				}
 
@@ -87,32 +86,36 @@ public class TermUsersProvider implements UsersProvider {
 					GetterUtil.getLong(termValue));
 
 				if (role != null) {
-					users.addAll(
-						_roleUsersProvider.provide(
-							notificationContext,
-							Collections.singletonList(role.getName())));
-
-					continue;
+					return _roleEmailProvider.provide(
+						notificationContext,
+						Collections.singletonList(
+							Collections.singletonMap(
+								NotificationRecipientSettingConstants.
+									NAME_ROLE_NAME,
+								role.getName())));
 				}
 
-				NotificationTypeUtil.addUser(
-					notificationContext, _permissionCheckerFactory,
-					_userLocalService.getUser(GetterUtil.getLong(termValue)),
-					users);
+				NotificationTypeUtil.addEmailAddress(
+					emailAddresses, notificationContext,
+					_permissionCheckerFactory,
+					_userLocalService.getUser(GetterUtil.getLong(termValue)));
 			}
 		}
 
-		return new ArrayList<>(users);
+		return StringUtil.merge(emailAddresses);
 	}
 
+	private static final Pattern _emailAddressPattern = Pattern.compile(
+		"[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@" +
+			"(?:\\w(?:[\\w-]*\\w)?\\.)+(\\w(?:[\\w-]*\\w))");
 	private static final Pattern _pattern = Pattern.compile(
 		"\\[%[^\\[%]+%\\]", Pattern.CASE_INSENSITIVE);
 
 	private final NotificationTermEvaluatorTracker
 		_notificationTermEvaluatorTracker;
 	private final PermissionCheckerFactory _permissionCheckerFactory;
+	private final RoleEmailProvider _roleEmailProvider;
 	private final RoleLocalService _roleLocalService;
-	private final RoleUsersProvider _roleUsersProvider;
 	private final UserLocalService _userLocalService;
 
 }
