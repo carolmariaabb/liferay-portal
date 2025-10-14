@@ -35,6 +35,7 @@ import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.definition.util.ObjectDefinitionUtil;
+import com.liferay.object.definition.util.ObjectDefinitionValidationThreadLocal;
 import com.liferay.object.exception.ObjectDefinitionStatusException;
 import com.liferay.object.exception.ObjectDefinitionStorageTypeException;
 import com.liferay.object.model.ObjectActionModel;
@@ -79,6 +80,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Localization;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
@@ -235,10 +237,14 @@ public class ObjectDefinitionResourceImpl
 		throws Exception {
 
 		if (!Validator.isBlank(objectDefinition.getStorageType()) &&
-			!FeatureFlagManagerUtil.isEnabled("LPS-135430")) {
+			!FeatureFlagManagerUtil.isEnabled(
+				contextCompany.getCompanyId(), "LPS-135430")) {
 
 			throw new ObjectDefinitionStorageTypeException();
 		}
+
+		ObjectDefinitionValidationThreadLocal.setAccumulateError(
+			_isAccumulateError());
 
 		_addListTypeDefinition(objectDefinition);
 
@@ -463,10 +469,14 @@ public class ObjectDefinitionResourceImpl
 		// TODO Move logic to service
 
 		if (!Validator.isBlank(objectDefinition.getStorageType()) &&
-			!FeatureFlagManagerUtil.isEnabled("LPS-135430")) {
+			!FeatureFlagManagerUtil.isEnabled(
+				contextCompany.getCompanyId(), "LPS-135430")) {
 
 			throw new ObjectDefinitionStorageTypeException();
 		}
+
+		ObjectDefinitionValidationThreadLocal.setAccumulateError(
+			_isAccumulateError());
 
 		com.liferay.object.model.ObjectDefinition
 			serviceBuilderObjectDefinition =
@@ -1222,6 +1232,29 @@ public class ObjectDefinitionResourceImpl
 				contextCompany.getCompanyId());
 
 		return objectFolder.getObjectFolderId();
+	}
+
+	private boolean _isAccumulateError() {
+		if (!FeatureFlagManagerUtil.isEnabled(
+				contextCompany.getCompanyId(), "LPD-51345")) {
+
+			return false;
+		}
+
+		if (contextHttpServletRequest != null) {
+			return ParamUtil.getBoolean(
+				contextHttpServletRequest, "accumulateError");
+		}
+
+		if (contextUriInfo == null) {
+			return false;
+		}
+
+		MultivaluedMap<String, String> queryParameters =
+			contextUriInfo.getQueryParameters();
+
+		return GetterUtil.getBoolean(
+			queryParameters.getFirst("accumulateError"));
 	}
 
 	private ObjectDefinition _toObjectDefinition(
