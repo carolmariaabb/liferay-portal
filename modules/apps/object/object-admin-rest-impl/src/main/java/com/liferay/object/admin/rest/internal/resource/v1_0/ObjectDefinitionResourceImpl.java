@@ -36,6 +36,7 @@ import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.definition.util.ObjectDefinitionUtil;
+import com.liferay.object.definition.util.ObjectDefinitionValidationThreadLocal;
 import com.liferay.object.exception.ObjectDefinitionStatusException;
 import com.liferay.object.exception.ObjectDefinitionStorageTypeException;
 import com.liferay.object.model.ObjectActionModel;
@@ -236,10 +237,13 @@ public class ObjectDefinitionResourceImpl
 		throws Exception {
 
 		if (!Validator.isBlank(objectDefinition.getStorageType()) &&
-			!FeatureFlagManagerUtil.isEnabled("LPS-135430")) {
+			!FeatureFlagManagerUtil.isEnabled(
+				contextCompany.getCompanyId(), "LPS-135430")) {
 
 			throw new ObjectDefinitionStorageTypeException();
 		}
+
+		_setAccumulateError();
 
 		_addListTypeDefinition(objectDefinition);
 
@@ -470,10 +474,13 @@ public class ObjectDefinitionResourceImpl
 		// TODO Move logic to service
 
 		if (!Validator.isBlank(objectDefinition.getStorageType()) &&
-			!FeatureFlagManagerUtil.isEnabled("LPS-135430")) {
+			!FeatureFlagManagerUtil.isEnabled(
+				contextCompany.getCompanyId(), "LPS-135430")) {
 
 			throw new ObjectDefinitionStorageTypeException();
 		}
+
+		_setAccumulateError();
 
 		com.liferay.object.model.ObjectDefinition
 			serviceBuilderObjectDefinition =
@@ -1248,6 +1255,30 @@ public class ObjectDefinitionResourceImpl
 				contextCompany.getCompanyId());
 
 		return objectFolder.getObjectFolderId();
+	}
+
+	private void _setAccumulateError() {
+		if (FeatureFlagManagerUtil.isEnabled(
+				contextCompany.getCompanyId(), "LPD-51345")) {
+
+			return;
+		}
+
+		if (contextHttpServletRequest != null) {
+			ObjectDefinitionValidationThreadLocal.setAccumulateError(
+				ParamUtil.getBoolean(
+					contextHttpServletRequest, "accumulateError"));
+		}
+		else if (contextUriInfo != null) {
+			MultivaluedMap<String, String> queryParameters =
+				contextUriInfo.getQueryParameters();
+
+			ObjectDefinitionValidationThreadLocal.setAccumulateError(
+				queryParameters.getFirst("accumulateError"));
+		}
+
+		ObjectDefinitionValidationThreadLocal.setValidationErrors(
+			new ArrayList<>());
 	}
 
 	private ObjectDefinition _toObjectDefinition(
