@@ -714,7 +714,8 @@ public class ObjectFieldLocalServiceImpl
 		}
 	}
 
-	@Override
+	// @Override
+
 	public void validateObjectFields(
 			ObjectDefinition objectDefinition, List<ObjectField> objectFields)
 		throws PortalException {
