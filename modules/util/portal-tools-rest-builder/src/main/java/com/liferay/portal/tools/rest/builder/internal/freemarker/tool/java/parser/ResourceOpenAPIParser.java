@@ -837,6 +837,7 @@ public class ResourceOpenAPIParser {
 			String parameterName = parameter.getName();
 
 			if (StringUtil.equals(parameterName, "Accept-Language") ||
+				StringUtil.equals(parameterName, "accumulateError") ||
 				StringUtil.equals(parameterName, "aggregationTerms") ||
 				StringUtil.equals(parameterName, "fields") ||
 				StringUtil.equals(parameterName, "filter") ||
@@ -1602,7 +1603,8 @@ public class ResourceOpenAPIParser {
 			schemaVarName = OpenAPIParserUtil.getSchemaVarName(schemaName);
 		}
 
-		if (StringUtil.equals(name, "aggregation") ||
+		if (StringUtil.equals(name, "accumulateError") ||
+			StringUtil.equals(name, "aggregation") ||
 			StringUtil.equals(name, "aggregationTerms") ||
 			StringUtil.equals(name, "fields") ||
 			StringUtil.equals(name, "flatten") ||
