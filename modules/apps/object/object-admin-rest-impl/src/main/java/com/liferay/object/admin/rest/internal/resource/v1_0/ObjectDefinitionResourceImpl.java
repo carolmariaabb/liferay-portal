@@ -366,13 +366,6 @@ public class ObjectDefinitionResourceImpl
 						objectDefinition.getWorkflowDefinitionLinks()));
 		}
 
-		if (!Validator.isBlank(objectDefinition.getExternalReferenceCode())) {
-			serviceBuilderObjectDefinition =
-				_objectDefinitionService.updateExternalReferenceCode(
-					serviceBuilderObjectDefinition.getObjectDefinitionId(),
-					objectDefinition.getExternalReferenceCode());
-		}
-
 		com.liferay.object.model.ObjectField serviceBuilderObjectField =
 			_objectFieldLocalService.fetchObjectField(
 				serviceBuilderObjectDefinition.getObjectDefinitionId(),
