@@ -1227,6 +1227,7 @@ public class ObjectDefinitionLocalServiceImpl
 			String panelCategoryKey, boolean portlet,
 			Map<Locale, String> pluralLabelMap, String scope, int status,
 			List<ObjectDefinitionSetting> objectDefinitionSettings,
+			List<ObjectField> objectFields,
 			List<WorkflowDefinitionLink> workflowDefinitionLinks)
 		throws PortalException {
 
@@ -1249,7 +1250,8 @@ public class ObjectDefinitionLocalServiceImpl
 			enableObjectEntrySubscription, enableObjectEntryVersioning,
 			friendlyURLSeparator, labelMap, name, panelAppOrder,
 			panelCategoryKey, portlet, null, null, pluralLabelMap, scope,
-			status, objectDefinitionSettings, workflowDefinitionLinks);
+			status, objectDefinitionSettings, objectFields,
+			workflowDefinitionLinks);
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
@@ -1299,6 +1301,7 @@ public class ObjectDefinitionLocalServiceImpl
 			String externalReferenceCode, long objectDefinitionId,
 			long objectFolderId, long titleObjectFieldId,
 			List<ObjectDefinitionSetting> objectDefinitionSettings,
+			List<ObjectField> objectFields,
 			List<WorkflowDefinitionLink> workflowDefinitionLinks)
 		throws PortalException {
 
@@ -1331,6 +1334,8 @@ public class ObjectDefinitionLocalServiceImpl
 
 		_addOrUpdateWorkflowDefinitionLinks(
 			objectDefinition, workflowDefinitionLinks);
+
+		_updateObjectFields(objectDefinition, objectFields);
 
 		return objectDefinition;
 	}
@@ -2495,6 +2500,7 @@ public class ObjectDefinitionLocalServiceImpl
 			String pkObjectFieldDBColumnName, String pkObjectFieldName,
 			Map<Locale, String> pluralLabelMap, String scope, int status,
 			List<ObjectDefinitionSetting> objectDefinitionSettings,
+			List<ObjectField> objectFields,
 			List<WorkflowDefinitionLink> workflowDefinitionLinks)
 		throws PortalException {
 
@@ -2653,6 +2659,8 @@ public class ObjectDefinitionLocalServiceImpl
 		_addOrUpdateWorkflowDefinitionLinks(
 			objectDefinition, workflowDefinitionLinks);
 
+		_updateObjectFields(objectDefinition, objectFields);
+
 		if (objectDefinition.isApproved()) {
 			if (!active && oldActive) {
 				objectDefinitionLocalService.deployInactiveObjectDefinition(
@@ -2726,6 +2734,62 @@ public class ObjectDefinitionLocalServiceImpl
 			objectDefinition.getObjectFolderId(), oldObjectFolderId);
 
 		return objectDefinition;
+	}
+
+	private void _updateObjectFields(
+			ObjectDefinition objectDefinition, List<ObjectField> objectFields)
+		throws PortalException {
+
+		if (objectFields == null) {
+			return;
+		}
+
+		for (ObjectField objectField : objectFields) {
+			if (objectDefinition.isModifiableAndSystem() &&
+				ObjectDefinitionUtil.isInvokerBundleAllowed()) {
+
+				if (!objectField.isSystem()) {
+					continue;
+				}
+			}
+			else if (objectField.isSystem()) {
+				continue;
+			}
+
+			if (objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION)) {
+
+				continue;
+			}
+
+			if (objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP)) {
+
+				ObjectField existingObjectField =
+					_objectFieldLocalService.fetchObjectField(
+						objectField.getExternalReferenceCode(),
+						objectDefinition.getObjectDefinitionId());
+
+				if (existingObjectField == null) {
+					continue;
+				}
+			}
+
+			_objectFieldLocalService.updateObjectField(
+				objectField.getExternalReferenceCode(),
+				objectField.getObjectFieldId(), objectDefinition.getUserId(),
+				objectField.getListTypeDefinitionId(),
+				objectDefinition.getObjectDefinitionId(),
+				objectField.getBusinessType(), null, null,
+				objectField.getDBType(), objectField.isIndexed(),
+				objectField.isIndexedAsKeyword(),
+				objectField.getIndexedLanguageId(), objectField.getLabelMap(),
+				objectField.isLocalized(), objectField.getName(),
+				objectField.getReadOnly(),
+				objectField.getReadOnlyConditionExpression(),
+				objectField.isRequired(), objectField.isState(),
+				objectField.isSystem(), objectField.getObjectFieldSettings());
+		}
 	}
 
 	private ObjectDefinition _updateTitleObjectFieldId(
