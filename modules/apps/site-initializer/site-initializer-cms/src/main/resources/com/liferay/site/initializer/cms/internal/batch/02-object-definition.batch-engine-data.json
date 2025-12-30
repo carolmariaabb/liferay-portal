@@ -905,6 +905,7 @@
 			"titleObjectFieldName": "title"
 		},
 		{
+			"accountEntryRestricted": false,
 			"className": "com.liferay.object.model.ObjectDefinition#I5U9",
 			"enableCategorization": true,
 			"enableComments": true,
@@ -936,81 +937,64 @@
 			],
 			"objectFields": [
 				{
+					"businessType": "Relationship",
+					"externalReferenceCode": "USER_TO_PROJECT_MANAGER",
+					"indexed": true,
+					"label": {
+						"en_US": "Project To User Manager"
+					},
+					"name": "r_projectToUserManager_userId",
+					"objectDefinitionExternalReferenceCode1": "L_USER",
+					"objectRelationshipExternalReferenceCode": "L_PROJECT_TO_USER_MANAGER",
+					"relationshipType": "oneToMany"
+				},
+				{
+					"businessType": "Relationship",
+					"externalReferenceCode": "USER_TO_PROJECT_SPONSOR",
+					"indexed": true,
+					"label": {
+						"en_US": "Project To User Sponsor"
+					},
+					"name": "r_projectToUserSponsor_userId",
+					"objectDefinitionExternalReferenceCode1": "L_USER",
+					"objectRelationshipExternalReferenceCode": "L_PROJECT_TO_USER_SPONSOR",
+					"relationshipType": "oneToMany"
+				},
+				{
 					"DBType": "String",
 					"businessType": "Text",
-					"defaultValue": "null",
-					"externalReferenceCode": "0b2caf24-4277-d174-13e5-bd0568d5b2b9",
+					"externalReferenceCode": "TITLE",
 					"indexed": true,
 					"indexedAsKeyword": false,
 					"indexedLanguageId": "en_US",
 					"label": {
 						"en_US": "Title"
 					},
-					"localized": false,
-					"name": "title",
-					"objectFieldSettings": [
-						{
-							"name": "showCounter",
-							"value": false
-						}
-					],
-					"readOnly": "false",
-					"readOnlyConditionExpression": "",
-					"required": false,
-					"state": false,
-					"system": false,
-					"type": "String",
-					"unique": false
+					"name": "title"
 				},
 				{
 					"DBType": "Clob",
 					"businessType": "LongText",
-					"defaultValue": "null",
-					"externalReferenceCode": "4eb00b5a-54ab-e8c6-a99f-e1b7b16941d2",
+					"externalReferenceCode": "DESCRIPTION",
 					"indexed": true,
 					"indexedAsKeyword": false,
 					"indexedLanguageId": "en_US",
 					"label": {
 						"en_US": "Description"
 					},
-					"localized": false,
-					"name": "description",
-					"objectFieldSettings": [
-						{
-							"name": "showCounter",
-							"value": false
-						}
-					],
-					"readOnly": "false",
-					"readOnlyConditionExpression": "",
-					"required": false,
-					"state": false,
-					"system": false,
-					"type": "Clob",
-					"unique": false
+					"name": "description"
 				},
 				{
 					"DBType": "Date",
 					"businessType": "Date",
-					"defaultValue": "null",
-					"externalReferenceCode": "92e28457-7c8f-a77b-d640-da2b50832bc9",
+					"externalReferenceCode": "DUE_DATE",
 					"indexed": true,
 					"indexedAsKeyword": false,
 					"indexedLanguageId": "",
 					"label": {
 						"en_US": "Due Date"
 					},
-					"localized": false,
-					"name": "dueDate",
-					"objectFieldSettings": [
-					],
-					"readOnly": "false",
-					"readOnlyConditionExpression": "",
-					"required": false,
-					"state": false,
-					"system": false,
-					"type": "Date",
-					"unique": false
+					"name": "dueDate"
 				}
 			],
 			"objectFolderExternalReferenceCode": "default",
