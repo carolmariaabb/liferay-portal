@@ -132,41 +132,52 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 
 	@Override
 	public List<FDSActionDropdownItem> getFDSActionDropdownItems() {
-		try {
-			ObjectDefinition objectDefinition =
-				_objectDefinitionLocalService.getObjectDefinition(
-					themeDisplay.getCompanyId(), "CMPProject");
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_CMP_PROJECT", themeDisplay.getCompanyId());
 
-			return ListUtil.fromArray(
-				new FDSActionDropdownItem(
-					StringBundler.concat(
-						themeDisplay.getPathFriendlyURLPublic(),
-						GroupConstants.CMS_FRIENDLY_URL, "/e/project/",
-						PortalUtil.getClassNameId(
-							objectDefinition.getClassName()),
-						"/{embedded.id}"),
-					"cog", "edit",
-					LanguageUtil.get(httpServletRequest, "project"), "get",
-					"update", null));
+		if (objectDefinition == null) {
+			return null;
 		}
-		catch (PortalException portalException) {
-			throw new RuntimeException(portalException);
-		}
+
+		return ListUtil.fromArray(
+			new FDSActionDropdownItem(
+				StringBundler.concat(
+					themeDisplay.getPathFriendlyURLPublic(),
+					GroupConstants.CMS_FRIENDLY_URL, "/e/edit-project/",
+					PortalUtil.getClassNameId(objectDefinition.getClassName()),
+					"/{embedded.id}?redirect=", themeDisplay.getURLCurrent()),
+				"pencil", "edit", LanguageUtil.get(httpServletRequest, "edit"),
+				"get", "update", null),
+			new FDSActionDropdownItem(
+				StringBundler.concat(
+					themeDisplay.getPathFriendlyURLPublic(),
+					GroupConstants.CMS_FRIENDLY_URL, "/e/project/",
+					PortalUtil.getClassNameId(objectDefinition.getClassName()),
+					"/{embedded.id}?redirect=", themeDisplay.getURLCurrent()),
+				"view", "actionLink",
+				LanguageUtil.get(httpServletRequest, "view"), null, "get",
+				null),
+			new FDSActionDropdownItem(
+				null, "trash", "delete",
+				LanguageUtil.get(httpServletRequest, "delete"), null, "delete",
+				null));
 	}
 
 	@Override
 	protected String getCMSSectionFilterString() {
-		try {
-			ObjectDefinition objectDefinition =
-				_objectDefinitionLocalService.getObjectDefinition(
-					themeDisplay.getCompanyId(), "CMPProject");
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					"L_CMP_PROJECT", themeDisplay.getCompanyId());
 
-			return "objectDefinitionId eq " +
-				objectDefinition.getObjectDefinitionId();
+		if (objectDefinition == null) {
+			return null;
 		}
-		catch (PortalException portalException) {
-			throw new RuntimeException(portalException);
-		}
+
+		return "objectDefinitionId eq " +
+			objectDefinition.getObjectDefinitionId();
 	}
 
 	private void _addBreadcrumbItem(

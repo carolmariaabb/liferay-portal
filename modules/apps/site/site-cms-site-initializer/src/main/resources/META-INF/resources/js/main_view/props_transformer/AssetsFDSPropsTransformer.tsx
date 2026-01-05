@@ -38,6 +38,7 @@ import AuthorRenderer from './cell_renderers/AuthorRenderer';
 import SimpleActionLinkRenderer from './cell_renderers/SimpleActionLinkRenderer';
 import SpaceRendererWithCache from './cell_renderers/SpaceRendererWithCache';
 import TypeRenderer from './cell_renderers/TypeRenderer';
+import UserRelationshipRenderer from './cell_renderers/UserRelationshipRenderer';
 import addOnClickToCreationMenuItems from './utils/addOnClickToCreationMenuItems';
 import transformViewsItemsProps from './utils/transformViewsItemProps';
 import GalleryView from './views/GalleryView';
@@ -154,6 +155,11 @@ export default function AssetsFDSPropsTransformer({
 				{
 					component: ({value}) => StatusLabel(value),
 					name: 'statusTableCellRenderer',
+					type: 'internal',
+				} as IInternalRenderer,
+				{
+					component: UserRelationshipRenderer,
+					name: 'userRelationshipTableCellRenderer',
 					type: 'internal',
 				} as IInternalRenderer,
 			],
