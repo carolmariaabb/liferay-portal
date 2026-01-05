@@ -995,6 +995,22 @@
 						"en_US": "Due Date"
 					},
 					"name": "dueDate"
+				},
+				{
+					"DBType": "String",
+					"businessType": "Picklist",
+					"defaultValue": "notStarted",
+					"externalReferenceCode": "STATE",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "en_US",
+					"label": {
+						"en_US": "State"
+					},
+					"listTypeDefinitionExternalReferenceCode": "L_CMP_TASK_STATES",
+					"name": "state",
+					"required": true,
+					"state": true
 				}
 			],
 			"objectFolderExternalReferenceCode": "default",

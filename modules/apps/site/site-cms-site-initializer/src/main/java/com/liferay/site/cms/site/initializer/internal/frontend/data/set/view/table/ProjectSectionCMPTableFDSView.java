@@ -50,9 +50,9 @@ public class ProjectSectionCMPTableFDSView extends BaseCMSTableFDSView {
 			fdsTableSchemaField -> fdsTableSchemaField.setContentRenderer(
 				"userRelationshipTableCellRenderer")
 		).add(
-			"embedded.status", "status",
+			"embedded.state", "state",
 			fdsTableSchemaField -> fdsTableSchemaField.setContentRenderer(
-				"statusTableCellRenderer")
+				"stateTableCellRenderer")
 		).build();
 	}
 
