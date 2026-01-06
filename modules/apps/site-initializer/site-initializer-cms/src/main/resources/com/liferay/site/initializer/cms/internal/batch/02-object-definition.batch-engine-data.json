@@ -946,7 +946,8 @@
 					"name": "r_projectToUserManager_userId",
 					"objectDefinitionExternalReferenceCode1": "L_USER",
 					"objectRelationshipExternalReferenceCode": "L_PROJECT_TO_USER_MANAGER",
-					"relationshipType": "oneToMany"
+					"relationshipType": "oneToMany",
+					"system": true
 				},
 				{
 					"businessType": "Relationship",
@@ -958,7 +959,8 @@
 					"name": "r_projectToUserSponsor_userId",
 					"objectDefinitionExternalReferenceCode1": "L_USER",
 					"objectRelationshipExternalReferenceCode": "L_PROJECT_TO_USER_SPONSOR",
-					"relationshipType": "oneToMany"
+					"relationshipType": "oneToMany",
+					"system": true
 				},
 				{
 					"DBType": "String",
@@ -971,7 +973,8 @@
 						"en_US": "Title"
 					},
 					"name": "title",
-					"required": true
+					"required": true,
+					"system": true
 				},
 				{
 					"DBType": "Clob",
@@ -983,7 +986,8 @@
 					"label": {
 						"en_US": "Description"
 					},
-					"name": "description"
+					"name": "description",
+					"system": true
 				},
 				{
 					"DBType": "Date",
@@ -995,7 +999,8 @@
 					"label": {
 						"en_US": "Due Date"
 					},
-					"name": "dueDate"
+					"name": "dueDate",
+					"system": true
 				},
 				{
 					"DBType": "String",
@@ -1011,7 +1016,21 @@
 					"listTypeDefinitionExternalReferenceCode": "L_CMP_TASK_STATES",
 					"name": "state",
 					"required": true,
-					"state": true
+					"state": true,
+					"system": true
+				},
+				{
+					"DBType": "Integer",
+					"businessType": "Integer",
+					"externalReferenceCode": "COMPLETION_RATE",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"label": {
+						"en_US": "Completion Rate"
+					},
+					"name": "completionRate",
+					"readOnly": "true",
+					"system": true
 				}
 			],
 			"objectFolderExternalReferenceCode": "default",
@@ -1112,6 +1131,23 @@
 					"system": false,
 					"type": "String",
 					"unique": false
+				},
+				{
+					"DBType": "String",
+					"businessType": "Picklist",
+					"defaultValue": "notStarted",
+					"externalReferenceCode": "STATE",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "en_US",
+					"label": {
+						"en_US": "State"
+					},
+					"listTypeDefinitionExternalReferenceCode": "L_CMP_TASK_STATES",
+					"name": "state",
+					"required": true,
+					"state": true,
+					"system": true
 				}
 			],
 			"objectFolderExternalReferenceCode": "default",

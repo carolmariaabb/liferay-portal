@@ -42,6 +42,10 @@ public class ProjectSectionCMPTableFDSView extends BaseCMSTableFDSView {
 		).add(
 			_getDateFDSTableSchemaField("embedded.dueDate", "due-date")
 		).add(
+			"embedded.completionRate", "completion-rate",
+			fdsTableSchemaField -> fdsTableSchemaField.setContentRenderer(
+				"progressBarTableCellRenderer")
+		).add(
 			"embedded.r_projectToUserManager_userERC", "manager",
 			fdsTableSchemaField -> fdsTableSchemaField.setContentRenderer(
 				"userRelationshipTableCellRenderer")
