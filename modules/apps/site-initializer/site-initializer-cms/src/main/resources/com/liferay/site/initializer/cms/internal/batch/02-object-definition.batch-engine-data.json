@@ -970,7 +970,8 @@
 					"label": {
 						"en_US": "Title"
 					},
-					"name": "title"
+					"name": "title",
+					"required": true
 				},
 				{
 					"DBType": "Clob",
