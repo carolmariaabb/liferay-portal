@@ -90,53 +90,10 @@
 											"indexed": true,
 											"layout": {
 											},
-											"name": "description-container"
+											"name": "other-name"
 										},
 										"id": "ca47abc8-6901-6d32-8372-68bc34ba1870",
 										"pageElements": [
-											{
-												"definition": {
-													"fragmentStyle": {
-														"marginBottom": "3"
-													},
-													"indexed": true,
-													"layout": {
-														"marginBottom": 1
-													},
-													"name": "description-header-container"
-												},
-												"id": "8e339134-0fb5-2f39-33ee-b6603e299b78",
-												"pageElements": [
-													{
-														"definition": {
-															"fragment": {
-																"key": "BASIC_COMPONENT-heading"
-															},
-															"fragmentConfig": {
-																"headingLevel": "h5"
-															},
-															"fragmentFields": [
-																{
-																	"id": "element-text",
-																	"value": {
-																		"fragmentLink": {
-																		},
-																		"text": {
-																			"value_i18n": {
-																				"en_US": "Description"
-																			}
-																		}
-																	}
-																}
-															],
-															"indexed": true
-														},
-														"id": "5ccb81f6-8815-f73d-fbfa-37a1c0e2447b",
-														"type": "Fragment"
-													}
-												],
-												"type": "Section"
-											},
 											{
 												"definition": {
 													"fragmentStyle": {
@@ -214,24 +171,44 @@
 								"pageElements": [
 									{
 										"definition": {
-											"fragment": {
-												"key": "com.liferay.site.cmp.site.initializer.internal.fragment.renderer.ViewTaskInfoSummaryJSPSectionFragmentRenderer"
+											"customCSS": ".[$FRAGMENT_CLASS$] {\n display: flex; flex-direction: column; align-items: end;\n}",
+											"indexed": true,
+											"layout": {
 											},
-											"fragmentConfig": {
-											},
-											"fragmentFields": [
-											],
-											"fragmentStyle": {
-												"borderColor": "rgb(205, 206, 217)",
-												"borderRadius": "10px",
-												"borderWidth": "0.05rem",
-												"marginBottom": "4",
-												"marginRight": "3"
-											},
-											"indexed": true
+											"name": "task-details-summary-container"
 										},
-										"id": "005a5946-a89c-8c17-5407-5e5a0a86f9b5",
-										"type": "Fragment"
+										"pageElements": [
+											{
+												"definition": {
+													"fragmentStyle": {
+														"maxWidth": "424px",
+														"minWidth": "320px",
+														"width": "100%"
+													},
+													"indexed": true,
+													"layout": {
+													},
+													"name": "task-details-summary-content"
+												},
+												"pageElements": [
+													{
+														"definition": {
+															"fragment": {
+																"key": "com.liferay.site.cmp.site.initializer.internal.fragment.renderer.ViewTaskInfoSummaryJSPSectionFragmentRenderer"
+															},
+															"fragmentConfig": {
+															},
+															"fragmentFields": [
+															],
+															"indexed": true
+														},
+														"type": "Fragment"
+													}
+												],
+												"type": "Section"
+											}
+										],
+										"type": "Section"
 									}
 								],
 								"type": "Column"
