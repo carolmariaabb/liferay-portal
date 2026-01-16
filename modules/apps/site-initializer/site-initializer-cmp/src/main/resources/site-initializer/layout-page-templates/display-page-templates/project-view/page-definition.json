@@ -1,6 +1,5 @@
 {
 	"pageElement": {
-		"id": "d6afc8a4-237e-faad-85d7-e6ec7466700a",
 		"pageElements": [
 			{
 				"definition": {
@@ -13,7 +12,6 @@
 					],
 					"indexed": true
 				},
-				"id": "53aaa32a-5d7b-846a-52f1-3927fc78e106",
 				"type": "Fragment"
 			},
 			{
@@ -72,13 +70,11 @@
 					},
 					"indexed": true
 				},
-				"id": "d082ad9e-79ec-16bd-e9fa-ba93d05ae338",
 				"pageElements": [
 					{
 						"definition": {
 							"fragmentDropZoneId": "1"
 						},
-						"id": "c99e2f92-93be-30ce-d5f6-6893c43f9101",
 						"pageElements": [
 							{
 								"definition": {
@@ -103,17 +99,24 @@
 										{
 											"id": "portraitMobile",
 											"rowViewportDefinition": {
+												"modulesPerRow": 1
 											}
 										},
 										{
 											"id": "tablet",
 											"rowViewportDefinition": {
+												"modulesPerRow": 2
+											}
+										},
+										{
+											"id": "desktop",
+											"rowViewportDefinition": {
+												"modulesPerRow": 2
 											}
 										}
 									],
 									"verticalAlignment": "top"
 								},
-								"id": "8a43bff1-df2e-f83d-9a22-b3cd15aaa7ea",
 								"pageElements": [
 									{
 										"definition": {
@@ -141,14 +144,10 @@
 											},
 											"size": 8
 										},
-										"id": "3c2f5cb5-1c0b-5a65-7cb2-48e849b4b361",
 										"pageElements": [
 											{
 												"definition": {
-													"fragmentStyle": {
-														"marginBottom": "40px",
-														"marginTop": "8px"
-													},
+													"customCSS": ".[$FRAGMENT_CLASS$] {\n width: 85%;\n}",
 													"indexed": true,
 													"layout": {
 													},
@@ -441,12 +440,12 @@
 													"id": "tablet"
 												}
 											],
-											"size": 3
+											"size": 4
 										},
-										"id": "fe649cba-e4fc-3b07-9046-dcbee6582031",
 										"pageElements": [
 											{
 												"definition": {
+													"customCSS": ".[$FRAGMENT_CLASS$] {\n display: flex; flex-direction: column; align-items: end;\n}",
 													"indexed": true,
 													"layout": {
 													},
@@ -556,47 +555,6 @@
 						"definition": {
 							"fragmentDropZoneId": "3"
 						},
-						"pageElements": [
-							{
-								"definition": {
-									"indexed": true,
-									"layout": {
-									}
-								},
-								"pageElements": [
-									{
-										"definition": {
-											"fragment": {
-												"key": "com.liferay.site.cmp.site.initializer.internal.fragment.renderer.ViewTasksJSPSectionFragmentRenderer"
-											},
-											"fragmentConfig": {
-											},
-											"fragmentFields": [
-											],
-											"fragmentStyle": {
-												"borderColor": "rgb(241, 242, 245)",
-												"borderRadius": "10px",
-												"borderWidth": "2px",
-												"paddingBottom": "3",
-												"paddingLeft": "3",
-												"paddingRight": "3",
-												"paddingTop": "3"
-											},
-											"indexed": true
-										},
-										"type": "Fragment"
-									}
-								],
-								"type": "Section"
-							}
-						],
-						"type": "FragmentDropZone"
-					},
-					{
-						"definition": {
-							"fragmentDropZoneId": "3"
-						},
-						"id": "5f561d22-abb2-bff7-7e7a-474ae5d0aaaa",
 						"pageElements": [
 							{
 								"definition": {
