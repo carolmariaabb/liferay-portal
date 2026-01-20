@@ -26,11 +26,15 @@ export {default as EditVocabulary} from './main_view/categorization/vocabularies
 export {default as ViewDashboard} from './main_view/dashboard/ViewDashboard';
 export {default as EditFolder} from './main_view/folders/EditFolder';
 
-// Main
-
 export {default as QuickActions} from './main_view/home/QuickActions';
 export {default as SearchBar} from './main_view/home/SearchBar';
 export {default as ViewWorkflowTasks} from './main_view/home/ViewWorkflowTasks';
+
+// Main
+
+export {default as AssignToModalContent} from './main_view/home/modal/AssignToModalContent';
+export {default as TransitionWorkflowStateModalContent} from './main_view/home/modal/TransitionWorkflowStateModalContent';
+export {default as UpdateDueDateModalContent} from './main_view/home/modal/UpdateDueDateModalContent';
 export {default as AssetTypeInfoPanelContent} from './main_view/info_panel/AssetTypeInfoPanelContent';
 export {default as AllSpacesFDSPropsTransformer} from './main_view/props_transformer/AllSpacesFDSPropsTransformer';
 export {
@@ -56,7 +60,7 @@ export {default as VocabularyFDSPropsTransformer} from './main_view/props_transf
 export {default as ACTIONS} from './main_view/props_transformer/actions/creationMenuActions';
 export {default as deleteItemAction} from './main_view/props_transformer/actions/deleteItemAction';
 export {default as manageMembersAction} from './main_view/props_transformer/actions/manageMembersAction';
-export {default as SimpleActionLinkRenderer} from './main_view/props_transformer/cell_renderers/SimpleActionLinkRenderer';
+export {ActionItem, default as SimpleActionLinkRenderer} from './main_view/props_transformer/cell_renderers/SimpleActionLinkRenderer';
 export {default as addOnClickToCreationMenuItems} from './main_view/props_transformer/utils/addOnClickToCreationMenuItems';
 export {default as RecycleBinToolbar} from './main_view/recycle_bin/RecycleBinToolbar';
 export {default as AddSpaceMembers} from './main_view/spaces/AddSpaceMembers';

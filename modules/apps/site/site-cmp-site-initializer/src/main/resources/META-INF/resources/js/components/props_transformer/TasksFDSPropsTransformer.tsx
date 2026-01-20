@@ -3,12 +3,15 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {IInternalRenderer} from '@liferay/frontend-data-set-web';
+import {DateRenderer, IInternalRenderer} from '@liferay/frontend-data-set-web';
 import {AssigneeValue} from '@liferay/object-dynamic-data-mapping-form-field-type';
 import {
 	ACTIONS,
-	AdditionalProps,
+	ActionItem,
+	AssignToModalContent,
 	SimpleActionLinkRenderer,
+	TransitionWorkflowStateModalContent,
+	UpdateDueDateModalContent,
 	addOnClickToCreationMenuItems,
 	deleteItemAction,
 } from '@liferay/site-cms-site-initializer';
@@ -17,6 +20,10 @@ import React from 'react';
 import {openCMPModal} from '../../utils/openCMPModal';
 import StateLabel from '../StateLabel';
 import EditAssigneeModalContent from '../modal/EditAssigneeModalContent';
+import AssigneeRenderer from './cell_renderers/AssigneeRenderer';
+
+const _CLASS_NAME_KALEO_TASK_INSTANCE_TOKEN =
+	'com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken';
 
 type action = {
 	data: {
@@ -24,51 +31,138 @@ type action = {
 	};
 };
 
-type Action = {
-	href: string;
-	method: string;
+type AssigneeRole = {
+	name: string;
 };
 
 interface ItemData {
-	actions: {
-		delete: Action;
-		get: Action;
-		update: Action;
-	};
 	embedded: {
-		assignTo: AssigneeValue | null | {};
-		content: string;
-		content_i18n: {[locale: string]: string};
-		creator: {
-			contentType: string;
-			id: number;
-			image?: string;
+		assignTo: AssigneeValue;
+		assigneePerson?: {
 			name: string;
 		};
-		defaultLanguageId: string;
-		externalReferenceCode: string;
-		file?: any;
+		assigneeRoles: AssigneeRole[];
+		dateDue: string;
+		dueDate: string;
 		id: number;
-		objectEntryFolderExternalReferenceCode?: string;
-		objectEntryFolderId: number;
-		parentObjectEntryFolderExternalReferenceCode?: string;
-		scopeId: number;
-		systemProperties?: any;
+		objectReviewed: {
+			assetTitle: string;
+		};
+		r_cmpProjectToCMPTasks_c_cmpProject: {
+			title: string;
+		};
+		state: {
+			key: string;
+			name: string;
+		};
 		title: string;
-		title_i18n: {[locale: string]: string};
 	};
 	entryClassName: string;
-	id: number;
-	title: string;
 }
 
+function getAssignee(itemData: ItemData) {
+	if (itemData.entryClassName === _CLASS_NAME_KALEO_TASK_INSTANCE_TOKEN) {
+		if (itemData.embedded.assigneePerson) {
+			return itemData.embedded.assigneePerson.name;
+		}
+
+		return itemData.embedded.assigneeRoles
+			.map((assigneeRole) => assigneeRole.name)
+			.join(', ');
+	}
+
+	return itemData.embedded.assignTo.name;
+}
+
+function getDueDate(itemData: ItemData) {
+	if (itemData.entryClassName === _CLASS_NAME_KALEO_TASK_INSTANCE_TOKEN) {
+		return itemData.embedded.dateDue;
+	}
+
+	return itemData.embedded.dueDate;
+}
+
+function getProject(itemData: ItemData) {
+	if (itemData.entryClassName === _CLASS_NAME_KALEO_TASK_INSTANCE_TOKEN) {
+		return '-';
+	}
+
+	return itemData.embedded.r_cmpProjectToCMPTasks_c_cmpProject.title;
+}
+
+function getStateLabel(itemData: ItemData) {
+	if (itemData.entryClassName === _CLASS_NAME_KALEO_TASK_INSTANCE_TOKEN) {
+		return '-';
+	}
+
+	return StateLabel(itemData.embedded.state);
+}
+
+function getSimpleActionLinkRenderer({
+	actions,
+	itemData,
+	options,
+}: {
+	actions: ActionItem[];
+	itemData: ItemData;
+	options: {actionId: string};
+}) {
+	if (itemData.entryClassName === _CLASS_NAME_KALEO_TASK_INSTANCE_TOKEN) {
+		return SimpleActionLinkRenderer({
+			actions,
+			itemData,
+			options: {
+				actionId: 'actionLinkWorkflowTask',
+			},
+			value: itemData.embedded.objectReviewed.assetTitle,
+		});
+	}
+
+	return SimpleActionLinkRenderer({
+		actions,
+		itemData,
+		options,
+		value: itemData.embedded.title,
+	});
+}
+
+const WORKFLOW_TASK_MODALS: Record<
+	string,
+	(baseProps: {
+		closeModal: () => void;
+		dueDate: string;
+		loadData: () => Promise<void>;
+		workflowTaskId: number;
+	}) => JSX.Element
+> = {
+	approveWorkflowTask: (props) => (
+		<TransitionWorkflowStateModalContent
+			{...props}
+			transitionName="approve"
+		/>
+	),
+	assignToMeWorkflowTask: (props) => (
+		<AssignToModalContent {...props} assignable={false} />
+	),
+	assignToWorkflowTask: (props) => (
+		<AssignToModalContent {...props} assignable={true} />
+	),
+	rejectWorkflowTask: (props) => (
+		<TransitionWorkflowStateModalContent
+			{...props}
+			transitionName="reject"
+		/>
+	),
+	updateDueDateWorkflowTask: (props) => (
+		<UpdateDueDateModalContent {...props} />
+	),
+};
+
 export default function TasksFDSPropsTransformer({
-	additionalProps,
 	creationMenu,
 	itemsActions = [],
 	...otherProps
 }: {
-	additionalProps: AdditionalProps;
 	creationMenu: any;
 	itemsActions?: any[];
 }) {
@@ -84,19 +178,44 @@ export default function TasksFDSPropsTransformer({
 		customRenderers: {
 			tableCell: [
 				{
-					component: ({actions, itemData, options, value}) =>
-						SimpleActionLinkRenderer({
+					component: ({itemData}: {itemData: ItemData}) =>
+						AssigneeRenderer({assignee: getAssignee(itemData)}),
+					name: 'assigneeTableCellRenderer',
+					type: 'internal',
+				} as IInternalRenderer,
+				{
+					component: ({itemData}: {itemData: ItemData}) =>
+						DateRenderer({value: getDueDate(itemData)}),
+					name: 'dueDateTableCellRenderer',
+					type: 'internal',
+				} as IInternalRenderer,
+				{
+					component: ({itemData}: {itemData: ItemData}) =>
+						getProject(itemData),
+					name: 'projectTableCellRenderer',
+					type: 'internal',
+				} as IInternalRenderer,
+				{
+					component: ({
+						actions,
+						itemData,
+						options,
+					}: {
+						actions: ActionItem[];
+						itemData: ItemData;
+						options: {actionId: string};
+					}) =>
+						getSimpleActionLinkRenderer({
 							actions,
-							additionalProps,
 							itemData,
 							options,
-							value,
 						}),
 					name: 'simpleActionLinkTableCellRenderer',
 					type: 'internal',
 				} as IInternalRenderer,
 				{
-					component: ({value}) => StateLabel(value),
+					component: ({itemData}: {itemData: ItemData}) =>
+						getStateLabel(itemData),
 					name: 'stateTableCellRenderer',
 					type: 'internal',
 				} as IInternalRenderer,
@@ -119,7 +238,7 @@ export default function TasksFDSPropsTransformer({
 		}: {
 			action: action;
 			itemData: ItemData;
-			loadData: () => {};
+			loadData: () => Promise<void>;
 		}) {
 			if (action?.data?.id === 'delete') {
 				await deleteItemAction(itemData, loadData);
@@ -139,6 +258,27 @@ export default function TasksFDSPropsTransformer({
 							value={itemData.embedded.assignTo}
 						/>
 					),
+					size: 'md',
+				});
+			}
+
+			if (
+				itemData.entryClassName ===
+				_CLASS_NAME_KALEO_TASK_INSTANCE_TOKEN
+			) {
+				await openCMPModal({
+					center: true,
+					contentComponent: ({
+						closeModal,
+					}: {
+						closeModal: () => void;
+					}) =>
+						WORKFLOW_TASK_MODALS[action.data.id]({
+							closeModal,
+							dueDate: itemData.embedded.dateDue,
+							loadData,
+							workflowTaskId: itemData.embedded.id,
+						}),
 					size: 'md',
 				});
 			}

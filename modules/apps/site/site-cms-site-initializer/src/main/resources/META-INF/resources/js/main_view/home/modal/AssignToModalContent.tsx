@@ -33,6 +33,7 @@ export default function AssignToModalContent({
 	const [assignableUsers, setAssignableUsers] = useState<AssignableUser[]>(
 		[]
 	);
+	const [assigneeId, setAssigneeId] = useState<number>(0);
 
 	useEffect(() => {
 		if (assignable) {
@@ -40,6 +41,7 @@ export default function AssignToModalContent({
 				const res = await getAssignableUsers(workflowTaskId);
 				if (res.length) {
 					setAssignableUsers(res);
+					setAssigneeId(res[0].id);
 				}
 				else {
 					setAssignableUsers([]);
@@ -59,7 +61,7 @@ export default function AssignToModalContent({
 	const assignTo = async (values: any) => {
 		const res = assignable
 			? await assignToUser({
-					assigneeId: values.assigneeId,
+					assigneeId,
 					comment: values.comment,
 					workflowTaskId,
 				})
@@ -107,7 +109,9 @@ export default function AssignToModalContent({
 			<ClayModal.Header
 				closeButtonAriaLabel={Liferay.Language.get('close')}
 			>
-				{Liferay.Language.get('assign-to-...')}
+				{assignable
+					? Liferay.Language.get('assign-to-...')
+					: Liferay.Language.get('assign-to-me')}
 			</ClayModal.Header>
 
 			<ClayModal.Body>
@@ -124,6 +128,7 @@ export default function AssignToModalContent({
 								name="assigneeId"
 								onChange={(event) => {
 									handleChange(event);
+									setAssigneeId(Number(event.target.value));
 								}}
 								value=""
 							>
