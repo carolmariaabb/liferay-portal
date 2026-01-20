@@ -5,6 +5,7 @@
 
 package com.liferay.portal.workflow.kaleo.internal.search.spi.model.index.contributor;
 
+import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -139,6 +140,8 @@ public class KaleoTaskInstanceTokenModelDocumentContributor
 		addAssetEntryAttributes(
 			assetEntry -> {
 				document.addKeyword(
+					Field.ASSET_TAG_NAMES, assetEntry.getTagNames());
+				document.addKeyword(
 					KaleoTaskInstanceTokenField.ASSET_CLASS_NAME_ID,
 					assetEntry.getClassNameId());
 				document.addKeyword(
@@ -174,6 +177,9 @@ public class KaleoTaskInstanceTokenModelDocumentContributor
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		KaleoTaskInstanceTokenModelDocumentContributor.class);
+
+	@Reference
+	private AssetTagLocalService _assetTagLocalService;
 
 	@Reference
 	private Localization _localization;
