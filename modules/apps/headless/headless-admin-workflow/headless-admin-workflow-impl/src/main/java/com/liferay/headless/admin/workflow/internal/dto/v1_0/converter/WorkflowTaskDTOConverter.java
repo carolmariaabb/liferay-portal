@@ -12,6 +12,7 @@ import com.liferay.headless.admin.workflow.internal.dto.v1_0.util.ObjectReviewed
 import com.liferay.headless.admin.workflow.internal.dto.v1_0.util.RoleUtil;
 import com.liferay.headless.admin.workflow.internal.resource.v1_0.WorkflowTaskResourceImpl;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.Portal;
@@ -25,6 +26,7 @@ import com.liferay.portal.workflow.kaleo.model.KaleoTaskInstanceToken;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -75,20 +77,24 @@ public class WorkflowTaskDTOConverter
 			com.liferay.portal.kernel.workflow.WorkflowTask workflowTask)
 		throws Exception {
 
+		User assignedUser = _userLocalService.fetchUser(
+			workflowTask.getAssigneeUserId());
+
 		return new WorkflowTask() {
 			{
 				setActions(dtoConverterContext::getActions);
-				setAssigneePerson(
+				setAssignedToMe(
 					() -> {
-						if (workflowTask.getAssigneeUserId() <= 0) {
-							return null;
+						if (assignedUser == null) {
+							return false;
 						}
 
-						return CreatorUtil.toCreator(
-							_portal,
-							_userLocalService.fetchUser(
-								workflowTask.getAssigneeUserId()));
+						return Objects.equals(
+							assignedUser.getUserId(),
+							dtoConverterContext.getUserId());
 					});
+				setAssigneePerson(
+					() -> CreatorUtil.toCreator(_portal, assignedUser));
 				setAssigneeRoles(
 					() -> {
 						List<Role> roles = new ArrayList<>();
