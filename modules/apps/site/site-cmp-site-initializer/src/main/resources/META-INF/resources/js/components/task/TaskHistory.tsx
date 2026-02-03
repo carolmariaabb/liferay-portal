@@ -42,8 +42,8 @@ type Data = {
 
 const FIELD_NAME: {[key: string]: string} = {
 	assignTo: Liferay.Language.get('assignee'),
-	dateDue: Liferay.Language.get('date-due'),
 	description: Liferay.Language.get('description'),
+	dueDate: Liferay.Language.get('due-date'),
 	state: Liferay.Language.get('state'),
 	title: Liferay.Language.get('title'),
 };
