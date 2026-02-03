@@ -23,6 +23,7 @@ type Creator = {
 	familyName: string;
 	givenName: string;
 	id: number;
+	image?: string;
 	name: string;
 };
 
@@ -135,6 +136,7 @@ export default function TaskHistory({apiURL}: {apiURL: string}) {
 						<List.Item className="border-0" flex key={index}>
 							<List.ItemField>
 								<AssigneeAvatar
+									image={auditEvent.creator?.image}
 									name={auditEvent.creator?.name || ''}
 								/>
 							</List.ItemField>
