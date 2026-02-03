@@ -4,9 +4,12 @@
  */
 
 import List from '@clayui/list';
+import {FDS_EVENT} from '@liferay/frontend-data-set-web';
 import {AssigneeAvatar} from '@liferay/object-dynamic-data-mapping-form-field-type';
 import {fetch, sub} from 'frontend-js-web';
 import React, {useCallback, useEffect, useState} from 'react';
+
+export const UPDATE_TASK_HISTORY = 'cmp-update-task-history';
 
 enum EventType {
 	ADD = 'ADD',
@@ -96,6 +99,26 @@ export default function TaskHistory({apiURL}: {apiURL: string}) {
 
 	useEffect(() => {
 		fetchAuditEvents();
+	}, [fetchAuditEvents]);
+
+	useEffect(() => {
+		const handleFDSDisplayUpdated = ({id}: {id: string}) => {
+			if (
+				id ===
+				'com.liferay.site.cms.site.initializer-relatedAssetsSection'
+			) {
+				fetchAuditEvents();
+			}
+		};
+
+		Liferay.on(FDS_EVENT.DISPLAY_UPDATED, handleFDSDisplayUpdated);
+
+		Liferay.on(UPDATE_TASK_HISTORY, fetchAuditEvents);
+
+		return () => {
+			Liferay.detach(FDS_EVENT.DISPLAY_UPDATED, handleFDSDisplayUpdated);
+			Liferay.detach(UPDATE_TASK_HISTORY, fetchAuditEvents);
+		};
 	}, [fetchAuditEvents]);
 
 	return (
