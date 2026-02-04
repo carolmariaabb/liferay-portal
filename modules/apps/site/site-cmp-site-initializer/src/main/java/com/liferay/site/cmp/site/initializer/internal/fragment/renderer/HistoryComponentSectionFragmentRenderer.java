@@ -14,6 +14,7 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.StringUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -35,8 +36,24 @@ public class HistoryComponentSectionFragmentRenderer
 	}
 
 	@Override
-	protected String getComponentName() {
-		return "History";
+	protected String getComponentName(HttpServletRequest httpServletRequest) {
+		ObjectEntry objectEntry = _getObjectEntry(httpServletRequest);
+
+		if (objectEntry == null) {
+			return null;
+		}
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.fetchObjectDefinition(
+				objectEntry.getObjectDefinitionId());
+
+		if (StringUtil.equals(
+				objectDefinition.getExternalReferenceCode(), "L_CMP_PROJECT")) {
+
+			return "ProjectHistory";
+		}
+
+		return "TaskHistory";
 	}
 
 	@Override
@@ -54,6 +71,28 @@ public class HistoryComponentSectionFragmentRenderer
 		FragmentRendererContext fragmentRendererContext,
 		HttpServletRequest httpServletRequest) {
 
+		ObjectEntry objectEntry = _getObjectEntry(httpServletRequest);
+
+		if (objectEntry == null) {
+			return null;
+		}
+
+		return HashMapBuilder.<String, Object>put(
+			"apiURL",
+			() -> {
+				ObjectDefinition objectDefinition =
+					_objectDefinitionLocalService.fetchObjectDefinition(
+						objectEntry.getObjectDefinitionId());
+
+				return StringBundler.concat(
+					"/o", objectDefinition.getRESTContextPath(),
+					StringPool.SLASH, objectEntry.getObjectEntryId(),
+					"?fields=auditEvents&nestedFields=auditEvents");
+			}
+		).build();
+	}
+
+	private ObjectEntry _getObjectEntry(HttpServletRequest httpServletRequest) {
 		Object object = httpServletRequest.getAttribute(
 			InfoDisplayWebKeys.INFO_ITEM);
 
@@ -61,22 +100,7 @@ public class HistoryComponentSectionFragmentRenderer
 			return null;
 		}
 
-		ObjectEntry objectEntry = (ObjectEntry)object;
-
-		ObjectDefinition objectDefinition =
-			_objectDefinitionLocalService.fetchObjectDefinition(
-				objectEntry.getObjectDefinitionId());
-
-		return HashMapBuilder.<String, Object>put(
-			"apiURL",
-			StringBundler.concat(
-				"/o", objectDefinition.getRESTContextPath(), StringPool.SLASH,
-				objectEntry.getObjectEntryId(),
-				"?fields=auditEvents&nestedFields=auditEvents")
-		).put(
-			"objectDefinitionExternalReferenceCode",
-			objectDefinition.getExternalReferenceCode()
-		).build();
+		return (ObjectEntry)object;
 	}
 
 	@Reference
