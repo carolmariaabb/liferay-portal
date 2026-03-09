@@ -19,7 +19,7 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * @author Shuyang Zhou CAROLaaa
+ * @author Shuyang Zhou
  */
 public class DDMFormUtil {
 
