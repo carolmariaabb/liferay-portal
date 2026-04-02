@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>AI Hub Chat Widget – Local Test</title>
+	<link rel="stylesheet" href="dist/widget.css" />
+	<style>
+		body {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+			margin: 0;
+			padding: 40px;
+			background: #f5f5f5;
+			color: #333;
+		}
+
+		h1 { font-size: 24px; }
+
+		p { max-width: 600px; line-height: 1.6; }
+
+		code {
+			background: #e7e7ed;
+			border-radius: 3px;
+			font-size: 13px;
+			padding: 2px 6px;
+		}
+
+		.info-box {
+			background: #fff;
+			border: 1px solid #e7e7ed;
+			border-radius: 8px;
+			margin-top: 24px;
+			max-width: 600px;
+			padding: 20px;
+		}
+
+		.info-box h2 {
+			font-size: 16px;
+			margin-top: 0;
+		}
+
+		.info-box ul {
+			padding-left: 20px;
+		}
+
+		.info-box li {
+			margin-bottom: 4px;
+		}
+	</style>
+</head>
+<body>
+
+	<h1>AI Hub Chat Widget – Local Test Page</h1>
+
+	<p>
+		This page loads the widget from the local dev build.
+		Click the chat icon in the bottom-right corner to open it.
+	</p>
+
+	<div class="info-box">
+		<h2>Configured attributes</h2>
+
+		<ul>
+			<li><code>data-account-id</code> = <strong>12345</strong></li>
+			<li><code>data-api-url</code> = <strong>(same origin — proxied via dev-server)</strong></li>
+			<li><code>data-user-name</code> = <strong>Test User</strong></li>
+			<li><code>data-title</code> = <strong>Alloy</strong></li>
+			<li><code>data-subtitle</code> = <strong>AI Assistant</strong></li>
+			<li><code>data-intro-message</code> = <strong>Welcome! I'm Alloy, your friendly AI Assistant.</strong></li>
+			<li><code>data-placeholder</code> = <strong>Ask Alloy a question</strong></li>
+			<li><code>data-quick-actions</code> = <strong>["Request demo", "Support"]</strong></li>
+			<li><code>data-privacy-policy-url</code> = <strong>#privacy</strong></li>
+		</ul>
+
+		<p>
+			Edit the <code>&lt;script&gt;</code> tag below to point
+			<code>data-api-url</code> at your running Liferay instance.
+		</p>
+	</div>
+
+	<!--
+		This is what the aihub.jsp effectively produces.
+		Adjust data-api-url to your local Liferay instance URL.
+		Adjust data-account-id to a real account entry ID.
+	-->
+	<script
+		id="aihub-chat-widget-script"
+		src="dist/widget.js"
+		data-account-id="12345"
+		data-user-name="Test User"
+		data-title="Alloy"
+		data-subtitle="AI Assistant"
+		data-intro-message="Welcome! I'm Alloy, your friendly AI Assistant. Do you have any questions about our solutions or anything specific you're curious about?"
+		data-placeholder="Ask Alloy a question"
+		data-quick-actions='[]'
+		data-privacy-policy-url="#privacy"
+		data-accent-color="#0b5fff"
+	></script>
+</body>
+</html>
