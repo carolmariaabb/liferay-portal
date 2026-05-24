@@ -63,7 +63,15 @@ public class QuotaUtil {
 					"You have exceeded your token quota");
 			}
 
-			_partialUpdateObjectEntry(companyId, objectEntry, usage, userId);
+			long milliLRTCount = LiferayTokenConverter.convert(
+				TokenSource.VERTEX_INPUT, tokensCount);
+
+			long lrtUsage =
+				MapUtil.getLong(objectEntry.getValues(), "lrtUsage") +
+					milliLRTCount;
+
+			_partialUpdateObjectEntry(
+				companyId, lrtUsage, objectEntry, usage, userId);
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
@@ -71,7 +79,7 @@ public class QuotaUtil {
 	}
 
 	public static void updateUsage(
-			long companyId, long tokensCount, long userId)
+			long companyId, long milliLRTCount, long tokensCount, long userId)
 		throws PortalException {
 
 		ObjectEntry objectEntry = _fetchQuotaObjectEntry(companyId, userId);
@@ -85,7 +93,10 @@ public class QuotaUtil {
 				objectEntry.getObjectEntryId());
 
 			_partialUpdateObjectEntry(
-				companyId, objectEntry,
+				companyId,
+				MapUtil.getLong(objectEntry.getValues(), "lrtUsage") +
+					milliLRTCount,
+				objectEntry,
 				MapUtil.getLong(objectEntry.getValues(), "usage") + tokensCount,
 				userId);
 		}
@@ -195,7 +206,8 @@ public class QuotaUtil {
 	}
 
 	private static void _partialUpdateObjectEntry(
-			long companyId, ObjectEntry objectEntry, long usage, long userId)
+			long companyId, long lrtUsage, ObjectEntry objectEntry, long usage,
+			long userId)
 		throws PortalException {
 
 		ServiceContext serviceContext = new ServiceContext();
@@ -206,6 +218,8 @@ public class QuotaUtil {
 		ObjectEntryLocalServiceUtil.partialUpdateObjectEntry(
 			userId, objectEntry.getObjectEntryId(), 0,
 			HashMapBuilder.<String, Serializable>put(
+				"lrtUsage", lrtUsage
+			).put(
 				"usage", usage
 			).build(),
 			serviceContext);

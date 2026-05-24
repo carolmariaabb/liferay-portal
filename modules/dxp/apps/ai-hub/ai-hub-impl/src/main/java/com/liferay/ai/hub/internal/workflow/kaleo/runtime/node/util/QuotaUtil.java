@@ -5,6 +5,8 @@
 
 package com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util;
 
+import com.liferay.ai.hub.internal.quota.LiferayTokenConverter;
+import com.liferay.ai.hub.internal.quota.TokenSource;
 import com.liferay.ai.hub.rest.resource.v1_0.util.SseUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.messaging.Message;
@@ -62,9 +64,13 @@ public class QuotaUtil {
 		try {
 			TokenUsage tokenUsage = chatResponse.tokenUsage();
 
+			long outputTokenCount = tokenUsage.outputTokenCount();
+
 			com.liferay.ai.hub.internal.quota.QuotaUtil.updateUsage(
-				serviceContext.getCompanyId(), tokenUsage.outputTokenCount(),
-				serviceContext.getUserId());
+				serviceContext.getCompanyId(),
+				LiferayTokenConverter.convert(
+					TokenSource.VERTEX_OUTPUT, outputTokenCount),
+				outputTokenCount, serviceContext.getUserId());
 		}
 		catch (PortalException portalException) {
 			throw new RuntimeException(portalException);
