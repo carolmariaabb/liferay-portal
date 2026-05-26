@@ -180,8 +180,6 @@ public class AIDecisionNodeExecutor extends BaseNodeExecutor {
 						GetterUtil.getString(workflowContext.get("reason")),
 						prompt, executionContext.getServiceContext(),
 						userMessage);
-
-					QuotaUtil.updateUsage(response, serviceContext);
 				}
 			).onErrorConsumer(
 				throwable -> {
