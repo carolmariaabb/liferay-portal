@@ -12,6 +12,7 @@ import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import dev.langchain4j.model.vertexai.gemini.VertexAiGeminiChatModel;
 import dev.langchain4j.model.vertexai.gemini.VertexAiGeminiStreamingChatModel;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -20,7 +21,7 @@ import java.util.Objects;
 public class VertexAiGeminiUtil {
 
 	public static VertexAiGeminiChatModel createVertexAiGeminiChatModel(
-			long companyId)
+			long companyId, long userId)
 		throws ConfigurationException {
 
 		VertexAIConfiguration vertexAIConfiguration =
@@ -34,7 +35,9 @@ public class VertexAiGeminiUtil {
 			builder.apiEndpoint("aiplatform.googleapis.com");
 		}
 
-		return builder.location(
+		return builder.listeners(
+			List.of(new AIHubQuotaChatModelListener(companyId, userId))
+		).location(
 			vertexAIConfiguration.location()
 		).modelName(
 			vertexAIConfiguration.modelName()
@@ -44,7 +47,7 @@ public class VertexAiGeminiUtil {
 	}
 
 	public static VertexAiGeminiStreamingChatModel
-			createVertexAiGeminiStreamingChatModel(long companyId)
+			createVertexAiGeminiStreamingChatModel(long companyId, long userId)
 		throws ConfigurationException {
 
 		VertexAIConfiguration vertexAIConfiguration =
@@ -58,7 +61,9 @@ public class VertexAiGeminiUtil {
 			builder.apiEndpoint("aiplatform.googleapis.com");
 		}
 
-		return builder.location(
+		return builder.listeners(
+			List.of(new AIHubQuotaChatModelListener(companyId, userId))
+		).location(
 			vertexAIConfiguration.location()
 		).modelName(
 			vertexAIConfiguration.modelName()
