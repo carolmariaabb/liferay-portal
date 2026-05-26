@@ -148,6 +148,21 @@ info:
     version: v1.0
 openapi: 3.0.1
 paths:
+    "/accounts/{accountEntryId}/quota/refresh-monthly":
+        put:
+            parameters:
+                -   in: path
+                    name: accountEntryId
+                    required: true
+                    schema:
+                        format: int64
+                        type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+            tags: ["Quota"]
     "/agent-definitions":
         get:
             operationId: getAgentDefinitionsPage
