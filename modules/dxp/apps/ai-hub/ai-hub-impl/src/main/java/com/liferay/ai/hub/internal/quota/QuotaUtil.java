@@ -62,16 +62,6 @@ public class QuotaUtil {
 				throw new UnsupportedOperationException(
 					"You have exceeded your token quota");
 			}
-
-			long milliLRTCount = LiferayTokenConverter.convert(
-				TokenSource.VERTEX_INPUT, tokensCount);
-
-			long lrtUsage =
-				MapUtil.getLong(objectEntry.getValues(), "lrtUsage") +
-					milliLRTCount;
-
-			_partialUpdateObjectEntry(
-				companyId, lrtUsage, objectEntry, usage, userId);
 		}
 		catch (IOException ioException) {
 			throw new RuntimeException(ioException);
