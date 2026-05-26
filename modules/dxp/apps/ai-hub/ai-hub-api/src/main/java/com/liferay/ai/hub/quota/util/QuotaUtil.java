@@ -3,20 +3,14 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-package com.liferay.ai.hub.internal.quota;
-
-import com.google.cloud.vertexai.VertexAI;
-import com.google.cloud.vertexai.api.CountTokensResponse;
-import com.google.cloud.vertexai.generativeai.GenerativeModel;
+package com.liferay.ai.hub.quota.util;
 
 import com.liferay.account.model.AccountEntry;
-import com.liferay.ai.hub.internal.configuration.VertexAIConfiguration;
 import com.liferay.ai.hub.util.AccountEntryUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.service.ObjectDefinitionLocalServiceUtil;
 import com.liferay.object.service.ObjectEntryLocalServiceUtil;
-import com.liferay.portal.configuration.module.configuration.ConfigurationProviderUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.lock.Lock;
 import com.liferay.portal.kernel.lock.LockManagerUtil;
@@ -40,7 +34,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class QuotaUtil {
 
-	public static void checkUsage(long companyId, String text, long userId)
+	public static void checkUsage(long companyId, long tokensCount, long userId)
 		throws PortalException {
 
 		ObjectEntry objectEntry = _fetchQuotaObjectEntry(companyId, userId);
@@ -48,8 +42,6 @@ public class QuotaUtil {
 		if (objectEntry == null) {
 			return;
 		}
-
-		long tokensCount = _getTokensCount(companyId, text);
 
 		try (Closeable closeable = _lock(objectEntry.getObjectEntryId())) {
 			objectEntry = ObjectEntryLocalServiceUtil.getObjectEntry(
@@ -127,37 +119,6 @@ public class QuotaUtil {
 
 		return ObjectEntryLocalServiceUtil.fetchObjectEntry(
 			externalReferenceCode, 0, objectDefinition.getObjectDefinitionId());
-	}
-
-	private static long _getTokensCount(long companyId, String text)
-		throws PortalException {
-
-		VertexAIConfiguration vertexAIConfiguration =
-			ConfigurationProviderUtil.getCompanyConfiguration(
-				VertexAIConfiguration.class, companyId);
-
-		String location = vertexAIConfiguration.location();
-		String modelName = vertexAIConfiguration.modelName();
-
-		if (Objects.equals(location, "global")) {
-			location = "europe-central2";
-			modelName = "gemini-2.5-flash";
-		}
-
-		try (VertexAI vertexAI = new VertexAI(
-				vertexAIConfiguration.projectId(), location)) {
-
-			GenerativeModel generativeModel = new GenerativeModel(
-				modelName, vertexAI);
-
-			CountTokensResponse countTokensResponse =
-				generativeModel.countTokens(text);
-
-			return countTokensResponse.getTotalTokens();
-		}
-		catch (IOException ioException) {
-			throw new PortalException(ioException);
-		}
 	}
 
 	private static Closeable _lock(long objectEntryId) throws PortalException {

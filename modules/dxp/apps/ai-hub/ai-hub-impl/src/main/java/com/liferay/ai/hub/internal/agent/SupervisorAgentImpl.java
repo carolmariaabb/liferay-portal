@@ -9,7 +9,8 @@ import com.liferay.ai.hub.agent.AgentContext;
 import com.liferay.ai.hub.agent.SupervisorAgent;
 import com.liferay.ai.hub.internal.memory.ChatMemoryProviderUtil;
 import com.liferay.ai.hub.internal.model.VertexAiGeminiUtil;
-import com.liferay.ai.hub.internal.quota.QuotaUtil;
+import com.liferay.ai.hub.internal.quota.TokensUtil;
+import com.liferay.ai.hub.quota.util.QuotaUtil;
 import com.liferay.ai.hub.rest.resource.v1_0.util.SseUtil;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
@@ -226,7 +227,9 @@ public class SupervisorAgentImpl implements SupervisorAgent {
 		String message = MapUtil.getString(agentContext.getInput(), "message");
 
 		QuotaUtil.checkUsage(
-			agentContext.getCompanyId(), message, agentContext.getUserId());
+			agentContext.getCompanyId(),
+			TokensUtil.getTokensCount(agentContext.getCompanyId(), message),
+			agentContext.getUserId());
 
 		dev.langchain4j.agentic.supervisor.SupervisorAgent supervisorAgent =
 			AgenticServices.supervisorBuilder(

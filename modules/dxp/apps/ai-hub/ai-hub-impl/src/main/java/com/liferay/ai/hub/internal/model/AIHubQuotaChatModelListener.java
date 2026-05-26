@@ -6,8 +6,8 @@
 package com.liferay.ai.hub.internal.model;
 
 import com.liferay.ai.hub.internal.quota.LiferayTokenConverter;
-import com.liferay.ai.hub.internal.quota.QuotaUtil;
 import com.liferay.ai.hub.internal.quota.TokenSource;
+import com.liferay.ai.hub.quota.util.QuotaUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;

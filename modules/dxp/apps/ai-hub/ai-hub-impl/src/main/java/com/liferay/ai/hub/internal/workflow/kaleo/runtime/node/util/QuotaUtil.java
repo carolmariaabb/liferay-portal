@@ -5,6 +5,7 @@
 
 package com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util;
 
+import com.liferay.ai.hub.internal.quota.TokensUtil;
 import com.liferay.ai.hub.rest.resource.v1_0.util.SseUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.messaging.Message;
@@ -28,8 +29,8 @@ public class QuotaUtil {
 		throws PortalException {
 
 		try {
-			com.liferay.ai.hub.internal.quota.QuotaUtil.checkUsage(
-				companyId, text, userId);
+			com.liferay.ai.hub.quota.util.QuotaUtil.checkUsage(
+				companyId, TokensUtil.getTokensCount(companyId, text), userId);
 
 			return false;
 		}

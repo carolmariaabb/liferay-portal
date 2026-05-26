@@ -5,7 +5,7 @@
 
 package com.liferay.ai.hub.internal.model;
 
-import com.liferay.ai.hub.internal.quota.QuotaUtil;
+import com.liferay.ai.hub.quota.util.QuotaUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
