@@ -13,6 +13,18 @@
 	"name": "AIHubQuota",
 	"objectFields": [
 		{
+			"DBType": "Date",
+			"businessType": "Date",
+			"externalReferenceCode": "LAST_REFRESH_DATE",
+			"indexed": true,
+			"label": {
+				"en_US": "Last Refresh Date"
+			},
+			"name": "lastRefreshDate",
+			"system": true,
+			"type": "Date"
+		},
+		{
 			"DBType": "Long",
 			"businessType": "LongInteger",
 			"externalReferenceCode": "LIMIT",
