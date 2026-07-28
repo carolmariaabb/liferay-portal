@@ -11,6 +11,7 @@ import com.liferay.asset.kernel.model.AssetTagGroupRel;
 import com.liferay.asset.kernel.service.AssetTagGroupRelLocalService;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.asset.tags.internal.configuration.AssetTagsServiceConfigurationValues;
+import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryService;
 import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
@@ -243,8 +244,9 @@ public class AssetTagStagedModelDataHandler
 		Element rootElement = document.addElement("asset-tag-groups");
 
 		List<AssetTagGroupRel> assetTagGroupRels =
-			_assetTagGroupRelLocalService.getAssetTagGroupRelsByTagId(
-				assetTag.getTagId());
+			_assetTagGroupRelLocalService.
+				getAssetTagGroupRelsByTagIdAndDepotEntryType(
+					assetTag.getTagId(), DepotConstants.TYPE_SPACE);
 
 		for (AssetTagGroupRel assetTagGroupRel : assetTagGroupRels) {
 			if (assetTagGroupRel.getGroupId() == GroupConstants.GROUP_ID_ALL) {
@@ -330,7 +332,8 @@ public class AssetTagStagedModelDataHandler
 		}
 
 		_assetTagGroupRelLocalService.setAssetTagGroupRels(
-			importedTagId, ListUtil.toLongArray(groupIds, Long::longValue));
+			importedTagId, ListUtil.toLongArray(groupIds, Long::longValue),
+			DepotConstants.TYPE_SPACE);
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
