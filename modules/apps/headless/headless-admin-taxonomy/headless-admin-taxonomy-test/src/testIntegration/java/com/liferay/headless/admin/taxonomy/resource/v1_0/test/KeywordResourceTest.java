@@ -17,6 +17,7 @@ import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.headless.admin.taxonomy.client.dto.v1_0.AssetLibrary;
 import com.liferay.headless.admin.taxonomy.client.dto.v1_0.Keyword;
+import com.liferay.headless.admin.taxonomy.client.dto.v1_0.Project;
 import com.liferay.headless.admin.taxonomy.client.http.HttpInvoker;
 import com.liferay.headless.admin.taxonomy.client.pagination.Page;
 import com.liferay.headless.admin.taxonomy.client.pagination.Pagination;
@@ -407,6 +408,7 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 		irrelevantGroup = originalIrrelevantGroup;
 		testGroup = originalTestGroup;
 
+		_testGetSiteKeywordsPageWithProjectDepotEntry();
 		_testGetSiteKeywordsPageWithSpaceDepotEntry();
 
 		_cmsAdministratorUser = UserTestUtil.addCompanyUser(
@@ -623,6 +625,10 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 
 		assertEquals(randomKeyword, putKeyword);
 
+		_testPutKeywordResetsProjectScope();
+		_testPutKeywordKeepsProjectScopeWhenProjectsAreNull();
+		_testPutKeywordKeepsSpaceScopeWhenProjectsChange();
+
 		testGroup = originalTestGroup;
 	}
 
@@ -778,6 +784,13 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 		return testDepotEntry.getDepotEntryId();
 	}
 
+	private void _assertSingletonProject(Keyword keyword, Long expectedId) {
+		Project[] projects = keyword.getProjects();
+
+		Assert.assertEquals(Arrays.toString(projects), 1, projects.length);
+		Assert.assertEquals(expectedId, projects[0].getId());
+	}
+
 	private Keyword _patchKeywordWithAssetLibraries(
 			Keyword keyword, AssetLibrary... assetLibraries)
 		throws Exception {
@@ -799,6 +812,32 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 		return keywordResource.postSiteKeyword(testGroup.getGroupId(), keyword);
 	}
 
+	private Keyword _postKeywordWithProjects(Project... projects)
+		throws Exception {
+
+		Keyword keyword = randomKeyword();
+
+		keyword.setProjects(projects);
+
+		return keywordResource.postSiteKeyword(testGroup.getGroupId(), keyword);
+	}
+
+	private Project _randomProject() throws Exception {
+		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
+			RandomTestUtil.randomLocaleStringMap(), null,
+			DepotConstants.TYPE_PROJECT,
+			ServiceContextTestUtil.getServiceContext());
+
+		Group depotEntryGroup = depotEntry.getGroup();
+
+		return new Project() {
+			{
+				id = depotEntryGroup.getGroupId();
+				scopeKey = depotEntryGroup.getGroupKey();
+			}
+		};
+	}
+
 	private AssetLibrary _randomSpaceAssetLibrary() throws Exception {
 		DepotEntry depotEntry = _depotEntryLocalService.addDepotEntry(
 			RandomTestUtil.randomLocaleStringMap(), null,
@@ -813,6 +852,38 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 				scopeKey = depotEntryGroup.getGroupKey();
 			}
 		};
+	}
+
+	private void _testGetSiteKeywordsPageWithProjectDepotEntry()
+		throws Exception {
+
+		Group originalTestGroup = testGroup;
+
+		testGroup = CMSTestUtil.getOrAddGroup(KeywordResourceTest.class);
+
+		Project project = _randomProject();
+
+		Keyword keyword1 = _postKeywordWithProjects();
+		Keyword keyword2 = _postKeywordWithProjects(project);
+		Keyword keyword3 = _postKeywordWithProjects(_randomProject());
+
+		Page<Keyword> page = keywordResource.getSiteKeywordsPage(
+			project.getId(), null, null, null, Pagination.of(1, 100), null);
+
+		Set<String> keywordNames = new HashSet<>();
+
+		for (Keyword keyword : page.getItems()) {
+			keywordNames.add(keyword.getName());
+		}
+
+		Assert.assertTrue(
+			keywordNames.toString(), keywordNames.contains(keyword1.getName()));
+		Assert.assertTrue(
+			keywordNames.toString(), keywordNames.contains(keyword2.getName()));
+		Assert.assertFalse(
+			keywordNames.toString(), keywordNames.contains(keyword3.getName()));
+
+		testGroup = originalTestGroup;
 	}
 
 	private void _testGetSiteKeywordsPageWithSpaceDepotEntry()
@@ -881,6 +952,65 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 			null);
 
 		Assert.assertEquals(originalTotalCount + 1, page.getTotalCount());
+	}
+
+	private void _testPutKeywordKeepsProjectScopeWhenProjectsAreNull()
+		throws Exception {
+
+		Project project = _randomProject();
+
+		Keyword keyword = _postKeywordWithProjects(project);
+
+		Keyword randomKeyword = randomKeyword();
+
+		randomKeyword.setProjects((Project[])null);
+
+		Keyword putKeyword = keywordResource.putKeyword(
+			keyword.getId(), randomKeyword);
+
+		_assertSingletonProject(putKeyword, project.getId());
+	}
+
+	private void _testPutKeywordKeepsSpaceScopeWhenProjectsChange()
+		throws Exception {
+
+		AssetLibrary assetLibrary = _randomSpaceAssetLibrary();
+
+		Keyword keyword = randomKeyword();
+
+		keyword.setAssetLibraries(new AssetLibrary[] {assetLibrary});
+		keyword.setProjects(new Project[] {_randomProject()});
+
+		Keyword postKeyword = keywordResource.postSiteKeyword(
+			testGroup.getGroupId(), keyword);
+
+		Keyword randomKeyword = randomKeyword();
+
+		randomKeyword.setProjects(new Project[] {_randomProject()});
+
+		Keyword putKeyword = keywordResource.putKeyword(
+			postKeyword.getId(), randomKeyword);
+
+		AssetLibrary[] assetLibraries = putKeyword.getAssetLibraries();
+
+		Assert.assertEquals(
+			Arrays.toString(assetLibraries), 1, assetLibraries.length);
+		Assert.assertEquals(assetLibrary.getId(), assetLibraries[0].getId());
+	}
+
+	private void _testPutKeywordResetsProjectScope() throws Exception {
+		Project project = _randomProject();
+
+		Keyword postKeyword = _postKeywordWithProjects(project);
+
+		_assertSingletonProject(postKeyword, project.getId());
+
+		postKeyword.setProjects(new Project[0]);
+
+		Keyword putKeyword = keywordResource.putKeyword(
+			postKeyword.getId(), postKeyword);
+
+		_assertSingletonProject(putKeyword, (long)GroupConstants.GROUP_ID_ALL);
 	}
 
 	@Inject
