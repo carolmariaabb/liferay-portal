@@ -810,6 +810,13 @@ public class PortalUpgradeProcessRegistryImpl
 			new Version(38, 7, 5),
 			UpgradeModulesFactory.create(
 				new String[] {"com.liferay.site.cms.site.initializer"}, null));
+
+		upgradeVersionTreeMap.put(
+			new Version(38, 8, 0),
+			UpgradeProcessFactory.addColumns(
+				"AssetTagGroupRel", "depotEntryType INTEGER"),
+			UpgradeProcessFactory.runSQL(
+				"update AssetTagGroupRel set depotEntryType = 1"));
 	}
 
 }
