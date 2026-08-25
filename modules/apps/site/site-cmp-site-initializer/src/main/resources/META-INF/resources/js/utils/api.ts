@@ -12,6 +12,19 @@ type WorkflowTaskAssignee = {
 	workflowTaskId: number;
 };
 
+export async function bulkChangeWorkflowTaskTransistion(
+	changeTransitions: Array<{
+		comment: string;
+		transitionName: string;
+		workflowTaskId: number;
+	}>
+) {
+	return ApiHelper.patch(
+		changeTransitions,
+		'/o/headless-admin-workflow/v1.0/workflow-tasks/change-transition'
+	);
+}
+
 export async function bulkAssignWorkflowTasks(
 	assignments: Array<{assigneeId: number; workflowTaskId: number}>
 ) {

@@ -21,6 +21,7 @@ import {WORKFLOW_TASK_ACTION_LINK_ID} from '../../utils/constants';
 import {openCMPModal} from '../../utils/openCMPModal';
 import {TaskAction, WorkflowTaskItemData} from '../../utils/types';
 import WORKFLOW_TASK_MODALS from '../../utils/workflowTaskModals';
+import BulkChangeWorkflowTransitionModalContent from '../modal/BulkChangeWorkflowTransitionModalContent';
 import BulkEditWorkflowAssigneeModalContent from '../modal/BulkEditWorkflowAssigneeModalContent';
 import BulkEditWorkflowDueDateModalContent from '../modal/BulkEditWorkflowDueDateModalContent';
 import ACTIONS from './actions/creationMenuActions';
@@ -40,6 +41,7 @@ const BULK_ACTION_MODALS: Record<
 > = {
 	'assign-to': BulkEditWorkflowAssigneeModalContent,
 	'update-due-date': BulkEditWorkflowDueDateModalContent,
+	'update-state': BulkChangeWorkflowTransitionModalContent,
 };
 
 export default function WorkflowTasksFDSPropsTransformer({
