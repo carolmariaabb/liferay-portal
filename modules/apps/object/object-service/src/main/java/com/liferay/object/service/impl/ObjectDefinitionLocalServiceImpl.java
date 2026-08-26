@@ -1955,9 +1955,14 @@ public class ObjectDefinitionLocalServiceImpl
 				continue;
 			}
 
+			int existingWorkflowDefinitionVersion =
+				existingWorkflowDefinitionLink.getWorkflowDefinitionVersion();
+
 			if (!Objects.equals(
 					existingWorkflowDefinitionLink.getWorkflowDefinitionName(),
-					workflowDefinitionLink.getWorkflowDefinitionName())) {
+					kaleoDefinition.getName()) ||
+				(existingWorkflowDefinitionVersion !=
+					kaleoDefinition.getVersion())) {
 
 				existingWorkflowDefinitionLink.setWorkflowDefinitionName(
 					kaleoDefinition.getName());

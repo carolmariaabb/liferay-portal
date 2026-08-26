@@ -470,6 +470,14 @@ public class KaleoDefinitionLocalServiceUtil {
 		return getService().getKaleoDefinitionsCount(name, serviceContext);
 	}
 
+	public static KaleoDefinition getOrAddEmptyKaleoDefinition(
+			String externalReferenceCode, long companyId, long userId)
+		throws PortalException {
+
+		return getService().getOrAddEmptyKaleoDefinition(
+			externalReferenceCode, companyId, userId);
+	}
+
 	/**
 	 * Returns the OSGi service identifier.
 	 *
@@ -559,4 +567,4 @@ public class KaleoDefinitionLocalServiceUtil {
 			KaleoDefinitionLocalService.class);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-333319507
+// LIFERAY-SERVICE-BUILDER-HASH:-223242712

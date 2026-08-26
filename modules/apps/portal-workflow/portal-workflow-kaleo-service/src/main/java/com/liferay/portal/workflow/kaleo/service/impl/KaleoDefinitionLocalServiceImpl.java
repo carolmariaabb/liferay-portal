@@ -9,6 +9,8 @@ import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.account.service.AccountEntryUserRelLocalService;
 import com.liferay.batch.engine.thread.local.BatchEngineThreadLocal;
+import com.liferay.exportimport.kernel.empty.model.EmptyModelManager;
+import com.liferay.exportimport.kernel.empty.model.EmptyModelManagerUtil;
 import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
@@ -168,7 +170,13 @@ public class KaleoDefinitionLocalServiceImpl
 		kaleoDefinition.setVersion(version);
 		kaleoDefinition.setActive(false);
 		kaleoDefinition.setSystem(system);
-		kaleoDefinition.setStatus(WorkflowConstants.STATUS_DRAFT);
+
+		if (EmptyModelManagerUtil.isEmptyModel()) {
+			kaleoDefinition.setStatus(WorkflowConstants.STATUS_EMPTY);
+		}
+		else {
+			kaleoDefinition.setStatus(WorkflowConstants.STATUS_DRAFT);
+		}
 
 		kaleoDefinition = kaleoDefinitionPersistence.update(kaleoDefinition);
 
@@ -330,6 +338,29 @@ public class KaleoDefinitionLocalServiceImpl
 	}
 
 	@Override
+	public KaleoDefinition getOrAddEmptyKaleoDefinition(
+			String externalReferenceCode, long companyId, long userId)
+		throws PortalException {
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setCompanyId(companyId);
+		serviceContext.setUserId(userId);
+
+		return _emptyModelManager.getOrAddEmptyModel(
+			KaleoDefinition.class, companyId,
+			() -> kaleoDefinitionLocalService.addKaleoDefinition(
+				externalReferenceCode, externalReferenceCode,
+				externalReferenceCode, null, StringPool.BLANK,
+				WorkflowDefinitionConstants.SCOPE_ALL, false, 1,
+				serviceContext),
+			externalReferenceCode,
+			this::fetchKaleoDefinitionByExternalReferenceCode,
+			this::getKaleoDefinitionByExternalReferenceCode,
+			KaleoDefinition.class.getName());
+	}
+
+	@Override
 	public List<KaleoDefinition> getScopeKaleoDefinitions(
 		String scope, boolean active, int start, int end,
 		OrderByComparator<KaleoDefinition> orderByComparator,
@@ -411,9 +442,14 @@ public class KaleoDefinitionLocalServiceImpl
 		kaleoDefinition.setContent(content);
 		kaleoDefinition.setSystem(system);
 
-		if (!contentChanged &&
-			BatchEngineThreadLocal.isBatchImportInProcess()) {
+		kaleoDefinition.setStatus(
+			EmptyModelManagerUtil.solveEmptyModel(
+				externalReferenceCode, kaleoDefinition.getModelClassName(),
+				kaleoDefinition.getCompanyId(), kaleoDefinition.getGroupId(),
+				kaleoDefinition.getStatus(),
+				() -> WorkflowConstants.STATUS_DRAFT));
 
+		if (!contentChanged && BatchEngineThreadLocal.isBatchImportInProcess()) {
 			return kaleoDefinitionPersistence.update(kaleoDefinition);
 		}
 
@@ -466,6 +502,9 @@ public class KaleoDefinitionLocalServiceImpl
 
 	@Reference
 	private AccountEntryUserRelLocalService _accountEntryUserRelLocalService;
+
+	@Reference
+	private EmptyModelManager _emptyModelManager;
 
 	@Reference
 	private GroupLocalService _groupLocalService;

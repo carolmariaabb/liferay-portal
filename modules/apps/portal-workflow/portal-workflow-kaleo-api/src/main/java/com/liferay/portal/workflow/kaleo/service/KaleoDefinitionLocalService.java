@@ -375,6 +375,11 @@ public interface KaleoDefinitionLocalService
 	public int getKaleoDefinitionsCount(
 		String name, ServiceContext serviceContext);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public KaleoDefinition getOrAddEmptyKaleoDefinition(
+			String externalReferenceCode, long companyId, long userId)
+		throws PortalException;
+
 	/**
 	 * Returns the OSGi service identifier.
 	 *
@@ -446,4 +451,4 @@ public interface KaleoDefinitionLocalService
 		throws E;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:161701466
+// LIFERAY-SERVICE-BUILDER-HASH:-160937866

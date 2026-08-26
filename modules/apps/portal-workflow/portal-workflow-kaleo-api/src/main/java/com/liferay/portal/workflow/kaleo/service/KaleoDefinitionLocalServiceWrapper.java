@@ -538,6 +538,15 @@ public class KaleoDefinitionLocalServiceWrapper
 			name, serviceContext);
 	}
 
+	@Override
+	public KaleoDefinition getOrAddEmptyKaleoDefinition(
+			String externalReferenceCode, long companyId, long userId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _kaleoDefinitionLocalService.getOrAddEmptyKaleoDefinition(
+			externalReferenceCode, companyId, userId);
+	}
+
 	/**
 	 * Returns the OSGi service identifier.
 	 *
@@ -669,4 +678,4 @@ public class KaleoDefinitionLocalServiceWrapper
 	private KaleoDefinitionLocalService _kaleoDefinitionLocalService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1599064282
+// LIFERAY-SERVICE-BUILDER-HASH:1359651606

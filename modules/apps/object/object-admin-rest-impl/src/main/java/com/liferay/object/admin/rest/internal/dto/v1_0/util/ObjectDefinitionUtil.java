@@ -45,6 +45,7 @@ import com.liferay.portal.kernel.module.util.SystemBundleUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.PermissionService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -60,6 +61,8 @@ import com.liferay.portal.vulcan.fields.NestedFieldsSupplier;
 import com.liferay.portal.vulcan.permission.Permission;
 import com.liferay.portal.vulcan.permission.PermissionUtil;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
+import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
+import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionLocalService;
 
 import java.util.Collection;
 import java.util.List;
@@ -75,7 +78,8 @@ import org.osgi.framework.BundleContext;
 public class ObjectDefinitionUtil {
 
 	public static ObjectDefinition toObjectDefinition(
-		GroupLocalService groupLocalService, Locale locale,
+		GroupLocalService groupLocalService,
+		KaleoDefinitionLocalService kaleoDefinitionLocalService, Locale locale,
 		NotificationTemplateLocalService notificationTemplateLocalService,
 		ObjectActionLocalService objectActionLocalService,
 		ObjectDefinitionLocalService objectDefinitionLocalService,
@@ -398,6 +402,11 @@ public class ObjectDefinitionUtil {
 
 												return StringPool.BLANK;
 											});
+										setWorkflowDefinitionExternalReferenceCode(
+											() ->
+												_fetchWorkflowDefinitionExternalReferenceCode(
+													kaleoDefinitionLocalService,
+													serviceBuilderWorkflowDefinitionLink));
 										setWorkflowDefinitionName(
 											serviceBuilderWorkflowDefinitionLink::
 												getWorkflowDefinitionName);
@@ -407,6 +416,29 @@ public class ObjectDefinitionUtil {
 					});
 			}
 		};
+	}
+
+	private static String _fetchWorkflowDefinitionExternalReferenceCode(
+		KaleoDefinitionLocalService kaleoDefinitionLocalService,
+		com.liferay.portal.kernel.model.WorkflowDefinitionLink
+			serviceBuilderWorkflowDefinitionLink) {
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setCompanyId(
+			serviceBuilderWorkflowDefinitionLink.getCompanyId());
+
+		KaleoDefinition kaleoDefinition =
+			kaleoDefinitionLocalService.fetchKaleoDefinition(
+				serviceBuilderWorkflowDefinitionLink.
+					getWorkflowDefinitionName(),
+				serviceContext);
+
+		if (kaleoDefinition == null) {
+			return null;
+		}
+
+		return kaleoDefinition.getExternalReferenceCode();
 	}
 
 	private static Map<Locale, String> _getLabelMap(

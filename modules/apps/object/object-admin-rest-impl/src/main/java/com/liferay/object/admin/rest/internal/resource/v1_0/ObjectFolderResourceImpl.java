@@ -50,6 +50,7 @@ import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.portal.vulcan.util.SearchUtil;
+import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionLocalService;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -448,7 +449,7 @@ public class ObjectFolderResourceImpl extends BaseObjectFolderResourceImpl {
 						}
 
 						return ObjectDefinitionUtil.toObjectDefinition(
-							_groupLocalService,
+							_groupLocalService, _kaleoDefinitionLocalService,
 							contextAcceptLanguage.getPreferredLocale(),
 							_notificationTemplateLocalService,
 							_objectActionLocalService,
@@ -480,6 +481,9 @@ public class ObjectFolderResourceImpl extends BaseObjectFolderResourceImpl {
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private KaleoDefinitionLocalService _kaleoDefinitionLocalService;
 
 	@Reference
 	private NotificationTemplateLocalService _notificationTemplateLocalService;

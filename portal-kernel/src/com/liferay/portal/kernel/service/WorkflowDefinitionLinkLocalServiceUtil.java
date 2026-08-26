@@ -394,6 +394,12 @@ public class WorkflowDefinitionLinkLocalServiceUtil {
 	}
 
 	public static List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
+		long companyId, int start, int end) {
+
+		return getService().getWorkflowDefinitionLinks(companyId, start, end);
+	}
+
+	public static List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
 			long companyId, long groupId, long classPK)
 		throws PortalException {
 
@@ -465,6 +471,10 @@ public class WorkflowDefinitionLinkLocalServiceUtil {
 	 */
 	public static int getWorkflowDefinitionLinksCount() {
 		return getService().getWorkflowDefinitionLinksCount();
+	}
+
+	public static int getWorkflowDefinitionLinksCount(long companyId) {
+		return getService().getWorkflowDefinitionLinksCount(companyId);
 	}
 
 	public static int getWorkflowDefinitionLinksCount(
@@ -576,4 +586,4 @@ public class WorkflowDefinitionLinkLocalServiceUtil {
 	private static volatile WorkflowDefinitionLinkLocalService _service;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-269207822
+// LIFERAY-SERVICE-BUILDER-HASH:929380150

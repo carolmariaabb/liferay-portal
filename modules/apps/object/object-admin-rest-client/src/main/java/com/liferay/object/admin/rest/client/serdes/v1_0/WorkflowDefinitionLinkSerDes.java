@@ -62,6 +62,25 @@ public class WorkflowDefinitionLinkSerDes {
 			sb.append("\"");
 		}
 
+		if (workflowDefinitionLink.
+				getWorkflowDefinitionExternalReferenceCode() != null) {
+
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"workflowDefinitionExternalReferenceCode\": ");
+
+			sb.append("\"");
+
+			sb.append(
+				_escape(
+					workflowDefinitionLink.
+						getWorkflowDefinitionExternalReferenceCode()));
+
+			sb.append("\"");
+		}
+
 		if (workflowDefinitionLink.getWorkflowDefinitionName() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -108,6 +127,19 @@ public class WorkflowDefinitionLinkSerDes {
 					workflowDefinitionLink.getGroupExternalReferenceCode()));
 		}
 
+		if (workflowDefinitionLink.
+				getWorkflowDefinitionExternalReferenceCode() == null) {
+
+			map.put("workflowDefinitionExternalReferenceCode", null);
+		}
+		else {
+			map.put(
+				"workflowDefinitionExternalReferenceCode",
+				String.valueOf(
+					workflowDefinitionLink.
+						getWorkflowDefinitionExternalReferenceCode()));
+		}
+
 		if (workflowDefinitionLink.getWorkflowDefinitionName() == null) {
 			map.put("workflowDefinitionName", null);
 		}
@@ -142,6 +174,12 @@ public class WorkflowDefinitionLinkSerDes {
 				return false;
 			}
 			else if (Objects.equals(
+						jsonParserFieldName,
+						"workflowDefinitionExternalReferenceCode")) {
+
+				return false;
+			}
+			else if (Objects.equals(
 						jsonParserFieldName, "workflowDefinitionName")) {
 
 				return false;
@@ -161,6 +199,16 @@ public class WorkflowDefinitionLinkSerDes {
 				if (jsonParserFieldValue != null) {
 					workflowDefinitionLink.setGroupExternalReferenceCode(
 						(String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(
+						jsonParserFieldName,
+						"workflowDefinitionExternalReferenceCode")) {
+
+				if (jsonParserFieldValue != null) {
+					workflowDefinitionLink.
+						setWorkflowDefinitionExternalReferenceCode(
+							(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(
@@ -252,4 +300,4 @@ public class WorkflowDefinitionLinkSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-326558354
+// LIFERAY-REST-BUILDER-HASH:114753018

@@ -68,6 +68,23 @@ public class WorkflowDefinitionLinkServiceImpl
 
 	@Override
 	public List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
+			long companyId, int start, int end)
+		throws PortalException {
+
+		ModelResourcePermission<WorkflowDefinitionLink>
+			modelResourcePermission =
+				ModelResourcePermissionRegistryUtil.getModelResourcePermission(
+					"com.liferay.portal.workflow.kaleo.model.KaleoDefinition");
+
+		modelResourcePermission.check(
+			getPermissionChecker(), null, ActionKeys.VIEW);
+
+		return workflowDefinitionLinkLocalService.getWorkflowDefinitionLinks(
+			companyId, start, end);
+	}
+
+	@Override
+	public List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
 			long companyId, String workflowDefinitionName,
 			int workflowDefinitionVersion)
 		throws PortalException {

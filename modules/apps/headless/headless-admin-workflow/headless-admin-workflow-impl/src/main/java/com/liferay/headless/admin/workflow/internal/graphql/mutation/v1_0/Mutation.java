@@ -300,6 +300,22 @@ public class Mutation {
 	}
 
 	@GraphQLField
+	public Response createWorkflowDefinitionLinksPageExportBatch(
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("contentType") String contentType,
+			@GraphQLName("fieldNames") String fieldNames)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_workflowDefinitionLinkResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			workflowDefinitionLinkResource ->
+				workflowDefinitionLinkResource.
+					postWorkflowDefinitionLinksPageExportBatch(
+						callbackURL, contentType, fieldNames));
+	}
+
+	@GraphQLField
 	public WorkflowDefinitionLink
 			createWorkflowDefinitionWorkflowDefinitionLink(
 				@GraphQLName("workflowDefinitionId") Long workflowDefinitionId,
@@ -902,4 +918,4 @@ public class Mutation {
 		_vulcanBatchEngineImportTaskResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1839914688
+// LIFERAY-REST-BUILDER-HASH:-1321391789

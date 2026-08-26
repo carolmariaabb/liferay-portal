@@ -51,6 +51,10 @@ public interface WorkflowDefinitionLinkResource {
 				String externalReferenceCode, Pagination pagination)
 		throws Exception;
 
+	public Page<WorkflowDefinitionLink> getWorkflowDefinitionLinksPage(
+			Pagination pagination)
+		throws Exception;
+
 	public Page<WorkflowDefinitionLink>
 			getWorkflowDefinitionWorkflowDefinitionLinksPage(
 				Long workflowDefinitionId, Pagination pagination)
@@ -60,6 +64,10 @@ public interface WorkflowDefinitionLinkResource {
 			postWorkflowDefinitionByExternalReferenceCodeWorkflowDefinitionLink(
 				String externalReferenceCode,
 				WorkflowDefinitionLink workflowDefinitionLink)
+		throws Exception;
+
+	public Response postWorkflowDefinitionLinksPageExportBatch(
+			String callbackURL, String contentType, String fieldNames)
 		throws Exception;
 
 	public WorkflowDefinitionLink postWorkflowDefinitionWorkflowDefinitionLink(
@@ -179,4 +187,4 @@ public interface WorkflowDefinitionLinkResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-881781570
+// LIFERAY-REST-BUILDER-HASH:-667627779

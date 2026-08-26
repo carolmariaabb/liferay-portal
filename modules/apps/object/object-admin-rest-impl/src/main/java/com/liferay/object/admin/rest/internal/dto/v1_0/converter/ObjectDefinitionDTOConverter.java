@@ -29,6 +29,7 @@ import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
+import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionLocalService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -62,7 +63,8 @@ public class ObjectDefinitionDTOConverter
 
 		ObjectDefinition objectDefinition =
 			ObjectDefinitionUtil.toObjectDefinition(
-				_groupLocalService, dtoConverterContext.getLocale(),
+				_groupLocalService, _kaleoDefinitionLocalService,
+				dtoConverterContext.getLocale(),
 				_notificationTemplateLocalService, _objectActionLocalService,
 				_objectDefinitionLocalService, _objectFieldDTOConverter,
 				_objectFieldLocalService, _objectLayoutLocalService,
@@ -83,6 +85,9 @@ public class ObjectDefinitionDTOConverter
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private KaleoDefinitionLocalService _kaleoDefinitionLocalService;
 
 	@Reference
 	private NotificationTemplateLocalService _notificationTemplateLocalService;

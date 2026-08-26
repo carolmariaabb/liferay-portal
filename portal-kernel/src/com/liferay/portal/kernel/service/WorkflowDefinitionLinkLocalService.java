@@ -333,6 +333,10 @@ public interface WorkflowDefinitionLinkLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
+		long companyId, int start, int end);
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
 			long companyId, long groupId, long classPK)
 		throws PortalException;
 
@@ -386,6 +390,9 @@ public interface WorkflowDefinitionLinkLocalService
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getWorkflowDefinitionLinksCount();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getWorkflowDefinitionLinksCount(long companyId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getWorkflowDefinitionLinksCount(
@@ -462,4 +469,4 @@ public interface WorkflowDefinitionLinkLocalService
 		throws E;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-335444463
+// LIFERAY-SERVICE-BUILDER-HASH:-760099893

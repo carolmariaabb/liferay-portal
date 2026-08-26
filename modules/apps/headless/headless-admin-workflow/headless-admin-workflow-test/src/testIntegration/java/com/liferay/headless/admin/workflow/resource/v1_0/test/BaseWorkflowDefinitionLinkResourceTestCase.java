@@ -184,6 +184,8 @@ public abstract class BaseWorkflowDefinitionLinkResourceTestCase {
 		workflowDefinitionLink.setClassName(regex);
 		workflowDefinitionLink.setExternalReferenceCode(regex);
 		workflowDefinitionLink.setGroupExternalReferenceCode(regex);
+		workflowDefinitionLink.setWorkflowDefinitionExternalReferenceCode(
+			regex);
 		workflowDefinitionLink.setWorkflowDefinitionName(regex);
 
 		String json = WorkflowDefinitionLinkSerDes.toJSON(
@@ -198,6 +200,10 @@ public abstract class BaseWorkflowDefinitionLinkResourceTestCase {
 			regex, workflowDefinitionLink.getExternalReferenceCode());
 		Assert.assertEquals(
 			regex, workflowDefinitionLink.getGroupExternalReferenceCode());
+		Assert.assertEquals(
+			regex,
+			workflowDefinitionLink.
+				getWorkflowDefinitionExternalReferenceCode());
 		Assert.assertEquals(
 			regex, workflowDefinitionLink.getWorkflowDefinitionName());
 	}
@@ -419,6 +425,155 @@ public abstract class BaseWorkflowDefinitionLinkResourceTestCase {
 		throws Exception {
 
 		return null;
+	}
+
+	@Test
+	public void testGetWorkflowDefinitionLinksPage() throws Exception {
+		Page<WorkflowDefinitionLink> page =
+			workflowDefinitionLinkResource.getWorkflowDefinitionLinksPage(
+				Pagination.of(1, 10));
+
+		long totalCount = page.getTotalCount();
+
+		WorkflowDefinitionLink workflowDefinitionLink1 =
+			testGetWorkflowDefinitionLinksPage_addWorkflowDefinitionLink(
+				randomWorkflowDefinitionLink());
+
+		WorkflowDefinitionLink workflowDefinitionLink2 =
+			testGetWorkflowDefinitionLinksPage_addWorkflowDefinitionLink(
+				randomWorkflowDefinitionLink());
+
+		page = workflowDefinitionLinkResource.getWorkflowDefinitionLinksPage(
+			Pagination.of(1, (int)totalCount + 2));
+
+		Assert.assertEquals(totalCount + 2, page.getTotalCount());
+
+		assertContains(
+			workflowDefinitionLink1,
+			(List<WorkflowDefinitionLink>)page.getItems());
+		assertContains(
+			workflowDefinitionLink2,
+			(List<WorkflowDefinitionLink>)page.getItems());
+		assertValid(
+			page, testGetWorkflowDefinitionLinksPage_getExpectedActions());
+	}
+
+	protected Map<String, Map<String, String>>
+			testGetWorkflowDefinitionLinksPage_getExpectedActions()
+		throws Exception {
+
+		Map<String, Map<String, String>> expectedActions = new HashMap<>();
+
+		return expectedActions;
+	}
+
+	@Test
+	public void testGetWorkflowDefinitionLinksPageWithPagination()
+		throws Exception {
+
+		Page<WorkflowDefinitionLink> workflowDefinitionLinksPage =
+			workflowDefinitionLinkResource.getWorkflowDefinitionLinksPage(null);
+
+		int totalCount = GetterUtil.getInteger(
+			workflowDefinitionLinksPage.getTotalCount());
+
+		WorkflowDefinitionLink workflowDefinitionLink1 =
+			testGetWorkflowDefinitionLinksPage_addWorkflowDefinitionLink(
+				randomWorkflowDefinitionLink());
+
+		WorkflowDefinitionLink workflowDefinitionLink2 =
+			testGetWorkflowDefinitionLinksPage_addWorkflowDefinitionLink(
+				randomWorkflowDefinitionLink());
+
+		WorkflowDefinitionLink workflowDefinitionLink3 =
+			testGetWorkflowDefinitionLinksPage_addWorkflowDefinitionLink(
+				randomWorkflowDefinitionLink());
+
+		// See com.liferay.portal.vulcan.internal.configuration.HeadlessAPICompanyConfiguration#pageSizeLimit
+
+		int pageSizeLimit = 500;
+
+		if (totalCount >= (pageSizeLimit - 2)) {
+			Page<WorkflowDefinitionLink> page1 =
+				workflowDefinitionLinkResource.getWorkflowDefinitionLinksPage(
+					Pagination.of(
+						(int)Math.ceil((totalCount + 1.0) / pageSizeLimit),
+						pageSizeLimit));
+
+			Assert.assertEquals(totalCount + 3, page1.getTotalCount());
+
+			assertContains(
+				workflowDefinitionLink1,
+				(List<WorkflowDefinitionLink>)page1.getItems());
+
+			Page<WorkflowDefinitionLink> page2 =
+				workflowDefinitionLinkResource.getWorkflowDefinitionLinksPage(
+					Pagination.of(
+						(int)Math.ceil((totalCount + 2.0) / pageSizeLimit),
+						pageSizeLimit));
+
+			assertContains(
+				workflowDefinitionLink2,
+				(List<WorkflowDefinitionLink>)page2.getItems());
+
+			Page<WorkflowDefinitionLink> page3 =
+				workflowDefinitionLinkResource.getWorkflowDefinitionLinksPage(
+					Pagination.of(
+						(int)Math.ceil((totalCount + 3.0) / pageSizeLimit),
+						pageSizeLimit));
+
+			assertContains(
+				workflowDefinitionLink3,
+				(List<WorkflowDefinitionLink>)page3.getItems());
+		}
+		else {
+			Page<WorkflowDefinitionLink> page1 =
+				workflowDefinitionLinkResource.getWorkflowDefinitionLinksPage(
+					Pagination.of(1, totalCount + 2));
+
+			List<WorkflowDefinitionLink> workflowDefinitionLinks1 =
+				(List<WorkflowDefinitionLink>)page1.getItems();
+
+			Assert.assertEquals(
+				workflowDefinitionLinks1.toString(), totalCount + 2,
+				workflowDefinitionLinks1.size());
+
+			Page<WorkflowDefinitionLink> page2 =
+				workflowDefinitionLinkResource.getWorkflowDefinitionLinksPage(
+					Pagination.of(2, totalCount + 2));
+
+			Assert.assertEquals(totalCount + 3, page2.getTotalCount());
+
+			List<WorkflowDefinitionLink> workflowDefinitionLinks2 =
+				(List<WorkflowDefinitionLink>)page2.getItems();
+
+			Assert.assertEquals(
+				workflowDefinitionLinks2.toString(), 1,
+				workflowDefinitionLinks2.size());
+
+			Page<WorkflowDefinitionLink> page3 =
+				workflowDefinitionLinkResource.getWorkflowDefinitionLinksPage(
+					Pagination.of(1, (int)totalCount + 3));
+
+			assertContains(
+				workflowDefinitionLink1,
+				(List<WorkflowDefinitionLink>)page3.getItems());
+			assertContains(
+				workflowDefinitionLink2,
+				(List<WorkflowDefinitionLink>)page3.getItems());
+			assertContains(
+				workflowDefinitionLink3,
+				(List<WorkflowDefinitionLink>)page3.getItems());
+		}
+	}
+
+	protected WorkflowDefinitionLink
+			testGetWorkflowDefinitionLinksPage_addWorkflowDefinitionLink(
+				WorkflowDefinitionLink workflowDefinitionLink)
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
 	}
 
 	@Test
@@ -1177,6 +1332,19 @@ public abstract class BaseWorkflowDefinitionLinkResourceTestCase {
 			}
 
 			if (Objects.equals(
+					"workflowDefinitionExternalReferenceCode",
+					additionalAssertFieldName)) {
+
+				if (workflowDefinitionLink.
+						getWorkflowDefinitionExternalReferenceCode() == null) {
+
+					valid = false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
 					"workflowDefinitionName", additionalAssertFieldName)) {
 
 				if (workflowDefinitionLink.getWorkflowDefinitionName() ==
@@ -1378,6 +1546,22 @@ public abstract class BaseWorkflowDefinitionLinkResourceTestCase {
 				if (!Objects.deepEquals(
 						workflowDefinitionLink1.getId(),
 						workflowDefinitionLink2.getId())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals(
+					"workflowDefinitionExternalReferenceCode",
+					additionalAssertFieldName)) {
+
+				if (!Objects.deepEquals(
+						workflowDefinitionLink1.
+							getWorkflowDefinitionExternalReferenceCode(),
+						workflowDefinitionLink2.
+							getWorkflowDefinitionExternalReferenceCode())) {
 
 					return false;
 				}
@@ -1669,6 +1853,54 @@ public abstract class BaseWorkflowDefinitionLinkResourceTestCase {
 				"Invalid entity field " + entityFieldName);
 		}
 
+		if (entityFieldName.equals("workflowDefinitionExternalReferenceCode")) {
+			Object object =
+				workflowDefinitionLink.
+					getWorkflowDefinitionExternalReferenceCode();
+
+			String value = String.valueOf(object);
+
+			if (operator.equals("contains")) {
+				sb = new StringBundler();
+
+				sb.append("contains(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 2)) {
+					sb.append(value.substring(1, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else if (operator.equals("startswith")) {
+				sb = new StringBundler();
+
+				sb.append("startswith(");
+				sb.append(entityFieldName);
+				sb.append(",'");
+
+				if ((object != null) && (value.length() > 1)) {
+					sb.append(value.substring(0, value.length() - 1));
+				}
+				else {
+					sb.append(value);
+				}
+
+				sb.append("')");
+			}
+			else {
+				sb.append("'");
+				sb.append(value);
+				sb.append("'");
+			}
+
+			return sb.toString();
+		}
+
 		if (entityFieldName.equals("workflowDefinitionName")) {
 			Object object = workflowDefinitionLink.getWorkflowDefinitionName();
 
@@ -1780,6 +2012,8 @@ public abstract class BaseWorkflowDefinitionLinkResourceTestCase {
 					RandomTestUtil.randomString());
 				groupId = RandomTestUtil.randomLong();
 				id = RandomTestUtil.randomLong();
+				workflowDefinitionExternalReferenceCode =
+					StringUtil.toLowerCase(RandomTestUtil.randomString());
 				workflowDefinitionName = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 				workflowDefinitionVersion = RandomTestUtil.randomInt();
@@ -2012,4 +2246,4 @@ public abstract class BaseWorkflowDefinitionLinkResourceTestCase {
 		WorkflowDefinitionLinkResource _workflowDefinitionLinkResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1353544308
+// LIFERAY-REST-BUILDER-HASH:-575004160

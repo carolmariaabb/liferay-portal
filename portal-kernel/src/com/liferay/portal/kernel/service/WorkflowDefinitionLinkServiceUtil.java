@@ -59,6 +59,13 @@ public class WorkflowDefinitionLinkServiceUtil {
 	}
 
 	public static List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
+			long companyId, int start, int end)
+		throws PortalException {
+
+		return getService().getWorkflowDefinitionLinks(companyId, start, end);
+	}
+
+	public static List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
 			long companyId, String workflowDefinitionName,
 			int workflowDefinitionVersion)
 		throws PortalException {
@@ -89,4 +96,4 @@ public class WorkflowDefinitionLinkServiceUtil {
 	private static volatile WorkflowDefinitionLinkService _service;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-677553243
+// LIFERAY-SERVICE-BUILDER-HASH:-200015342

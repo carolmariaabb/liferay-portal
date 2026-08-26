@@ -136,6 +136,52 @@ public class WorkflowDefinitionLinkServiceHttp {
 	public static java.util.List
 		<com.liferay.portal.kernel.model.WorkflowDefinitionLink>
 				getWorkflowDefinitionLinks(
+					HttpPrincipal httpPrincipal, long companyId, int start,
+					int end)
+			throws com.liferay.portal.kernel.exception.PortalException {
+
+		try {
+			MethodKey methodKey = new MethodKey(
+				WorkflowDefinitionLinkServiceUtil.class,
+				"getWorkflowDefinitionLinks",
+				_getWorkflowDefinitionLinksParameterTypes2);
+
+			MethodHandler methodHandler = new MethodHandler(
+				methodKey, companyId, start, end);
+
+			Object returnObj = null;
+
+			try {
+				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
+			}
+			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
+				throw new com.liferay.portal.kernel.exception.SystemException(
+					exception);
+			}
+
+			return (java.util.List
+				<com.liferay.portal.kernel.model.WorkflowDefinitionLink>)
+					returnObj;
+		}
+		catch (com.liferay.portal.kernel.exception.SystemException
+					systemException) {
+
+			_log.error(systemException, systemException);
+
+			throw systemException;
+		}
+	}
+
+	public static java.util.List
+		<com.liferay.portal.kernel.model.WorkflowDefinitionLink>
+				getWorkflowDefinitionLinks(
 					HttpPrincipal httpPrincipal, long companyId,
 					String workflowDefinitionName,
 					int workflowDefinitionVersion)
@@ -145,7 +191,7 @@ public class WorkflowDefinitionLinkServiceHttp {
 			MethodKey methodKey = new MethodKey(
 				WorkflowDefinitionLinkServiceUtil.class,
 				"getWorkflowDefinitionLinks",
-				_getWorkflowDefinitionLinksParameterTypes2);
+				_getWorkflowDefinitionLinksParameterTypes3);
 
 			MethodHandler methodHandler = new MethodHandler(
 				methodKey, companyId, workflowDefinitionName,
@@ -193,7 +239,7 @@ public class WorkflowDefinitionLinkServiceHttp {
 			MethodKey methodKey = new MethodKey(
 				WorkflowDefinitionLinkServiceUtil.class,
 				"updateWorkflowDefinitionLink",
-				_updateWorkflowDefinitionLinkParameterTypes3);
+				_updateWorkflowDefinitionLinkParameterTypes4);
 
 			MethodHandler methodHandler = new MethodHandler(
 				methodKey, externalReferenceCode, userId, companyId, groupId,
@@ -241,12 +287,14 @@ public class WorkflowDefinitionLinkServiceHttp {
 		_fetchWorkflowDefinitionLinkByExternalReferenceCodeParameterTypes1 =
 			new Class[] {String.class, long.class};
 	private static final Class<?>[] _getWorkflowDefinitionLinksParameterTypes2 =
+		new Class[] {long.class, int.class, int.class};
+	private static final Class<?>[] _getWorkflowDefinitionLinksParameterTypes3 =
 		new Class[] {long.class, String.class, int.class};
 	private static final Class<?>[]
-		_updateWorkflowDefinitionLinkParameterTypes3 = new Class[] {
+		_updateWorkflowDefinitionLinkParameterTypes4 = new Class[] {
 			String.class, long.class, long.class, long.class, String.class,
 			long.class, long.class, String.class, int.class
 		};
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-195442323
+// LIFERAY-SERVICE-BUILDER-HASH:-2000903412

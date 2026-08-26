@@ -167,6 +167,14 @@ public class WorkflowDefinitionLinkLocalServiceImpl
 
 	@Override
 	public List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
+		long companyId, int start, int end) {
+
+		return workflowDefinitionLinkPersistence.findByCompanyId(
+			companyId, start, end);
+	}
+
+	@Override
+	public List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
 			long companyId, long groupId, long classPK)
 		throws PortalException {
 
@@ -200,6 +208,11 @@ public class WorkflowDefinitionLinkLocalServiceImpl
 
 		return workflowDefinitionLinkPersistence.findByC_W_W(
 			companyId, workflowDefinitionName, workflowDefinitionVersion);
+	}
+
+	@Override
+	public int getWorkflowDefinitionLinksCount(long companyId) {
+		return workflowDefinitionLinkPersistence.countByCompanyId(companyId);
 	}
 
 	@Override

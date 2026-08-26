@@ -176,6 +176,11 @@ public class ServletDataImpl implements ServletData {
 							WorkflowDefinitionLinkResourceImpl.class,
 							"postWorkflowDefinitionByExternalReferenceCodeWorkflowDefinitionLink"));
 					put(
+						"mutation#createWorkflowDefinitionLinksPageExportBatch",
+						new ObjectValuePair<>(
+							WorkflowDefinitionLinkResourceImpl.class,
+							"postWorkflowDefinitionLinksPageExportBatch"));
+					put(
 						"mutation#createWorkflowDefinitionWorkflowDefinitionLink",
 						new ObjectValuePair<>(
 							WorkflowDefinitionLinkResourceImpl.class,
@@ -331,6 +336,11 @@ public class ServletDataImpl implements ServletData {
 						new ObjectValuePair<>(
 							WorkflowDefinitionLinkResourceImpl.class,
 							"getWorkflowDefinitionByExternalReferenceCodeWorkflowDefinitionLinksPage"));
+					put(
+						"query#workflowDefinitionLinks",
+						new ObjectValuePair<>(
+							WorkflowDefinitionLinkResourceImpl.class,
+							"getWorkflowDefinitionLinksPage"));
 					put(
 						"query#workflowDefinitionWorkflowDefinitionLinks",
 						new ObjectValuePair<>(
@@ -514,4 +524,4 @@ public class ServletDataImpl implements ServletData {
 		_transitionResourceComponentServiceObjects;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-92986052
+// LIFERAY-REST-BUILDER-HASH:1166948834

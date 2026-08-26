@@ -64,6 +64,11 @@ public interface WorkflowDefinitionLinkService extends BaseService {
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
+			long companyId, int start, int end)
+		throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
 			long companyId, String workflowDefinitionName,
 			int workflowDefinitionVersion)
 		throws PortalException;
@@ -75,4 +80,4 @@ public interface WorkflowDefinitionLinkService extends BaseService {
 		throws PortalException;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1682188773
+// LIFERAY-SERVICE-BUILDER-HASH:1007454272

@@ -448,6 +448,14 @@ public class WorkflowDefinitionLinkLocalServiceWrapper
 
 	@Override
 	public java.util.List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
+		long companyId, int start, int end) {
+
+		return _workflowDefinitionLinkLocalService.getWorkflowDefinitionLinks(
+			companyId, start, end);
+	}
+
+	@Override
+	public java.util.List<WorkflowDefinitionLink> getWorkflowDefinitionLinks(
 			long companyId, long groupId, long classPK)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -529,6 +537,12 @@ public class WorkflowDefinitionLinkLocalServiceWrapper
 	public int getWorkflowDefinitionLinksCount() {
 		return _workflowDefinitionLinkLocalService.
 			getWorkflowDefinitionLinksCount();
+	}
+
+	@Override
+	public int getWorkflowDefinitionLinksCount(long companyId) {
+		return _workflowDefinitionLinkLocalService.
+			getWorkflowDefinitionLinksCount(companyId);
 	}
 
 	@Override
@@ -683,4 +697,4 @@ public class WorkflowDefinitionLinkLocalServiceWrapper
 		_workflowDefinitionLinkLocalService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1883201204
+// LIFERAY-SERVICE-BUILDER-HASH:-2101508568
