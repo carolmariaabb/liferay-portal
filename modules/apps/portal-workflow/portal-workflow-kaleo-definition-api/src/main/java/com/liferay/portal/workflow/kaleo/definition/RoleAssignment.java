@@ -59,6 +59,10 @@ public class RoleAssignment extends Assignment {
 		return true;
 	}
 
+	public String getExternalReferenceCode() {
+		return _externalReferenceCode;
+	}
+
 	public long getRoleId() {
 		return _roleId;
 	}
@@ -88,7 +92,12 @@ public class RoleAssignment extends Assignment {
 		_autoCreate = autoCreate;
 	}
 
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		_externalReferenceCode = externalReferenceCode;
+	}
+
 	private boolean _autoCreate;
+	private String _externalReferenceCode;
 	private long _roleId;
 	private final String _roleName;
 	private final String _roleType;

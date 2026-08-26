@@ -470,6 +470,19 @@ public class KaleoDefinitionLocalServiceImpl
 		return kaleoDefinition;
 	}
 
+	@Override
+	public KaleoDefinition updateKaleoDefinitionContent(
+			long kaleoDefinitionId, String content)
+		throws PortalException {
+
+		KaleoDefinition kaleoDefinition =
+			kaleoDefinitionPersistence.findByPrimaryKey(kaleoDefinitionId);
+
+		kaleoDefinition.setContent(content);
+
+		return kaleoDefinitionPersistence.update(kaleoDefinition);
+	}
+
 	private String _getVersion(int version) {
 		return version + StringPool.PERIOD + 0;
 	}

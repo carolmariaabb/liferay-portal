@@ -19,6 +19,7 @@ const Role = () => {
 				...previousValue.data,
 				assignments: {
 					assignmentType: ['roleId'],
+					externalReferenceCode: role.externalReferenceCode,
 					roleId: role.id,
 					sectionsData: {
 						id: role.id,

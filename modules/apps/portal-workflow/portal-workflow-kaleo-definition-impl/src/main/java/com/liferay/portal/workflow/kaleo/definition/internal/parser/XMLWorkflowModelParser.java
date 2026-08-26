@@ -419,6 +419,10 @@ public class XMLWorkflowModelParser implements WorkflowModelParser {
 					roleAssignment = new RoleAssignment(roleId);
 				}
 
+				roleAssignment.setExternalReferenceCode(
+					roleAssignmentElement.elementTextTrim(
+						"external-reference-code"));
+
 				assignments.add(roleAssignment);
 			}
 		}
@@ -817,6 +821,9 @@ public class XMLWorkflowModelParser implements WorkflowModelParser {
 							true));
 				}
 
+				roleRecipient.setExternalReferenceCode(
+					roleReceipientElement.elementTextTrim(
+						"external-reference-code"));
 				roleRecipient.setNotificationReceptionType(
 					notificationReceptionType);
 

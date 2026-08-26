@@ -9,7 +9,6 @@ import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.Validator;
@@ -128,11 +127,14 @@ public class KaleoNotificationRecipientLocalServiceImpl
 				roleType = RoleUtil.getRoleType(roleRecipient.getRoleType());
 
 				role = RoleUtil.getRole(
+					roleRecipient.getExternalReferenceCode(),
 					roleRecipient.getRoleName(), roleType,
 					roleRecipient.isAutoCreate(), serviceContext);
 			}
 			else {
-				role = _roleLocalService.getRole(roleRecipient.getRoleId());
+				role = RoleUtil.getRole(
+					roleRecipient.getExternalReferenceCode(),
+					roleRecipient.getRoleId(), serviceContext);
 
 				roleType = role.getType();
 			}
@@ -179,9 +181,6 @@ public class KaleoNotificationRecipientLocalServiceImpl
 			}
 		}
 	}
-
-	@Reference
-	private RoleLocalService _roleLocalService;
 
 	@Reference
 	private UserLocalService _userLocalService;

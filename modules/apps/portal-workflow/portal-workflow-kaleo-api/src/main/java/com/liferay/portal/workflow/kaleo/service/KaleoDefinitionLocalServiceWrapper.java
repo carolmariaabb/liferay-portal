@@ -639,6 +639,15 @@ public class KaleoDefinitionLocalServiceWrapper
 	}
 
 	@Override
+	public KaleoDefinition updateKaleoDefinitionContent(
+			long kaleoDefinitionId, String content)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _kaleoDefinitionLocalService.updateKaleoDefinitionContent(
+			kaleoDefinitionId, content);
+	}
+
+	@Override
 	public BasePersistence<?> getBasePersistence() {
 		return _kaleoDefinitionLocalService.getBasePersistence();
 	}
@@ -678,4 +687,4 @@ public class KaleoDefinitionLocalServiceWrapper
 	private KaleoDefinitionLocalService _kaleoDefinitionLocalService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1359651606
+// LIFERAY-SERVICE-BUILDER-HASH:-1199269222

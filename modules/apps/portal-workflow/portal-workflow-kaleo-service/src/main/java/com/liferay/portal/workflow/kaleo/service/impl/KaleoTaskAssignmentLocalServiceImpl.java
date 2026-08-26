@@ -10,7 +10,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.Validator;
@@ -151,12 +150,15 @@ public class KaleoTaskAssignmentLocalServiceImpl
 
 			if (Validator.isNotNull(roleAssignment.getRoleName())) {
 				role = RoleUtil.getRole(
+					roleAssignment.getExternalReferenceCode(),
 					roleAssignment.getRoleName(),
 					RoleUtil.getRoleType(roleAssignment.getRoleType()),
 					roleAssignment.isAutoCreate(), serviceContext);
 			}
 			else {
-				role = _roleLocalService.getRole(roleAssignment.getRoleId());
+				role = RoleUtil.getRole(
+					roleAssignment.getExternalReferenceCode(),
+					roleAssignment.getRoleId(), serviceContext);
 			}
 
 			kaleoTaskAssignment.setAssigneeClassPK(role.getRoleId());
@@ -207,9 +209,6 @@ public class KaleoTaskAssignmentLocalServiceImpl
 			}
 		}
 	}
-
-	@Reference
-	private RoleLocalService _roleLocalService;
 
 	@Reference
 	private UserLocalService _userLocalService;

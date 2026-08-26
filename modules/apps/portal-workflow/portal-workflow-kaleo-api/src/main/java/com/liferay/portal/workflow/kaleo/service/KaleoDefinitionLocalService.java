@@ -435,6 +435,10 @@ public interface KaleoDefinitionLocalService
 	public KaleoDefinition updateKaleoDefinition(
 		KaleoDefinition kaleoDefinition);
 
+	public KaleoDefinition updateKaleoDefinitionContent(
+			long kaleoDefinitionId, String content)
+		throws PortalException;
+
 	@Override
 	@Transactional(enabled = false)
 	public CTPersistence<KaleoDefinition> getCTPersistence();
@@ -451,4 +455,4 @@ public interface KaleoDefinitionLocalService
 		throws E;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-160937866
+// LIFERAY-SERVICE-BUILDER-HASH:-1037152356

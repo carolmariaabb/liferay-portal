@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.workflow.DefaultWorkflowNodeSetting;
 import com.liferay.portal.kernel.workflow.DefaultWorkflowTask;
 import com.liferay.portal.kernel.workflow.DefaultWorkflowTransition;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
+import com.liferay.portal.kernel.workflow.WorkflowException;
 import com.liferay.portal.kernel.workflow.WorkflowInstance;
 import com.liferay.portal.kernel.workflow.WorkflowLog;
 import com.liferay.portal.kernel.workflow.WorkflowNode;
@@ -35,6 +36,8 @@ import com.liferay.portal.workflow.kaleo.KaleoWorkflowModelConverter;
 import com.liferay.portal.workflow.kaleo.definition.NodeType;
 import com.liferay.portal.workflow.kaleo.definition.export.DefinitionExporter;
 import com.liferay.portal.workflow.kaleo.definition.util.KaleoLogUtil;
+import com.liferay.portal.workflow.kaleo.definition.util.WorkflowDefinitionContentExternalReferenceCodeUtil;
+import com.liferay.portal.workflow.kaleo.definition.util.WorkflowDefinitionContentUtil;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
 import com.liferay.portal.workflow.kaleo.model.KaleoInstance;
@@ -112,6 +115,18 @@ public class KaleoWorkflowModelConverterImpl
 			}
 		}
 
+		try {
+			content = WorkflowDefinitionContentExternalReferenceCodeUtil.enrich(
+				content, kaleoDefinition.getCompanyId());
+		}
+		catch (WorkflowException workflowException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to enrich content with external reference codes",
+					workflowException);
+			}
+		}
+
 		defaultWorkflowDefinition.setContent(content);
 
 		try {
@@ -130,8 +145,16 @@ public class KaleoWorkflowModelConverterImpl
 			}
 		}
 
-		defaultWorkflowDefinition.setContentAsXML(
-			kaleoDefinition.getContentAsXML());
+		try {
+			defaultWorkflowDefinition.setContentAsXML(
+				WorkflowDefinitionContentUtil.toXML(content));
+		}
+		catch (WorkflowException workflowException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(workflowException);
+			}
+		}
+
 		defaultWorkflowDefinition.setDescription(
 			kaleoDefinition.getDescription());
 		defaultWorkflowDefinition.setExternalReferenceCode(
@@ -231,10 +254,30 @@ public class KaleoWorkflowModelConverterImpl
 			}
 		}
 
+		try {
+			content = WorkflowDefinitionContentExternalReferenceCodeUtil.enrich(
+				content, kaleoDefinitionVersion.getCompanyId());
+		}
+		catch (WorkflowException workflowException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(
+					"Unable to enrich content with external reference codes",
+					workflowException);
+			}
+		}
+
 		defaultWorkflowDefinition.setContent(content);
 
-		defaultWorkflowDefinition.setContentAsXML(
-			kaleoDefinitionVersion.getContentAsXML());
+		try {
+			defaultWorkflowDefinition.setContentAsXML(
+				WorkflowDefinitionContentUtil.toXML(content));
+		}
+		catch (WorkflowException workflowException) {
+			if (_log.isWarnEnabled()) {
+				_log.warn(workflowException);
+			}
+		}
+
 		defaultWorkflowDefinition.setCreateDate(
 			kaleoDefinitionVersion.getCreateDate());
 		defaultWorkflowDefinition.setDescription(

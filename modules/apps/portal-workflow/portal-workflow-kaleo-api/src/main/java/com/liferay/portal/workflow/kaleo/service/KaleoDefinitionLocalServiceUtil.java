@@ -557,6 +557,14 @@ public class KaleoDefinitionLocalServiceUtil {
 		return getService().updateKaleoDefinition(kaleoDefinition);
 	}
 
+	public static KaleoDefinition updateKaleoDefinitionContent(
+			long kaleoDefinitionId, String content)
+		throws PortalException {
+
+		return getService().updateKaleoDefinitionContent(
+			kaleoDefinitionId, content);
+	}
+
 	public static KaleoDefinitionLocalService getService() {
 		return _serviceSnapshot.get();
 	}
@@ -567,4 +575,4 @@ public class KaleoDefinitionLocalServiceUtil {
 			KaleoDefinitionLocalService.class);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-223242712
+// LIFERAY-SERVICE-BUILDER-HASH:-1148110587

@@ -102,6 +102,7 @@
 					<xs:element default="true" minOccurs="0" name="auto-create" type="xs:boolean" />
 				</xs:sequence>
 			</xs:choice>
+			<xs:element minOccurs="0" name="external-reference-code" type="xs:string" />
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="script-complex-type">

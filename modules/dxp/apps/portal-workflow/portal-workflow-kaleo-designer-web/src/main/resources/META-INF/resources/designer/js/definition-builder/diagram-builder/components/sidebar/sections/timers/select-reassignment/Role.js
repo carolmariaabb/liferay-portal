@@ -18,6 +18,8 @@ const Role = ({actionData, actionSectionsIndex, setActionSections}) => {
 			updatedSections[actionSectionsIndex].roleId = role.id;
 			updatedSections[actionSectionsIndex].name = role.name;
 			updatedSections[actionSectionsIndex].roleType = role.roleType;
+			updatedSections[actionSectionsIndex].externalReferenceCode =
+				role.externalReferenceCode;
 
 			return updatedSections;
 		});
@@ -34,6 +36,10 @@ const Role = ({actionData, actionSectionsIndex, setActionSections}) => {
 							response.name;
 						updatedSections[actionSectionsIndex].roleType =
 							response.roleType;
+						updatedSections[
+							actionSectionsIndex
+						].externalReferenceCode =
+							response.externalReferenceCode;
 
 						return updatedSections;
 					});

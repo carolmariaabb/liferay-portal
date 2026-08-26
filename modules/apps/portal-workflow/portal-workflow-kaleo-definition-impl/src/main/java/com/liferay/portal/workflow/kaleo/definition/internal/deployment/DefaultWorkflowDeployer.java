@@ -25,6 +25,7 @@ import com.liferay.portal.workflow.kaleo.definition.Task;
 import com.liferay.portal.workflow.kaleo.definition.Transition;
 import com.liferay.portal.workflow.kaleo.definition.deployment.WorkflowDeployer;
 import com.liferay.portal.workflow.kaleo.definition.exception.KaleoDefinitionValidationException;
+import com.liferay.portal.workflow.kaleo.definition.util.WorkflowDefinitionContentExternalReferenceCodeUtil;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
 import com.liferay.portal.workflow.kaleo.model.KaleoNode;
@@ -38,6 +39,7 @@ import com.liferay.portal.workflow.kaleo.service.KaleoTransitionLocalService;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -101,6 +103,16 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 					kaleoDefinitionVersionId, kaleoNode.getKaleoNodeId(), task,
 					serviceContext);
 			}
+		}
+
+		String correctedContent =
+			WorkflowDefinitionContentExternalReferenceCodeUtil.enrich(
+				kaleoDefinition.getContent(), kaleoDefinition.getCompanyId());
+
+		if (!Objects.equals(kaleoDefinition.getContent(), correctedContent)) {
+			kaleoDefinition =
+				_kaleoDefinitionLocalService.updateKaleoDefinitionContent(
+					kaleoDefinition.getKaleoDefinitionId(), correctedContent);
 		}
 
 		for (Node node : definition.getNodes()) {

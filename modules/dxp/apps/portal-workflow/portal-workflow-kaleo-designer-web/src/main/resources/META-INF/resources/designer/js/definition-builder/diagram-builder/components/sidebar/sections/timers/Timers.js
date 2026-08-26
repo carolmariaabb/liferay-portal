@@ -78,6 +78,11 @@ const Timers = ({setContentName, setErrors}) => {
 							reassignments.roleId = filteredTimerActions.map(
 								({roleId}) => roleId
 							);
+							reassignments.externalReferenceCode =
+								filteredTimerActions.map(
+									({externalReferenceCode}) =>
+										externalReferenceCode
+								);
 						}
 						else if (
 							reassignments.assignmentType[0] ===
@@ -246,6 +251,9 @@ const Timers = ({setContentName, setErrors}) => {
 					section.roleId = data.find(
 						(entry) => entry[0] === 'roleId'
 					)[1];
+					section.externalReferenceCode = data.find(
+						(entry) => entry[0] === 'externalReferenceCode'
+					)?.[1];
 				}
 				else if (section.assignmentType === 'scriptedAssignment') {
 					section.assignmentType = 'scriptedReassignment';

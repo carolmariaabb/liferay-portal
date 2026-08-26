@@ -114,8 +114,13 @@ public abstract class BaseNodeBuilder<T extends Node>
 			else if (assigneeClassName.equals(Role.class.getName())) {
 				Role role = roleLocalService.fetchRole(assigneeClassPK);
 
-				assignment = new RoleAssignment(
+				RoleAssignment roleAssignment = new RoleAssignment(
 					role.getRoleId(), role.getName(), role.getTypeLabel());
+
+				roleAssignment.setExternalReferenceCode(
+					role.getExternalReferenceCode());
+
+				assignment = roleAssignment;
 			}
 			else if (assigneeClassName.equals(User.class.getName())) {
 				if (assigneeClassPK == 0) {
@@ -192,8 +197,13 @@ public abstract class BaseNodeBuilder<T extends Node>
 			else if (recipientClassName.equals(RecipientType.ROLE.getValue())) {
 				Role role = roleLocalService.fetchRole(recipientClassPK);
 
-				recipient = new RoleRecipient(
+				RoleRecipient roleRecipient = new RoleRecipient(
 					role.getName(), role.getTypeLabel());
+
+				roleRecipient.setExternalReferenceCode(
+					role.getExternalReferenceCode());
+
+				recipient = roleRecipient;
 			}
 			else if (recipientClassName.equals(
 						RecipientType.SCRIPT.getValue())) {
