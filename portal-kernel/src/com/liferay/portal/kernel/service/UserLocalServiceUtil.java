@@ -1281,6 +1281,16 @@ public class UserLocalServiceUtil {
 		return getService().getNoGroups();
 	}
 
+	public static User getOrAddEmptyUser(
+			String externalReferenceCode, long companyId, long creatorUserId,
+			String screenName, String emailAddress)
+		throws PortalException {
+
+		return getService().getOrAddEmptyUser(
+			externalReferenceCode, companyId, creatorUserId, screenName,
+			emailAddress);
+	}
+
 	/**
 	 * Returns the organizationIds of the organizations associated with the user.
 	 *
@@ -3097,4 +3107,4 @@ public class UserLocalServiceUtil {
 	private static volatile UserLocalService _service;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:575660936
+// LIFERAY-SERVICE-BUILDER-HASH:1832071613

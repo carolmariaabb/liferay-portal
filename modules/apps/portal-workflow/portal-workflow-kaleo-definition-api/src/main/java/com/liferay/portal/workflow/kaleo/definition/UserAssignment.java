@@ -53,6 +53,10 @@ public class UserAssignment extends Assignment {
 		return _emailAddress;
 	}
 
+	public String getExternalReferenceCode() {
+		return _externalReferenceCode;
+	}
+
 	public String getScreenName() {
 		return _screenName;
 	}
@@ -68,6 +72,10 @@ public class UserAssignment extends Assignment {
 		return s.hashCode();
 	}
 
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		_externalReferenceCode = externalReferenceCode;
+	}
+
 	@Override
 	public String toString() {
 		return StringBundler.concat(
@@ -76,6 +84,7 @@ public class UserAssignment extends Assignment {
 	}
 
 	private final String _emailAddress;
+	private String _externalReferenceCode;
 	private final String _screenName;
 	private long _userId;
 

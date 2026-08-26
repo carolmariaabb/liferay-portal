@@ -110,6 +110,11 @@ const Timers = ({setContentName, setErrors}) => {
 								filteredTimerActions[0].sectionData.map(
 									({emailAddress}) => emailAddress
 								);
+							reassignments.externalReferenceCode =
+								filteredTimerActions[0].sectionData.map(
+									({externalReferenceCode}) =>
+										externalReferenceCode
+								);
 						}
 						else if (
 							reassignments.assignmentType[0] === 'roleType' &&
@@ -270,6 +275,11 @@ const Timers = ({setContentName, setErrors}) => {
 						.find((entry) => entry[0] === 'emailAddress')[1]
 						.map((email, index) => ({
 							emailAddress: email,
+							externalReferenceCode: filterSectionDataProperty(
+								data,
+								index,
+								'externalReferenceCode'
+							),
 							identifier: `${Date.now()}-${index}`,
 						}));
 				}

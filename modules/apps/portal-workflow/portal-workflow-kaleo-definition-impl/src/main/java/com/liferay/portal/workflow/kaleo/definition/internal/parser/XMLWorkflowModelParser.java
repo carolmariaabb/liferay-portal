@@ -459,6 +459,10 @@ public class XMLWorkflowModelParser implements WorkflowModelParser {
 			UserAssignment userAssignment = new UserAssignment(
 				userId, screenName, emailAddress);
 
+			userAssignment.setExternalReferenceCode(
+				userAssignmentElement.elementTextTrim(
+					"external-reference-code"));
+
 			assignments.add(userAssignment);
 		}
 
@@ -865,6 +869,9 @@ public class XMLWorkflowModelParser implements WorkflowModelParser {
 			UserRecipient userRecipient = new UserRecipient(
 				userId, screenName, emailAddress);
 
+			userRecipient.setExternalReferenceCode(
+				userRecipientElement.elementTextTrim(
+					"external-reference-code"));
 			userRecipient.setNotificationReceptionType(
 				notificationReceptionType);
 

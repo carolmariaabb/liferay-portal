@@ -292,12 +292,24 @@ function appendXMLAssignments(
 			) {
 				const xmlUser = XMLUtil.createObj('user');
 
-				dataAssignments.emailAddress.forEach((item) => {
+				dataAssignments.emailAddress.forEach((item, index) => {
 					buffer.push(xmlUser.open);
 
 					if (item !== '') {
 						buffer.push(
 							createTagWithEscapedContent('emailAddress', item)
+						);
+					}
+
+					const externalReferenceCode =
+						dataAssignments.externalReferenceCode?.[index];
+
+					if (externalReferenceCode) {
+						buffer.push(
+							createTagWithEscapedContent(
+								'external-reference-code',
+								externalReferenceCode
+							)
 						);
 					}
 
@@ -312,12 +324,24 @@ function appendXMLAssignments(
 			) {
 				const xmlUser = XMLUtil.createObj('user');
 
-				dataAssignments.screenName.forEach((item) => {
+				dataAssignments.screenName.forEach((item, index) => {
 					buffer.push(xmlUser.open);
 
 					if (item !== '') {
 						buffer.push(
 							createTagWithEscapedContent('screenName', item)
+						);
+					}
+
+					const externalReferenceCode =
+						dataAssignments.externalReferenceCode?.[index];
+
+					if (externalReferenceCode) {
+						buffer.push(
+							createTagWithEscapedContent(
+								'external-reference-code',
+								externalReferenceCode
+							)
 						);
 					}
 
@@ -331,12 +355,24 @@ function appendXMLAssignments(
 			) {
 				const xmlUser = XMLUtil.createObj('user');
 
-				dataAssignments.userId.forEach((item) => {
+				dataAssignments.userId.forEach((item, index) => {
 					buffer.push(xmlUser.open);
 
 					if (item !== '') {
 						buffer.push(
 							createTagWithEscapedContent('userId', item)
+						);
+					}
+
+					const externalReferenceCode =
+						dataAssignments.externalReferenceCode?.[index];
+
+					if (externalReferenceCode) {
+						buffer.push(
+							createTagWithEscapedContent(
+								'external-reference-code',
+								externalReferenceCode
+							)
 						);
 					}
 

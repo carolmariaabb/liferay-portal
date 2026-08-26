@@ -20,6 +20,9 @@ const User = (props) => {
 				assignments: {
 					assignmentType: ['user'],
 					emailAddress: values.map(({emailAddress}) => emailAddress),
+					externalReferenceCode: values.map(
+						({externalReferenceCode}) => externalReferenceCode
+					),
 					sectionsData: values.map((values) => values),
 				},
 			},

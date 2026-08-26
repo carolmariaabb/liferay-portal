@@ -1033,6 +1033,12 @@ public interface UserLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<User> getNoGroups();
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public User getOrAddEmptyUser(
+			String externalReferenceCode, long companyId, long creatorUserId,
+			String screenName, String emailAddress)
+		throws PortalException;
+
 	/**
 	 * Returns the organizationIds of the organizations associated with the user.
 	 *
@@ -2492,4 +2498,4 @@ public interface UserLocalService
 		throws E;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:90030289
+// LIFERAY-SERVICE-BUILDER-HASH:586690630

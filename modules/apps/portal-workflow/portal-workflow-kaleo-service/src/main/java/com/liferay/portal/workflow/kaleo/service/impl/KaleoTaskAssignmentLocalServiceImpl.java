@@ -21,6 +21,7 @@ import com.liferay.portal.workflow.kaleo.definition.ScriptAssignment;
 import com.liferay.portal.workflow.kaleo.definition.ScriptLanguage;
 import com.liferay.portal.workflow.kaleo.definition.UserAssignment;
 import com.liferay.portal.workflow.kaleo.internal.util.RoleUtil;
+import com.liferay.portal.workflow.kaleo.internal.util.UserUtil;
 import com.liferay.portal.workflow.kaleo.model.KaleoTask;
 import com.liferay.portal.workflow.kaleo.model.KaleoTaskAssignment;
 import com.liferay.portal.workflow.kaleo.service.base.KaleoTaskAssignmentLocalServiceBaseImpl;
@@ -185,21 +186,10 @@ public class KaleoTaskAssignmentLocalServiceImpl
 
 			UserAssignment userAssignment = (UserAssignment)assignment;
 
-			User user = null;
-
-			if (userAssignment.getUserId() > 0) {
-				user = _userLocalService.getUser(userAssignment.getUserId());
-			}
-			else if (Validator.isNotNull(userAssignment.getEmailAddress())) {
-				user = _userLocalService.getUserByEmailAddress(
-					serviceContext.getCompanyId(),
-					userAssignment.getEmailAddress());
-			}
-			else if (Validator.isNotNull(userAssignment.getScreenName())) {
-				user = _userLocalService.getUserByScreenName(
-					serviceContext.getCompanyId(),
-					userAssignment.getScreenName());
-			}
+			User user = UserUtil.getUser(
+				userAssignment.getExternalReferenceCode(),
+				userAssignment.getUserId(), userAssignment.getScreenName(),
+				userAssignment.getEmailAddress(), serviceContext);
 
 			if (user != null) {
 				kaleoTaskAssignment.setAssigneeClassPK(user.getUserId());

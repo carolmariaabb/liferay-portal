@@ -21,6 +21,7 @@ import com.liferay.portal.workflow.kaleo.definition.ScriptLanguage;
 import com.liferay.portal.workflow.kaleo.definition.ScriptRecipient;
 import com.liferay.portal.workflow.kaleo.definition.UserRecipient;
 import com.liferay.portal.workflow.kaleo.internal.util.RoleUtil;
+import com.liferay.portal.workflow.kaleo.internal.util.UserUtil;
 import com.liferay.portal.workflow.kaleo.model.KaleoNotificationRecipient;
 import com.liferay.portal.workflow.kaleo.service.base.KaleoNotificationRecipientLocalServiceBaseImpl;
 
@@ -159,21 +160,10 @@ public class KaleoNotificationRecipientLocalServiceImpl
 		else if (recipientType.equals(RecipientType.USER)) {
 			UserRecipient userRecipient = (UserRecipient)recipient;
 
-			User user = null;
-
-			if (userRecipient.getUserId() > 0) {
-				user = _userLocalService.getUser(userRecipient.getUserId());
-			}
-			else if (Validator.isNotNull(userRecipient.getScreenName())) {
-				user = _userLocalService.getUserByScreenName(
-					serviceContext.getCompanyId(),
-					userRecipient.getScreenName());
-			}
-			else if (Validator.isNotNull(userRecipient.getEmailAddress())) {
-				user = _userLocalService.getUserByEmailAddress(
-					serviceContext.getCompanyId(),
-					userRecipient.getEmailAddress());
-			}
+			User user = UserUtil.getUser(
+				userRecipient.getExternalReferenceCode(),
+				userRecipient.getUserId(), userRecipient.getScreenName(),
+				userRecipient.getEmailAddress(), serviceContext);
 
 			if (user != null) {
 				kaleoNotificationRecipient.setRecipientClassPK(

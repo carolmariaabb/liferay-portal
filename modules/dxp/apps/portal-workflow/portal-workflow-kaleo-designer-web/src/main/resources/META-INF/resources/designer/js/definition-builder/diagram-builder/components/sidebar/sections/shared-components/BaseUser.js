@@ -142,6 +142,8 @@ const BaseUser = ({
 										match={search}
 										onClick={onSelectUser({
 											emailAddress: item.emailAddress,
+											externalReferenceCode:
+												item.externalReferenceCode,
 											name: item.name,
 											screenName: item.alternateName,
 											userId: item.id,

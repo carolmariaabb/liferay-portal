@@ -1413,6 +1413,17 @@ public class UserLocalServiceWrapper
 		return _userLocalService.getNoGroups();
 	}
 
+	@Override
+	public User getOrAddEmptyUser(
+			String externalReferenceCode, long companyId, long creatorUserId,
+			String screenName, String emailAddress)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _userLocalService.getOrAddEmptyUser(
+			externalReferenceCode, companyId, creatorUserId, screenName,
+			emailAddress);
+	}
+
 	/**
 	 * Returns the organizationIds of the organizations associated with the user.
 	 *
@@ -3421,4 +3432,4 @@ public class UserLocalServiceWrapper
 	private UserLocalService _userLocalService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:566100435
+// LIFERAY-SERVICE-BUILDER-HASH:-781170543

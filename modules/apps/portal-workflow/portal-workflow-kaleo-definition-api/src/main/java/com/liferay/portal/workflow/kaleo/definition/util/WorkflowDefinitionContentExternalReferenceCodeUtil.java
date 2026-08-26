@@ -12,7 +12,9 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.RoleLocalServiceUtil;
+import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowException;
@@ -57,6 +59,9 @@ public class WorkflowDefinitionContentExternalReferenceCodeUtil {
 		if (tagName.equals("role")) {
 			_enrichRole(childNodesJSONArray, companyId);
 		}
+		else if (tagName.equals("user")) {
+			_enrichUser(childNodesJSONArray, companyId);
+		}
 
 		for (int i = 0; i < childNodesJSONArray.length(); i++) {
 			_enrich(childNodesJSONArray.getJSONObject(i), companyId);
@@ -100,6 +105,45 @@ public class WorkflowDefinitionContentExternalReferenceCodeUtil {
 		_putChildValue(
 			childNodesJSONArray, "external-reference-code",
 			role.getExternalReferenceCode());
+	}
+
+	private static void _enrichUser(
+		JSONArray childNodesJSONArray, long companyId) {
+
+		String externalReferenceCode = _getChildValue(
+			childNodesJSONArray, "external-reference-code");
+
+		if (Validator.isNotNull(externalReferenceCode)) {
+			User user = UserLocalServiceUtil.fetchUserByExternalReferenceCode(
+				externalReferenceCode, companyId);
+
+			if (user != null) {
+				_putChildValue(
+					childNodesJSONArray, "user-id",
+					String.valueOf(user.getUserId()));
+
+				return;
+			}
+		}
+
+		long userId = GetterUtil.getLong(
+			_getChildValue(childNodesJSONArray, "user-id"));
+
+		if (userId == 0) {
+			return;
+		}
+
+		User user = UserLocalServiceUtil.fetchUser(userId);
+
+		if ((user == null) ||
+			Validator.isNull(user.getExternalReferenceCode())) {
+
+			return;
+		}
+
+		_putChildValue(
+			childNodesJSONArray, "external-reference-code",
+			user.getExternalReferenceCode());
 	}
 
 	private static String _getChildValue(

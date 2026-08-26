@@ -129,9 +129,14 @@ public abstract class BaseNodeBuilder<T extends Node>
 				else {
 					User user = userLocalService.getUser(assigneeClassPK);
 
-					assignment = new UserAssignment(
+					UserAssignment userAssignment = new UserAssignment(
 						user.getUserId(), user.getScreenName(),
 						user.getEmailAddress());
+
+					userAssignment.setExternalReferenceCode(
+						user.getExternalReferenceCode());
+
+					assignment = userAssignment;
 				}
 			}
 
@@ -217,9 +222,14 @@ public abstract class BaseNodeBuilder<T extends Node>
 				if (recipientClassPK > 0) {
 					User user = userLocalService.getUser(recipientClassPK);
 
-					recipient = new UserRecipient(
+					UserRecipient userRecipient = new UserRecipient(
 						user.getUserId(), user.getScreenName(),
 						user.getEmailAddress());
+
+					userRecipient.setExternalReferenceCode(
+						user.getExternalReferenceCode());
+
+					recipient = userRecipient;
 				}
 				else {
 					recipient = new UserRecipient();

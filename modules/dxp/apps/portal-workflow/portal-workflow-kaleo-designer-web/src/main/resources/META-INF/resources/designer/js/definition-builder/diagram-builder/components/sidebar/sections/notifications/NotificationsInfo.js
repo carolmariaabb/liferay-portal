@@ -330,6 +330,9 @@ const NotificationsInfo = ({
 				...newRecipients[notificationIndex][0],
 				assignmentType: ['user'],
 				emailAddress: values.map(({emailAddress}) => emailAddress),
+				externalReferenceCode: values.map(
+					({externalReferenceCode}) => externalReferenceCode
+				),
 				sectionsData: values.map((values) => values),
 			};
 
