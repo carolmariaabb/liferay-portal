@@ -8,6 +8,7 @@ package com.liferay.portal.workflow.kaleo.service.impl;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.account.service.AccountEntryUserRelLocalService;
+import com.liferay.batch.engine.thread.local.BatchEngineThreadLocal;
 import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
@@ -393,6 +394,11 @@ public class KaleoDefinitionLocalServiceImpl
 		_validateGroupId(
 			serviceContext.getScopeGroupId(), kaleoDefinition.getScope());
 
+		content = WorkflowDefinitionContentUtil.toJSON(content);
+
+		boolean contentChanged = !Objects.equals(
+			kaleoDefinition.getContent(), content);
+
 		kaleoDefinition.setExternalReferenceCode(externalReferenceCode);
 		kaleoDefinition.setGroupId(
 			_staging.getLiveGroupId(serviceContext.getScopeGroupId()));
@@ -402,17 +408,20 @@ public class KaleoDefinitionLocalServiceImpl
 		kaleoDefinition.setModifiedDate(date);
 		kaleoDefinition.setTitle(title);
 		kaleoDefinition.setDescription(description);
-
-		content = WorkflowDefinitionContentUtil.toJSON(content);
-
 		kaleoDefinition.setContent(content);
+		kaleoDefinition.setSystem(system);
+
+		if (!contentChanged &&
+			BatchEngineThreadLocal.isBatchImportInProcess()) {
+
+			return kaleoDefinitionPersistence.update(kaleoDefinition);
+		}
 
 		int nextVersion = kaleoDefinition.getVersion() + 1;
 
 		kaleoDefinition.setVersion(nextVersion);
 
 		kaleoDefinition.setActive(false);
-		kaleoDefinition.setSystem(system);
 
 		kaleoDefinition = kaleoDefinitionPersistence.update(kaleoDefinition);
 
