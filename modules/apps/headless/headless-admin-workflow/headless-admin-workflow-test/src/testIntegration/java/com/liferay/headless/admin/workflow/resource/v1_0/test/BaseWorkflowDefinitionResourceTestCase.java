@@ -367,12 +367,50 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 			testDeleteWorkflowDefinitionBatch_addWorkflowDefinition();
 
 		testDeleteWorkflowDefinitionBatch_deleteWorkflowDefinition(
+			202, workflowDefinition1.getExternalReferenceCode(), null);
+
+		assertHttpResponseStatusCode(
+			404,
+			workflowDefinitionResource.getWorkflowDefinitionHttpResponse(
+				workflowDefinition1.getId()));
+
+		workflowDefinition1 =
+			testDeleteWorkflowDefinitionBatch_addWorkflowDefinition();
+
+		testDeleteWorkflowDefinitionBatch_deleteWorkflowDefinition(
 			202, null, workflowDefinition1.getId());
 
 		assertHttpResponseStatusCode(
 			404,
 			workflowDefinitionResource.getWorkflowDefinitionHttpResponse(
 				workflowDefinition1.getId()));
+
+		workflowDefinition1 =
+			testDeleteWorkflowDefinitionBatch_addWorkflowDefinition();
+		WorkflowDefinition workflowDefinition2 =
+			testDeleteWorkflowDefinitionBatch_addWorkflowDefinition();
+
+		testDeleteWorkflowDefinitionBatch_deleteWorkflowDefinition(
+			202, workflowDefinition2.getExternalReferenceCode(),
+			workflowDefinition1.getId());
+
+		assertHttpResponseStatusCode(
+			404,
+			workflowDefinitionResource.getWorkflowDefinitionHttpResponse(
+				workflowDefinition1.getId()));
+		assertHttpResponseStatusCode(
+			200,
+			workflowDefinitionResource.getWorkflowDefinitionHttpResponse(
+				workflowDefinition2.getId()));
+
+		testDeleteWorkflowDefinitionBatch_deleteWorkflowDefinition(
+			202, workflowDefinition2.getExternalReferenceCode(),
+			workflowDefinition1.getId());
+
+		assertHttpResponseStatusCode(
+			404,
+			workflowDefinitionResource.getWorkflowDefinitionHttpResponse(
+				workflowDefinition2.getId()));
 	}
 
 	protected WorkflowDefinition
@@ -402,6 +440,90 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 		waitForFinish(
 			"COMPLETED",
 			JSONFactoryUtil.createJSONObject(httpResponse.getContent()));
+	}
+
+	@Test
+	public void testDeleteWorkflowDefinitionByExternalReferenceCode()
+		throws Exception {
+
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		WorkflowDefinition workflowDefinition =
+			testDeleteWorkflowDefinitionByExternalReferenceCode_addWorkflowDefinition();
+
+		assertHttpResponseStatusCode(
+			204,
+			workflowDefinitionResource.
+				deleteWorkflowDefinitionByExternalReferenceCodeHttpResponse(
+					workflowDefinition.getExternalReferenceCode()));
+	}
+
+	protected WorkflowDefinition
+			testDeleteWorkflowDefinitionByExternalReferenceCode_addWorkflowDefinition()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	@Test
+	public void testGraphQLDeleteWorkflowDefinitionByExternalReferenceCode()
+		throws Exception {
+
+		// No namespace
+
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		WorkflowDefinition workflowDefinition1 =
+			testGraphQLDeleteWorkflowDefinitionByExternalReferenceCode_addWorkflowDefinition();
+
+		Assert.assertTrue(
+			JSONUtil.getValueAsBoolean(
+				invokeGraphQLMutation(
+					new GraphQLField(
+						"deleteWorkflowDefinitionByExternalReferenceCode",
+						new HashMap<String, Object>() {
+							{
+								put(
+									"externalReferenceCode",
+									"\"" +
+										workflowDefinition1.
+											getExternalReferenceCode() + "\"");
+							}
+						})),
+				"JSONObject/data",
+				"Object/deleteWorkflowDefinitionByExternalReferenceCode"));
+
+		// Using the namespace headlessAdminWorkflow_v1_0
+
+		@SuppressWarnings("PMD.UnusedLocalVariable")
+		WorkflowDefinition workflowDefinition2 =
+			testGraphQLDeleteWorkflowDefinitionByExternalReferenceCode_addWorkflowDefinition();
+
+		Assert.assertTrue(
+			JSONUtil.getValueAsBoolean(
+				invokeGraphQLMutation(
+					new GraphQLField(
+						"headlessAdminWorkflow_v1_0",
+						new GraphQLField(
+							"deleteWorkflowDefinitionByExternalReferenceCode",
+							new HashMap<String, Object>() {
+								{
+									put(
+										"externalReferenceCode",
+										"\"" +
+											workflowDefinition2.
+												getExternalReferenceCode() +
+													"\"");
+								}
+							}))),
+				"JSONObject/data", "JSONObject/headlessAdminWorkflow_v1_0",
+				"Object/deleteWorkflowDefinitionByExternalReferenceCode"));
+	}
+
+	protected WorkflowDefinition
+			testGraphQLDeleteWorkflowDefinitionByExternalReferenceCode_addWorkflowDefinition()
+		throws Exception {
+
+		return testGraphQLWorkflowDefinition_addWorkflowDefinition();
 	}
 
 	@Test
@@ -1446,8 +1568,91 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 	}
 
 	@Test
+	public void testPutWorkflowDefinitionByExternalReferenceCode()
+		throws Exception {
+
+		WorkflowDefinition postWorkflowDefinition =
+			testPutWorkflowDefinitionByExternalReferenceCode_addWorkflowDefinition();
+
+		WorkflowDefinition randomWorkflowDefinition =
+			randomWorkflowDefinition();
+
+		WorkflowDefinition putWorkflowDefinition =
+			workflowDefinitionResource.
+				putWorkflowDefinitionByExternalReferenceCode(
+					postWorkflowDefinition.getExternalReferenceCode(),
+					randomWorkflowDefinition);
+
+		assertEquals(randomWorkflowDefinition, putWorkflowDefinition);
+		assertValid(putWorkflowDefinition);
+
+		WorkflowDefinition getWorkflowDefinition =
+			testPutWorkflowDefinitionByExternalReferenceCode_getWorkflowDefinition(
+				putWorkflowDefinition.getExternalReferenceCode());
+
+		assertEquals(randomWorkflowDefinition, getWorkflowDefinition);
+		assertValid(getWorkflowDefinition);
+
+		WorkflowDefinition newWorkflowDefinition =
+			testPutWorkflowDefinitionByExternalReferenceCode_createWorkflowDefinition();
+
+		putWorkflowDefinition =
+			workflowDefinitionResource.
+				putWorkflowDefinitionByExternalReferenceCode(
+					newWorkflowDefinition.getExternalReferenceCode(),
+					newWorkflowDefinition);
+
+		assertEquals(newWorkflowDefinition, putWorkflowDefinition);
+		assertValid(putWorkflowDefinition);
+
+		getWorkflowDefinition =
+			testPutWorkflowDefinitionByExternalReferenceCode_getWorkflowDefinition(
+				putWorkflowDefinition.getExternalReferenceCode());
+
+		assertEquals(newWorkflowDefinition, getWorkflowDefinition);
+
+		Assert.assertEquals(
+			newWorkflowDefinition.getExternalReferenceCode(),
+			putWorkflowDefinition.getExternalReferenceCode());
+	}
+
+	protected WorkflowDefinition
+		testPutWorkflowDefinitionByExternalReferenceCode_getWorkflowDefinition(
+			String externalReferenceCode) {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected WorkflowDefinition
+			testPutWorkflowDefinitionByExternalReferenceCode_addWorkflowDefinition()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
+	protected WorkflowDefinition
+			testPutWorkflowDefinitionByExternalReferenceCode_createWorkflowDefinition()
+		throws Exception {
+
+		return randomWorkflowDefinition();
+	}
+
+	@Test
 	public void testBatchEngineDeleteImportTask() throws Exception {
 		WorkflowDefinition workflowDefinition1 =
+			testBatchEngineDeleteImportTask_addWorkflowDefinition();
+
+		testBatchEngineDeleteImportTask_deleteWorkflowDefinition(
+			200, workflowDefinition1.getExternalReferenceCode(), null);
+
+		assertHttpResponseStatusCode(
+			404,
+			workflowDefinitionResource.getWorkflowDefinitionHttpResponse(
+				workflowDefinition1.getId()));
+
+		workflowDefinition1 =
 			testBatchEngineDeleteImportTask_addWorkflowDefinition();
 
 		testBatchEngineDeleteImportTask_deleteWorkflowDefinition(
@@ -1457,6 +1662,33 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 			404,
 			workflowDefinitionResource.getWorkflowDefinitionHttpResponse(
 				workflowDefinition1.getId()));
+
+		workflowDefinition1 =
+			testBatchEngineDeleteImportTask_addWorkflowDefinition();
+		WorkflowDefinition workflowDefinition2 =
+			testBatchEngineDeleteImportTask_addWorkflowDefinition();
+
+		testBatchEngineDeleteImportTask_deleteWorkflowDefinition(
+			200, workflowDefinition2.getExternalReferenceCode(),
+			workflowDefinition1.getId());
+
+		assertHttpResponseStatusCode(
+			404,
+			workflowDefinitionResource.getWorkflowDefinitionHttpResponse(
+				workflowDefinition1.getId()));
+		assertHttpResponseStatusCode(
+			200,
+			workflowDefinitionResource.getWorkflowDefinitionHttpResponse(
+				workflowDefinition2.getId()));
+
+		testBatchEngineDeleteImportTask_deleteWorkflowDefinition(
+			200, workflowDefinition2.getExternalReferenceCode(),
+			workflowDefinition1.getId());
+
+		assertHttpResponseStatusCode(
+			404,
+			workflowDefinitionResource.getWorkflowDefinitionHttpResponse(
+				workflowDefinition2.getId()));
 	}
 
 	protected WorkflowDefinition
@@ -3093,4 +3325,4 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 		_vulcanCRUDItemDelegateBuilderRegistry;
 
 }
-// LIFERAY-REST-BUILDER-HASH:-877794647
+// LIFERAY-REST-BUILDER-HASH:1357715366
