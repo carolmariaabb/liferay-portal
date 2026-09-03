@@ -5,6 +5,8 @@
 
 package com.liferay.headless.admin.workflow.internal.resource.v1_0;
 
+import com.liferay.exportimport.constants.ExportImportConstants;
+import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.headless.admin.workflow.dto.v1_0.Node;
 import com.liferay.headless.admin.workflow.dto.v1_0.Transition;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowDefinition;
@@ -19,6 +21,7 @@ import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -38,13 +41,12 @@ import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.workflow.comparator.WorkflowComparatorFactory;
 import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
+import com.liferay.portal.workflow.constants.WorkflowPortletKeys;
+import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
 import com.liferay.portal.workflow.manager.WorkflowDefinitionManager;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 
-import java.io.Serializable;
-
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -58,40 +60,14 @@ import org.osgi.service.component.annotations.ServiceScope;
  */
 @Component(
 	properties = "OSGI-INF/liferay/rest/v1_0/workflow-definition.properties",
+	property = "export.import.vulcan.batch.engine.task.item.delegate=true",
 	scope = ServiceScope.PROTOTYPE, service = WorkflowDefinitionResource.class
 )
 @CTAware
 public class WorkflowDefinitionResourceImpl
-	extends BaseWorkflowDefinitionResourceImpl {
-
-	@Override
-	public void create(
-			Collection<WorkflowDefinition> workflowDefinitions,
-			Map<String, Serializable> parameters)
-		throws Exception {
-
-		String createStrategy = (String)parameters.getOrDefault(
-			"createStrategy", "INSERT");
-
-		if (StringUtil.equalsIgnoreCase(createStrategy, "UPSERT")) {
-			if (contextBatchUnsafeConsumer != null) {
-				contextBatchUnsafeConsumer.accept(
-					workflowDefinitions,
-					workflowDefinition -> postWorkflowDefinitionDeploy(
-						workflowDefinition));
-			}
-			else {
-				for (WorkflowDefinition workflowDefinition :
-						workflowDefinitions) {
-
-					postWorkflowDefinitionDeploy(workflowDefinition);
-				}
-			}
-		}
-		else {
-			super.create(workflowDefinitions, parameters);
-		}
-	}
+	extends BaseWorkflowDefinitionResourceImpl
+	implements ExportImportVulcanBatchEngineTaskItemDelegate
+		<WorkflowDefinition> {
 
 	@Override
 	public void deleteWorkflowDefinition(Long workflowDefinitionId)
@@ -122,6 +98,48 @@ public class WorkflowDefinitionResourceImpl
 		throws Exception {
 
 		return _entityModel;
+	}
+
+	@Override
+	public ExportImportDescriptor<KaleoDefinition> getExportImportDescriptor() {
+		return new ExportImportDescriptor<KaleoDefinition>() {
+
+			@Override
+			public String getKey() {
+				return WorkflowDefinitionResourceImpl.class.getName();
+			}
+
+			@Override
+			public String getLabelLanguageKey() {
+				return "workflow-definitions";
+			}
+
+			@Override
+			public Class<KaleoDefinition> getModelClass() {
+				return KaleoDefinition.class;
+			}
+
+			@Override
+			public String getPortletId() {
+				return WorkflowPortletKeys.CONTROL_PANEL_WORKFLOW;
+			}
+
+			@Override
+			public int getRank() {
+				return 99;
+			}
+
+			@Override
+			public Scope getScope() {
+				return Scope.COMPANY;
+			}
+
+			@Override
+			public String getSectionKey() {
+				return ExportImportConstants.SECTION_KEY_CONTENT_AND_DATA;
+			}
+
+		};
 	}
 
 	@Override
