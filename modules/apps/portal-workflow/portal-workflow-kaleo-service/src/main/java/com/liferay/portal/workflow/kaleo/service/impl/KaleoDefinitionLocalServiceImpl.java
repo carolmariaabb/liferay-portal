@@ -376,9 +376,9 @@ public class KaleoDefinitionLocalServiceImpl
 
 	@Override
 	public KaleoDefinition updatedKaleoDefinition(
-			String externalReferenceCode, long kaleoDefinitionId, String title,
-			String description, String content, boolean system,
-			ServiceContext serviceContext)
+			String externalReferenceCode, long kaleoDefinitionId, String name,
+			String title, String description, String content, String scope,
+			boolean system, ServiceContext serviceContext)
 		throws PortalException {
 
 		// Kaleo definition
@@ -390,16 +390,17 @@ public class KaleoDefinitionLocalServiceImpl
 		KaleoDefinition kaleoDefinition =
 			kaleoDefinitionPersistence.findByPrimaryKey(kaleoDefinitionId);
 
-		_validateGroupId(
-			serviceContext.getScopeGroupId(), kaleoDefinition.getScope());
+		_validateGroupId(serviceContext.getScopeGroupId(), scope);
+
+		String previousContent = kaleoDefinition.getContent();
 
 		kaleoDefinition.setExternalReferenceCode(externalReferenceCode);
 		kaleoDefinition.setGroupId(
 			_staging.getLiveGroupId(serviceContext.getScopeGroupId()));
 		kaleoDefinition.setUserId(user.getUserId());
 		kaleoDefinition.setUserName(user.getFullName());
-		kaleoDefinition.setCreateDate(date);
 		kaleoDefinition.setModifiedDate(date);
+		kaleoDefinition.setName(name);
 		kaleoDefinition.setTitle(title);
 		kaleoDefinition.setDescription(description);
 
@@ -407,12 +408,17 @@ public class KaleoDefinitionLocalServiceImpl
 
 		kaleoDefinition.setContent(content);
 
+		kaleoDefinition.setScope(scope);
+		kaleoDefinition.setActive(false);
+		kaleoDefinition.setSystem(system);
+
+		if (Objects.equals(previousContent, content)) {
+			return kaleoDefinitionPersistence.update(kaleoDefinition);
+		}
+
 		int nextVersion = kaleoDefinition.getVersion() + 1;
 
 		kaleoDefinition.setVersion(nextVersion);
-
-		kaleoDefinition.setActive(false);
-		kaleoDefinition.setSystem(system);
 
 		kaleoDefinition = kaleoDefinitionPersistence.update(kaleoDefinition);
 

@@ -133,16 +133,16 @@ public class KaleoDefinitionServiceImpl extends KaleoDefinitionServiceBaseImpl {
 
 	@Override
 	public KaleoDefinition updateKaleoDefinition(
-			String externalReferenceCode, long kaleoDefinitionId, String title,
-			String description, String content, boolean system,
-			ServiceContext serviceContext)
+			String externalReferenceCode, long kaleoDefinitionId, String name,
+			String title, String description, String content, String scope,
+			boolean system, ServiceContext serviceContext)
 		throws PortalException {
 
 		_checkPermissions(serviceContext);
 
 		return _kaleoDefinitionLocalService.updatedKaleoDefinition(
-			externalReferenceCode, kaleoDefinitionId, title, description,
-			content, system, serviceContext);
+			externalReferenceCode, kaleoDefinitionId, name, title, description,
+			content, scope, system, serviceContext);
 	}
 
 	private void _checkPermissions(ServiceContext serviceContext)
