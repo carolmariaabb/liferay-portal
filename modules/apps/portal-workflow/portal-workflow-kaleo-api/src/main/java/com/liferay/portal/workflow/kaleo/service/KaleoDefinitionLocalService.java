@@ -411,9 +411,9 @@ public interface KaleoDefinitionLocalService
 		String scope, ServiceContext serviceContext);
 
 	public KaleoDefinition updatedKaleoDefinition(
-			String externalReferenceCode, long kaleoDefinitionId, String title,
-			String description, String content, boolean system,
-			ServiceContext serviceContext)
+			String externalReferenceCode, long kaleoDefinitionId, String name,
+			String title, String description, String content, String scope,
+			boolean system, ServiceContext serviceContext)
 		throws PortalException;
 
 	/**
@@ -446,4 +446,4 @@ public interface KaleoDefinitionLocalService
 		throws E;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:161701466
+// LIFERAY-SERVICE-BUILDER-HASH:1655316077

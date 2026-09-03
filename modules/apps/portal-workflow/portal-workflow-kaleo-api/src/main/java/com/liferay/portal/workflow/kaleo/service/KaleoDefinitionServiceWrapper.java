@@ -102,14 +102,15 @@ public class KaleoDefinitionServiceWrapper
 
 	@Override
 	public KaleoDefinition updateKaleoDefinition(
-			String externalReferenceCode, long kaleoDefinitionId, String title,
-			String description, String content, boolean system,
+			String externalReferenceCode, long kaleoDefinitionId, String name,
+			String title, String description, String content, String scope,
+			boolean system,
 			com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _kaleoDefinitionService.updateKaleoDefinition(
-			externalReferenceCode, kaleoDefinitionId, title, description,
-			content, system, serviceContext);
+			externalReferenceCode, kaleoDefinitionId, name, title, description,
+			content, scope, system, serviceContext);
 	}
 
 	@Override
@@ -127,4 +128,4 @@ public class KaleoDefinitionServiceWrapper
 	private KaleoDefinitionService _kaleoDefinitionService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1493128664
+// LIFERAY-SERVICE-BUILDER-HASH:-540409216
