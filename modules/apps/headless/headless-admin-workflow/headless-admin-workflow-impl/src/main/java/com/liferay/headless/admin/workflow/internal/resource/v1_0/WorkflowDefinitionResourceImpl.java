@@ -29,7 +29,11 @@ import com.liferay.portal.kernel.search.filter.TermFilter;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -43,6 +47,7 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+import com.liferay.portal.vulcan.permission.ModelPermissionsUtil;
 import com.liferay.portal.vulcan.util.SearchUtil;
 import com.liferay.portal.workflow.comparator.WorkflowComparatorFactory;
 import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
@@ -327,6 +332,7 @@ public class WorkflowDefinitionResourceImpl
 				GetterUtil.getBoolean(workflowDefinition.getSystem()),
 				GetterUtil.getBoolean(workflowDefinition.getActive(), true),
 				GetterUtil.getInteger(workflowDefinition.getVersion(), 1),
+				_getModelPermissions(workflowDefinition),
 				_getTitle(workflowDefinition), contextUser.getUserId()));
 	}
 
@@ -396,6 +402,21 @@ public class WorkflowDefinitionResourceImpl
 		}
 
 		return group.getGroupId();
+	}
+
+	private ModelPermissions _getModelPermissions(
+			WorkflowDefinition workflowDefinition)
+		throws Exception {
+
+		if (workflowDefinition.getPermissions() == null) {
+			return null;
+		}
+
+		return ModelPermissionsUtil.toModelPermissions(
+			contextCompany.getCompanyId(), workflowDefinition.getPermissions(),
+			GetterUtil.getLong(workflowDefinition.getId()),
+			KaleoDefinition.class.getName(), _resourceActionLocalService,
+			_resourcePermissionLocalService, _roleLocalService);
 	}
 
 	private String _getTitle(WorkflowDefinition workflowDefinition)
@@ -562,6 +583,15 @@ public class WorkflowDefinitionResourceImpl
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private ResourceActionLocalService _resourceActionLocalService;
+
+	@Reference
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
+
+	@Reference
+	private RoleLocalService _roleLocalService;
 
 	@Reference
 	private UserLocalService _userLocalService;
