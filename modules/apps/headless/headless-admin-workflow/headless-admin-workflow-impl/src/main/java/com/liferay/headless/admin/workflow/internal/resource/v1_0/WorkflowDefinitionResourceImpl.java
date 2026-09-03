@@ -32,7 +32,6 @@ import com.liferay.portal.kernel.util.Localization;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -47,13 +46,9 @@ import com.liferay.portal.workflow.manager.WorkflowDefinitionManager;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 
-import java.io.Serializable;
-
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -74,40 +69,29 @@ public class WorkflowDefinitionResourceImpl
 		<WorkflowDefinition> {
 
 	@Override
-	public void create(
-			Collection<WorkflowDefinition> workflowDefinitions,
-			Map<String, Serializable> parameters)
-		throws Exception {
-
-		String createStrategy = (String)parameters.getOrDefault(
-			"createStrategy", "INSERT");
-
-		if (StringUtil.equalsIgnoreCase(createStrategy, "UPSERT")) {
-			if (contextBatchUnsafeConsumer != null) {
-				contextBatchUnsafeConsumer.accept(
-					workflowDefinitions,
-					workflowDefinition -> postWorkflowDefinitionDeploy(
-						workflowDefinition));
-			}
-			else {
-				for (WorkflowDefinition workflowDefinition :
-						workflowDefinitions) {
-
-					postWorkflowDefinitionDeploy(workflowDefinition);
-				}
-			}
-		}
-		else {
-			super.create(workflowDefinitions, parameters);
-		}
-	}
-
-	@Override
 	public void deleteWorkflowDefinition(Long workflowDefinitionId)
 		throws Exception {
 
 		WorkflowDefinition workflowDefinition = getWorkflowDefinition(
 			workflowDefinitionId);
+
+		postWorkflowDefinitionUpdateActive(
+			false, workflowDefinition.getName(),
+			workflowDefinition.getVersion());
+
+		deleteWorkflowDefinitionUndeploy(
+			workflowDefinition.getName(), workflowDefinition.getVersion());
+	}
+
+	@Override
+	public void deleteWorkflowDefinitionByExternalReferenceCode(
+			String externalReferenceCode)
+		throws Exception {
+
+		WorkflowDefinition workflowDefinition = _toWorkflowDefinition(
+			null,
+			() -> _workflowDefinitionManager.getWorkflowDefinition(
+				contextCompany.getCompanyId(), externalReferenceCode));
 
 		postWorkflowDefinitionUpdateActive(
 			false, workflowDefinition.getName(),
@@ -124,11 +108,6 @@ public class WorkflowDefinitionResourceImpl
 		_workflowDefinitionManager.undeployWorkflowDefinition(
 			contextCompany.getCompanyId(), name, contextUser.getUserId(),
 			GetterUtil.getInteger(version));
-	}
-
-	@Override
-	public Set<String> getAvailableCreateStrategies() {
-		return SetUtil.fromArray("INSERT", "UPSERT");
 	}
 
 	@Override
@@ -326,6 +305,17 @@ public class WorkflowDefinitionResourceImpl
 
 		_workflowDefinitionManager.getLatestWorkflowDefinition(
 			contextCompany.getCompanyId(), workflowDefinition.getName());
+
+		return postWorkflowDefinitionDeploy(workflowDefinition);
+	}
+
+	@Override
+	public WorkflowDefinition putWorkflowDefinitionByExternalReferenceCode(
+			String externalReferenceCode, WorkflowDefinition workflowDefinition)
+		throws Exception {
+
+		workflowDefinition.setExternalReferenceCode(
+			() -> externalReferenceCode);
 
 		return postWorkflowDefinitionDeploy(workflowDefinition);
 	}
