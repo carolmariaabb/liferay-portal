@@ -322,18 +322,18 @@ public class WorkflowDefinitionResourceImpl
 
 		return _toWorkflowDefinition(
 			_workflowDefinitionManager.deployWorkflowDefinition(
+				GetterUtil.getBoolean(workflowDefinition.getActive(), true),
 				content.getBytes(), contextCompany.getCompanyId(),
 				workflowDefinition.getExternalReferenceCode(),
 				_getGroupId(workflowDefinition.getGroupExternalReferenceCode()),
+				_getModelPermissions(workflowDefinition),
 				workflowDefinition.getName(),
 				GetterUtil.getString(
 					workflowDefinition.getScope(),
 					WorkflowDefinitionConstants.SCOPE_ALL),
 				GetterUtil.getBoolean(workflowDefinition.getSystem()),
-				GetterUtil.getBoolean(workflowDefinition.getActive(), true),
-				GetterUtil.getInteger(workflowDefinition.getVersion(), 1),
-				_getModelPermissions(workflowDefinition),
-				_getTitle(workflowDefinition), contextUser.getUserId()));
+				_getTitle(workflowDefinition), contextUser.getUserId(),
+				GetterUtil.getInteger(workflowDefinition.getVersion(), 1)));
 	}
 
 	@Override

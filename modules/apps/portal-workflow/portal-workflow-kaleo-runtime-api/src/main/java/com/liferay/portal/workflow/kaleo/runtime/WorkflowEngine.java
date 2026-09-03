@@ -36,20 +36,21 @@ public interface WorkflowEngine {
 			long workflowInstanceId, ServiceContext serviceContext)
 		throws WorkflowException;
 
+	public default WorkflowDefinition deployWorkflowDefinition(
+			boolean active, String externalReferenceCode,
+			InputStream inputStream, String name, String scope,
+			ServiceContext serviceContext, boolean system, String title,
+			int version)
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
+
 	public WorkflowDefinition deployWorkflowDefinition(
 			String externalReferenceCode, String title, String name,
 			String scope, boolean system, InputStream inputStream,
 			ServiceContext serviceContext)
 		throws WorkflowException;
-
-	public default WorkflowDefinition deployWorkflowDefinition(
-			String externalReferenceCode, String title, String name,
-			String scope, boolean system, boolean active, int version,
-			InputStream inputStream, ServiceContext serviceContext)
-		throws WorkflowException {
-
-		throw new UnsupportedOperationException();
-	}
 
 	public ExecutionContext executeTimerWorkflowInstance(
 			long kaleoTimerInstanceTokenId, ServiceContext serviceContext,

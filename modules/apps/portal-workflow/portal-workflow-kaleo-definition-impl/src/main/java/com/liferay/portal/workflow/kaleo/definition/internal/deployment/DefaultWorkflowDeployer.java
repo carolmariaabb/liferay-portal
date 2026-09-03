@@ -50,9 +50,9 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 
 	@Override
 	public WorkflowDefinition deploy(
-			String externalReferenceCode, String title, String name,
-			String scope, boolean system, boolean active, int version,
-			Definition definition, ServiceContext serviceContext)
+			boolean active, Definition definition, String externalReferenceCode,
+			String name, String scope, ServiceContext serviceContext,
+			boolean system, String title, int version)
 		throws PortalException {
 
 		_checkPermissions(serviceContext);
@@ -190,8 +190,8 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 		throws PortalException {
 
 		return deploy(
-			externalReferenceCode, title, name, scope, system, true, 1,
-			definition, serviceContext);
+			true, definition, externalReferenceCode, name, scope,
+			serviceContext, system, title, 1);
 	}
 
 	@Override

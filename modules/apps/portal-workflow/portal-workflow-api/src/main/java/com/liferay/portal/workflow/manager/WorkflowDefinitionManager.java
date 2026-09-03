@@ -23,10 +23,10 @@ import java.util.List;
 public interface WorkflowDefinitionManager {
 
 	public default WorkflowDefinition deployWorkflowDefinition(
-			byte[] bytes, long companyId, String externalReferenceCode,
-			long groupId, String name, String scope, boolean system,
-			boolean active, int version, ModelPermissions modelPermissions,
-			String title, long userId)
+			boolean active, byte[] bytes, long companyId,
+			String externalReferenceCode, long groupId,
+			ModelPermissions modelPermissions, String name, String scope,
+			boolean system, String title, long userId, int version)
 		throws WorkflowException {
 
 		throw new UnsupportedOperationException();
