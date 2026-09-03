@@ -35,24 +35,7 @@ public interface WorkflowDefinitionManager {
 	public default WorkflowDefinition deployWorkflowDefinition(
 			byte[] bytes, long companyId, String externalReferenceCode,
 			long groupId, String name, String scope, boolean system,
-			boolean active, int version, String title, long userId)
-		throws WorkflowException {
-
-		throw new UnsupportedOperationException();
-	}
-
-	public default WorkflowDefinition deployWorkflowDefinition(
-			byte[] bytes, long companyId, String externalReferenceCode,
-			long groupId, String name, String scope, boolean system,
 			String title, long userId)
-		throws WorkflowException {
-
-		throw new UnsupportedOperationException();
-	}
-
-	public default WorkflowDefinition deployWorkflowDefinition(
-			byte[] bytes, long companyId, String externalReferenceCode,
-			long groupId, String name, String scope, String title, long userId)
 		throws WorkflowException {
 
 		throw new UnsupportedOperationException();
