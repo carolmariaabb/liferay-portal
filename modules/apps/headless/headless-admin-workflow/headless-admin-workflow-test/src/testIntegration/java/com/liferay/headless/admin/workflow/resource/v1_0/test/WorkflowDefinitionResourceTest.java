@@ -376,7 +376,7 @@ public class WorkflowDefinitionResourceTest
 	}
 
 	@Test
-	public void testPutWorkflowDefinitionByExternalReferenceCodeIdempotentWhenContentUnchanged()
+	public void testPutWorkflowDefinitionByExternalReferenceCodeAlwaysBumpsVersionWhenNotEmpty()
 		throws Exception {
 
 		WorkflowDefinition workflowDefinition =
@@ -393,12 +393,10 @@ public class WorkflowDefinitionResourceTest
 					workflowDefinition.getExternalReferenceCode(),
 					workflowDefinition);
 
-		Assert.assertEquals(
-			workflowDefinition.getVersion(),
-			putWorkflowDefinition.getVersion());
+		Assert.assertEquals("2", putWorkflowDefinition.getVersion());
 
 		Assert.assertEquals(
-			kaleoDefinitionVersionsCount,
+			kaleoDefinitionVersionsCount + 1,
 			_kaleoDefinitionVersionLocalService.getKaleoDefinitionVersionsCount(
 				TestPropsValues.getCompanyId(), workflowDefinition.getName()));
 	}

@@ -302,7 +302,7 @@ public abstract class BaseKaleoLocalServiceTestCase {
 			kaleoDefinition.getKaleoDefinitionId(), kaleoDefinition.getName(),
 			StringUtil.randomString(), StringUtil.randomString(),
 			kaleoDefinition.getContent(), kaleoDefinition.getScope(), system,
-			serviceContext);
+			kaleoDefinition.getVersion(), serviceContext);
 
 		_kaleoDefinitionLocalService.activateKaleoDefinition(
 			kaleoDefinition.getKaleoDefinitionId(), serviceContext);

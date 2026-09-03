@@ -364,7 +364,8 @@ public class KaleoDefinitionServiceImplTest {
 				kaleoDefinition.getKaleoDefinitionId(),
 				kaleoDefinition.getName(), RandomTestUtil.randomString(),
 				RandomTestUtil.randomString(), kaleoDefinition.getContent(),
-				kaleoDefinition.getScope(), false, _serviceContext));
+				kaleoDefinition.getScope(), false, kaleoDefinition.getVersion(),
+				_serviceContext));
 
 		// Administrator with "company.administrator.can.publish" enabled
 
@@ -380,7 +381,8 @@ public class KaleoDefinitionServiceImplTest {
 				kaleoDefinition.getKaleoDefinitionId(),
 				kaleoDefinition.getName(), RandomTestUtil.randomString(),
 				RandomTestUtil.randomString(), kaleoDefinition.getContent(),
-				kaleoDefinition.getScope(), false, _serviceContext));
+				kaleoDefinition.getScope(), false, kaleoDefinition.getVersion(),
+				_serviceContext));
 	}
 
 	private void _testUpdateKaleoDefinitionWithGroupId() throws Exception {
@@ -408,7 +410,7 @@ public class KaleoDefinitionServiceImplTest {
 				kaleoDefinition.getKaleoDefinitionId(),
 				kaleoDefinition.getName(), RandomTestUtil.randomString(),
 				RandomTestUtil.randomString(), kaleoDefinition.getContent(),
-				kaleoDefinition.getScope(), false,
+				kaleoDefinition.getScope(), false, kaleoDefinition.getVersion(),
 				ServiceContextTestUtil.getServiceContext(
 					accountEntry.getAccountEntryGroupId(), user.getUserId())));
 
@@ -421,7 +423,7 @@ public class KaleoDefinitionServiceImplTest {
 				kaleoDefinition.getKaleoDefinitionId(),
 				kaleoDefinition.getName(), RandomTestUtil.randomString(),
 				RandomTestUtil.randomString(), kaleoDefinition.getContent(),
-				kaleoDefinition.getScope(), false,
+				kaleoDefinition.getScope(), false, kaleoDefinition.getVersion(),
 				ServiceContextTestUtil.getServiceContext(
 					accountEntry.getAccountEntryGroupId(), user.getUserId())));
 	}
