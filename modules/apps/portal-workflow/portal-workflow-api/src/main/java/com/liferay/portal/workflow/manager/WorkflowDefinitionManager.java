@@ -21,6 +21,16 @@ import java.util.List;
  */
 public interface WorkflowDefinitionManager {
 
+
+	public default WorkflowDefinition deployWorkflowDefinition(
+			byte[] bytes, long companyId, String externalReferenceCode,
+			long groupId, String name, String scope,
+			String title, long userId)
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
+
 	public default WorkflowDefinition deployWorkflowDefinition(
 			byte[] bytes, long companyId, String externalReferenceCode,
 			long groupId, String name, String scope, boolean system,

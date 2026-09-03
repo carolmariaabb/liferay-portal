@@ -54,6 +54,24 @@ public class WorkflowDefinitionManagerImpl
 	@Override
 	public WorkflowDefinition deployWorkflowDefinition(
 			byte[] bytes, long companyId, String externalReferenceCode,
+			long groupId, String name, String scope,
+			String title, long userId)
+		throws WorkflowException {
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setCompanyId(companyId);
+		serviceContext.setScopeGroupId(groupId);
+		serviceContext.setUserId(userId);
+
+		return _workflowEngine.deployWorkflowDefinition(
+			externalReferenceCode, title, name, scope, false,
+			new UnsyncByteArrayInputStream(bytes), serviceContext);
+	}
+
+	@Override
+	public WorkflowDefinition deployWorkflowDefinition(
+			byte[] bytes, long companyId, String externalReferenceCode,
 			long groupId, String name, String scope, boolean system,
 			String title, long userId)
 		throws WorkflowException {
