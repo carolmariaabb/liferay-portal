@@ -68,7 +68,9 @@ public interface WorkflowDefinitionResource {
 		throws Exception;
 
 	public Page<WorkflowDefinition> getWorkflowDefinitionsPage(
-			Boolean active, String scope, Pagination pagination,
+			Boolean active, String scope,
+			com.liferay.portal.kernel.search.filter.Filter filter,
+			Pagination pagination,
 			com.liferay.portal.kernel.search.Sort[] sorts)
 		throws Exception;
 
@@ -94,6 +96,7 @@ public interface WorkflowDefinitionResource {
 
 	public Response postWorkflowDefinitionsPageExportBatch(
 			Boolean active, String scope,
+			com.liferay.portal.kernel.search.filter.Filter filter,
 			com.liferay.portal.kernel.search.Sort[] sorts, String callbackURL,
 			String contentType, String fieldNames)
 		throws Exception;
@@ -206,4 +209,4 @@ public interface WorkflowDefinitionResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:2074697753
+// LIFERAY-REST-BUILDER-HASH:-1395635031
