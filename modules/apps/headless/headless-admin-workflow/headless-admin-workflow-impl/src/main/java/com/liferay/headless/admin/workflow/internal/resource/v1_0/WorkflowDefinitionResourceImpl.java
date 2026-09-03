@@ -20,7 +20,12 @@ import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.search.BooleanClauseOccur;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
+import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.search.filter.TermFilter;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -38,10 +43,13 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+import com.liferay.portal.vulcan.util.SearchUtil;
 import com.liferay.portal.workflow.comparator.WorkflowComparatorFactory;
 import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
 import com.liferay.portal.workflow.constants.WorkflowPortletKeys;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
+import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
+import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionVersionLocalService;
 import com.liferay.portal.workflow.manager.WorkflowDefinitionManager;
 
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -190,11 +198,12 @@ public class WorkflowDefinitionResourceImpl
 
 	@Override
 	public Page<WorkflowDefinition> getWorkflowDefinitionsPage(
-			Boolean active, String scope, Pagination pagination, Sort[] sorts)
+			Boolean active, String scope, Filter filter, Pagination pagination,
+			Sort[] sorts)
 		throws Exception {
 
-		return Page.of(
-			HashMapBuilder.put(
+		Map<String, Map<String, String>> actions =
+			HashMapBuilder.<String, Map<String, String>>put(
 				"create",
 				addAction(
 					ActionKeys.ADD_DEFINITION, "postWorkflowDefinition",
@@ -224,19 +233,71 @@ public class WorkflowDefinitionResourceImpl
 				addAction(
 					ActionKeys.UPDATE, "putWorkflowDefinitionBatch",
 					WorkflowConstants.RESOURCE_NAME, null)
-			).build(),
-			transform(
-				_workflowDefinitionManager.getLatestWorkflowDefinitions(
-					active, contextCompany.getCompanyId(),
-					pagination.getEndPosition(),
-					_toOrderByComparator((Sort)ArrayUtil.getValue(sorts, 0)),
-					GetterUtil.getString(
-						scope, WorkflowDefinitionConstants.SCOPE_ALL),
-					pagination.getStartPosition(), contextUser.getUserId()),
-				this::_toWorkflowDefinition),
-			pagination,
-			_workflowDefinitionManager.getLatestWorkflowDefinitionsCount(
-				active, contextCompany.getCompanyId()));
+			).build();
+
+		if (filter == null) {
+			return Page.of(
+				actions,
+				transform(
+					_workflowDefinitionManager.getLatestWorkflowDefinitions(
+						active, contextCompany.getCompanyId(),
+						pagination.getEndPosition(),
+						_toOrderByComparator(
+							(Sort)ArrayUtil.getValue(sorts, 0)),
+						GetterUtil.getString(
+							scope, WorkflowDefinitionConstants.SCOPE_ALL),
+						pagination.getStartPosition(), contextUser.getUserId()),
+					this::_toWorkflowDefinition),
+				pagination,
+				_workflowDefinitionManager.getLatestWorkflowDefinitionsCount(
+					active, contextCompany.getCompanyId()));
+		}
+
+		return SearchUtil.search(
+			actions,
+			booleanQuery -> {
+				BooleanFilter booleanFilter =
+					booleanQuery.getPreBooleanFilter();
+
+				booleanFilter.add(
+					new TermFilter("latest", "true"), BooleanClauseOccur.MUST);
+
+				if (active != null) {
+					booleanFilter.add(
+						new TermFilter("active", active ? "1" : "0"),
+						BooleanClauseOccur.MUST);
+				}
+
+				if (Validator.isNotNull(scope) &&
+					!StringUtil.equals(
+						scope, WorkflowDefinitionConstants.SCOPE_ALL)) {
+
+					booleanFilter.add(
+						new TermFilter("scope", scope),
+						BooleanClauseOccur.MUST);
+				}
+			},
+			filter, KaleoDefinitionVersion.class.getName(), null, pagination,
+			queryConfig -> queryConfig.setSelectedFieldNames(
+				Field.ENTRY_CLASS_PK),
+			searchContext -> searchContext.setCompanyId(
+				contextCompany.getCompanyId()),
+			sorts,
+			document -> {
+				KaleoDefinitionVersion kaleoDefinitionVersion =
+					_kaleoDefinitionVersionLocalService.
+						fetchKaleoDefinitionVersion(
+							GetterUtil.getLong(
+								document.get(Field.ENTRY_CLASS_PK)));
+
+				if (kaleoDefinitionVersion == null) {
+					return null;
+				}
+
+				return _toWorkflowDefinition(
+					_workflowDefinitionManager.getWorkflowDefinition(
+						kaleoDefinitionVersion.getKaleoDefinitionId()));
+			});
 	}
 
 	@Override
@@ -488,6 +549,10 @@ public class WorkflowDefinitionResourceImpl
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private KaleoDefinitionVersionLocalService
+		_kaleoDefinitionVersionLocalService;
 
 	@Reference
 	private Language _language;
