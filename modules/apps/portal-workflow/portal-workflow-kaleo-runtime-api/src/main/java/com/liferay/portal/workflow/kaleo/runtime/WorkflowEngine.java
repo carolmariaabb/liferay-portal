@@ -42,6 +42,15 @@ public interface WorkflowEngine {
 			ServiceContext serviceContext)
 		throws WorkflowException;
 
+	public default WorkflowDefinition deployWorkflowDefinition(
+			String externalReferenceCode, String title, String name,
+			String scope, boolean system, boolean active, int version,
+			InputStream inputStream, ServiceContext serviceContext)
+		throws WorkflowException {
+
+		throw new UnsupportedOperationException();
+	}
+
 	public ExecutionContext executeTimerWorkflowInstance(
 			long kaleoTimerInstanceTokenId, ServiceContext serviceContext,
 			Map<String, Serializable> workflowContext)
