@@ -217,6 +217,28 @@ public class WorkflowDefinitionSerDes {
 			sb.append("]");
 		}
 
+		if (workflowDefinition.getPermissions() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"permissions\": ");
+
+			sb.append("[");
+
+			for (int i = 0; i < workflowDefinition.getPermissions().length;
+				 i++) {
+
+				sb.append(workflowDefinition.getPermissions()[i]);
+
+				if ((i + 1) < workflowDefinition.getPermissions().length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
 		if (workflowDefinition.getScope() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -423,6 +445,15 @@ public class WorkflowDefinitionSerDes {
 			map.put("nodes", String.valueOf(workflowDefinition.getNodes()));
 		}
 
+		if (workflowDefinition.getPermissions() == null) {
+			map.put("permissions", null);
+		}
+		else {
+			map.put(
+				"permissions",
+				String.valueOf(workflowDefinition.getPermissions()));
+		}
+
 		if (workflowDefinition.getScope() == null) {
 			map.put("scope", null);
 		}
@@ -525,6 +556,9 @@ public class WorkflowDefinitionSerDes {
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "nodes")) {
+				return false;
+			}
+			else if (Objects.equals(jsonParserFieldName, "permissions")) {
 				return false;
 			}
 			else if (Objects.equals(jsonParserFieldName, "scope")) {
@@ -634,6 +668,26 @@ public class WorkflowDefinitionSerDes {
 					}
 
 					workflowDefinition.setNodes(nodesArray);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "permissions")) {
+				if (jsonParserFieldValue != null) {
+					Object[] jsonParserFieldValues =
+						(Object[])jsonParserFieldValue;
+
+					com.liferay.headless.admin.workflow.client.permission.
+						Permission[] permissionsArray = new
+						com.liferay.headless.admin.workflow.client.permission.
+							Permission[jsonParserFieldValues.length];
+
+					for (int i = 0; i < permissionsArray.length; i++) {
+						permissionsArray[i] =
+							com.liferay.headless.admin.workflow.client.
+								permission.Permission.toDTO(
+									(String)jsonParserFieldValues[i]);
+					}
+
+					workflowDefinition.setPermissions(permissionsArray);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "scope")) {
@@ -759,4 +813,4 @@ public class WorkflowDefinitionSerDes {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:-243674494
+// LIFERAY-REST-BUILDER-HASH:-770457878

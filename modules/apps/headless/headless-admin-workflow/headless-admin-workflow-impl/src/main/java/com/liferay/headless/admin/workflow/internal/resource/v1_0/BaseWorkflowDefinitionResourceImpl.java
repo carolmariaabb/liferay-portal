@@ -151,6 +151,38 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
+	 * curl -X 'DELETE' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-definitions/by-external-reference-code/{externalReferenceCode}'  -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "externalReferenceCode"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "WorkflowDefinition")
+		}
+	)
+	@jakarta.ws.rs.DELETE
+	@jakarta.ws.rs.Path(
+		"/workflow-definitions/by-external-reference-code/{externalReferenceCode}"
+	)
+	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
+	@Override
+	public void deleteWorkflowDefinitionByExternalReferenceCode(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@jakarta.validation.constraints.NotNull
+			@jakarta.ws.rs.PathParam("externalReferenceCode")
+			String externalReferenceCode)
+		throws Exception {
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
 	 * curl -X 'DELETE' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-definitions/undeploy'  -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Parameters(
@@ -277,6 +309,10 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 			),
 			@io.swagger.v3.oas.annotations.Parameter(
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "filter"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
 				name = "page"
 			),
 			@io.swagger.v3.oas.annotations.Parameter(
@@ -309,6 +345,8 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@jakarta.ws.rs.QueryParam("scope")
 			String scope,
+			@jakarta.ws.rs.core.Context
+				com.liferay.portal.kernel.search.filter.Filter filter,
 			@jakarta.ws.rs.core.Context Pagination pagination,
 			@jakarta.ws.rs.core.Context com.liferay.portal.kernel.search.Sort[]
 				sorts)
@@ -320,7 +358,7 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-definitions' -d $'{"active": ___, "content": ___, "externalReferenceCode": ___, "groupExternalReferenceCode": ___, "name": ___, "scope": ___, "system": ___, "title": ___, "title_i18n": ___, "version": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-definitions' -d $'{"active": ___, "content": ___, "externalReferenceCode": ___, "groupExternalReferenceCode": ___, "name": ___, "permissions": ___, "scope": ___, "system": ___, "title": ___, "title_i18n": ___, "version": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.tags.Tags(
 		value = {
@@ -388,7 +426,7 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-definitions/deploy' -d $'{"active": ___, "content": ___, "externalReferenceCode": ___, "groupExternalReferenceCode": ___, "name": ___, "scope": ___, "system": ___, "title": ___, "title_i18n": ___, "version": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-definitions/deploy' -d $'{"active": ___, "content": ___, "externalReferenceCode": ___, "groupExternalReferenceCode": ___, "name": ___, "permissions": ___, "scope": ___, "system": ___, "title": ___, "title_i18n": ___, "version": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.tags.Tags(
 		value = {
@@ -410,7 +448,7 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-definitions/save' -d $'{"active": ___, "content": ___, "externalReferenceCode": ___, "groupExternalReferenceCode": ___, "name": ___, "scope": ___, "system": ___, "title": ___, "title_i18n": ___, "version": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'POST' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-definitions/save' -d $'{"active": ___, "content": ___, "externalReferenceCode": ___, "groupExternalReferenceCode": ___, "name": ___, "permissions": ___, "scope": ___, "system": ___, "title": ___, "title_i18n": ___, "version": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.tags.Tags(
 		value = {
@@ -490,6 +528,10 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 			),
 			@io.swagger.v3.oas.annotations.Parameter(
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "filter"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
 				name = "scope"
 			),
 			@io.swagger.v3.oas.annotations.Parameter(
@@ -527,6 +569,8 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@jakarta.ws.rs.QueryParam("scope")
 			String scope,
+			@jakarta.ws.rs.core.Context
+				com.liferay.portal.kernel.search.filter.Filter filter,
 			@jakarta.ws.rs.core.Context com.liferay.portal.kernel.search.Sort[]
 				sorts,
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
@@ -563,7 +607,7 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -X 'PUT' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-definitions/{workflowDefinitionId}' -d $'{"active": ___, "content": ___, "externalReferenceCode": ___, "groupExternalReferenceCode": ___, "name": ___, "scope": ___, "system": ___, "title": ___, "title_i18n": ___, "version": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 * curl -X 'PUT' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-definitions/{workflowDefinitionId}' -d $'{"active": ___, "content": ___, "externalReferenceCode": ___, "groupExternalReferenceCode": ___, "name": ___, "permissions": ___, "scope": ___, "system": ___, "title": ___, "title_i18n": ___, "version": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
 	 */
 	@io.swagger.v3.oas.annotations.Parameters(
 		value = {
@@ -640,6 +684,42 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 		).build();
 	}
 
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/headless-admin-workflow/v1.0/workflow-definitions/by-external-reference-code/{externalReferenceCode}' -d $'{"active": ___, "content": ___, "externalReferenceCode": ___, "groupExternalReferenceCode": ___, "name": ___, "permissions": ___, "scope": ___, "system": ___, "title": ___, "title_i18n": ___, "version": ___}' --header 'Content-Type: application/json' -u 'test@liferay.com:test'
+	 */
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "externalReferenceCode"
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {
+			@io.swagger.v3.oas.annotations.tags.Tag(name = "WorkflowDefinition")
+		}
+	)
+	@jakarta.ws.rs.Consumes({"application/json", "application/xml"})
+	@jakarta.ws.rs.Path(
+		"/workflow-definitions/by-external-reference-code/{externalReferenceCode}"
+	)
+	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
+	@jakarta.ws.rs.PUT
+	@Override
+	public WorkflowDefinition putWorkflowDefinitionByExternalReferenceCode(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@jakarta.validation.constraints.NotNull
+			@jakarta.ws.rs.PathParam("externalReferenceCode")
+			String externalReferenceCode,
+			WorkflowDefinition workflowDefinition)
+		throws Exception {
+
+		return new WorkflowDefinition();
+	}
+
 	@Override
 	@SuppressWarnings("PMD.UnusedLocalVariable")
 	public void create(
@@ -657,6 +737,24 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 			workflowDefinitionUnsafeFunction =
 				workflowDefinition -> postWorkflowDefinition(
 					workflowDefinition);
+		}
+
+		if (StringUtil.equalsIgnoreCase(createStrategy, "UPSERT")) {
+			String updateStrategy = (String)parameters.getOrDefault(
+				"updateStrategy", "UPDATE");
+
+			if (StringUtil.equalsIgnoreCase(updateStrategy, "UPDATE")) {
+				workflowDefinitionUnsafeFunction = workflowDefinition -> {
+					WorkflowDefinition persistedWorkflowDefinition = null;
+
+					persistedWorkflowDefinition =
+						putWorkflowDefinitionByExternalReferenceCode(
+							workflowDefinition.getExternalReferenceCode(),
+							workflowDefinition);
+
+					return persistedWorkflowDefinition;
+				};
+			}
 		}
 
 		if (workflowDefinitionUnsafeFunction == null) {
@@ -688,9 +786,34 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 
 		UnsafeFunction<WorkflowDefinition, WorkflowDefinition, Exception>
 			workflowDefinitionUnsafeFunction = workflowDefinition -> {
-				deleteWorkflowDefinition(workflowDefinition.getId());
+				if (workflowDefinition.getId() != null) {
+					try {
+						deleteWorkflowDefinition(workflowDefinition.getId());
 
-				return workflowDefinition;
+						return workflowDefinition;
+					}
+					catch (Exception exception) {
+						if (workflowDefinition.getExternalReferenceCode() !=
+								null) {
+
+							deleteWorkflowDefinitionByExternalReferenceCode(
+								workflowDefinition.getExternalReferenceCode());
+
+							return workflowDefinition;
+						}
+					}
+				}
+				else if (workflowDefinition.getExternalReferenceCode() !=
+							null) {
+
+					deleteWorkflowDefinitionByExternalReferenceCode(
+						workflowDefinition.getExternalReferenceCode());
+
+					return workflowDefinition;
+				}
+
+				throw new UnsupportedOperationException(
+					"Unable to delete by external reference code or ID");
 			};
 
 		if (contextBatchUnsafeBiConsumer != null) {
@@ -709,7 +832,7 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 	}
 
 	public Set<String> getAvailableCreateStrategies() {
-		return SetUtil.fromArray("INSERT");
+		return SetUtil.fromArray("INSERT", "UPSERT");
 	}
 
 	public Set<String> getAvailableUpdateStrategies() {
@@ -742,7 +865,7 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 
 		return getWorkflowDefinitionsPage(
 			_parseBoolean((String)parameters.get("active")),
-			(String)parameters.get("scope"), pagination, sorts);
+			(String)parameters.get("scope"), filter, pagination, sorts);
 	}
 
 	@Override
@@ -1391,4 +1514,4 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 		LogFactoryUtil.getLog(BaseWorkflowDefinitionResourceImpl.class);
 
 }
-// LIFERAY-REST-BUILDER-HASH:777378861
+// LIFERAY-REST-BUILDER-HASH:-971194865
