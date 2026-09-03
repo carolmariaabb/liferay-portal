@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowException;
 import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
@@ -341,6 +342,60 @@ public class KaleoDefinitionLocalServiceImpl
 	}
 
 	@Override
+	public KaleoDefinition getOrAddKaleoDefinition(
+			String externalReferenceCode, String name, String scope,
+			boolean system, ServiceContext serviceContext)
+		throws PortalException {
+
+		KaleoDefinition kaleoDefinition = null;
+
+		if (Validator.isNotNull(externalReferenceCode)) {
+			kaleoDefinition = fetchKaleoDefinitionByExternalReferenceCode(
+				externalReferenceCode, serviceContext.getCompanyId());
+		}
+
+		if (kaleoDefinition == null) {
+			kaleoDefinition = fetchKaleoDefinition(name, serviceContext);
+		}
+
+		if (kaleoDefinition != null) {
+			return kaleoDefinition;
+		}
+
+		// Kaleo definition
+
+		_validateGroupId(serviceContext.getScopeGroupId(), scope);
+
+		long kaleoDefinitionId = counterLocalService.increment();
+
+		kaleoDefinition = kaleoDefinitionPersistence.create(kaleoDefinitionId);
+
+		kaleoDefinition.setExternalReferenceCode(externalReferenceCode);
+		kaleoDefinition.setGroupId(
+			_staging.getLiveGroupId(serviceContext.getScopeGroupId()));
+
+		User user = _userLocalService.getUser(
+			serviceContext.getGuestOrUserId());
+
+		kaleoDefinition.setCompanyId(user.getCompanyId());
+		kaleoDefinition.setUserId(user.getUserId());
+		kaleoDefinition.setUserName(user.getFullName());
+
+		Date date = new Date();
+
+		kaleoDefinition.setCreateDate(date);
+		kaleoDefinition.setModifiedDate(date);
+
+		kaleoDefinition.setName(name);
+		kaleoDefinition.setScope(scope);
+		kaleoDefinition.setActive(false);
+		kaleoDefinition.setSystem(system);
+		kaleoDefinition.setStatus(WorkflowConstants.STATUS_EMPTY);
+
+		return kaleoDefinitionPersistence.update(kaleoDefinition);
+	}
+
+	@Override
 	public List<KaleoDefinition> getScopeKaleoDefinitions(
 		String scope, boolean active, int start, int end,
 		OrderByComparator<KaleoDefinition> orderByComparator,
@@ -390,7 +445,7 @@ public class KaleoDefinitionLocalServiceImpl
 	public KaleoDefinition updatedKaleoDefinition(
 			String externalReferenceCode, long kaleoDefinitionId, String name,
 			String title, String description, String content, String scope,
-			boolean system, ServiceContext serviceContext)
+			boolean system, int version, ServiceContext serviceContext)
 		throws PortalException {
 
 		// Kaleo definition
@@ -404,7 +459,13 @@ public class KaleoDefinitionLocalServiceImpl
 
 		_validateGroupId(serviceContext.getScopeGroupId(), scope);
 
-		String previousContent = kaleoDefinition.getContent();
+		int nextVersion = kaleoDefinition.getVersion() + 1;
+
+		if (kaleoDefinition.getStatus() == WorkflowConstants.STATUS_EMPTY) {
+			nextVersion = version;
+
+			kaleoDefinition.setStatus(WorkflowConstants.STATUS_DRAFT);
+		}
 
 		kaleoDefinition.setExternalReferenceCode(externalReferenceCode);
 		kaleoDefinition.setGroupId(
@@ -421,6 +482,7 @@ public class KaleoDefinitionLocalServiceImpl
 		kaleoDefinition.setContent(content);
 
 		kaleoDefinition.setScope(scope);
+		kaleoDefinition.setVersion(nextVersion);
 		kaleoDefinition.setActive(false);
 		kaleoDefinition.setSystem(system);
 
@@ -433,21 +495,11 @@ public class KaleoDefinitionLocalServiceImpl
 				kaleoDefinition, serviceContext);
 		}
 
-		if (Objects.equals(previousContent, content)) {
-			return kaleoDefinition;
-		}
-
-		int nextVersion = kaleoDefinition.getVersion() + 1;
-
-		kaleoDefinition.setVersion(nextVersion);
-
-		kaleoDefinition = kaleoDefinitionPersistence.update(kaleoDefinition);
-
 		// Kaleo definition version
 
 		_kaleoDefinitionVersionLocalService.addKaleoDefinitionVersion(
-			kaleoDefinitionId, kaleoDefinition.getName(), title, description,
-			content, _getVersion(nextVersion), serviceContext);
+			kaleoDefinitionId, name, title, description, content,
+			_getVersion(nextVersion), serviceContext);
 
 		return kaleoDefinition;
 	}
