@@ -264,6 +264,8 @@ public class WorkflowDefinitionResourceImpl
 					workflowDefinition.getScope(),
 					WorkflowDefinitionConstants.SCOPE_ALL),
 				GetterUtil.getBoolean(workflowDefinition.getSystem()),
+				GetterUtil.getBoolean(workflowDefinition.getActive(), true),
+				GetterUtil.getInteger(workflowDefinition.getVersion(), 1),
 				_getTitle(workflowDefinition), contextUser.getUserId()));
 	}
 

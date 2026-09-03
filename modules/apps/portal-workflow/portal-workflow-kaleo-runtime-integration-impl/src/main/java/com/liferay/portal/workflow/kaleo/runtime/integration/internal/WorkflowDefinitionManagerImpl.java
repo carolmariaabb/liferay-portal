@@ -54,8 +54,8 @@ public class WorkflowDefinitionManagerImpl
 	@Override
 	public WorkflowDefinition deployWorkflowDefinition(
 			byte[] bytes, long companyId, String externalReferenceCode,
-			long groupId, String name, String scope,
-			String title, long userId)
+			long groupId, String name, String scope, boolean system,
+			boolean active, int version, String title, long userId)
 		throws WorkflowException {
 
 		ServiceContext serviceContext = new ServiceContext();
@@ -65,7 +65,7 @@ public class WorkflowDefinitionManagerImpl
 		serviceContext.setUserId(userId);
 
 		return _workflowEngine.deployWorkflowDefinition(
-			externalReferenceCode, title, name, scope, false,
+			externalReferenceCode, title, name, scope, system, active, version,
 			new UnsyncByteArrayInputStream(bytes), serviceContext);
 	}
 
@@ -84,6 +84,23 @@ public class WorkflowDefinitionManagerImpl
 
 		return _workflowEngine.deployWorkflowDefinition(
 			externalReferenceCode, title, name, scope, system,
+			new UnsyncByteArrayInputStream(bytes), serviceContext);
+	}
+
+	@Override
+	public WorkflowDefinition deployWorkflowDefinition(
+			byte[] bytes, long companyId, String externalReferenceCode,
+			long groupId, String name, String scope, String title, long userId)
+		throws WorkflowException {
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setCompanyId(companyId);
+		serviceContext.setScopeGroupId(groupId);
+		serviceContext.setUserId(userId);
+
+		return _workflowEngine.deployWorkflowDefinition(
+			externalReferenceCode, title, name, scope, false,
 			new UnsyncByteArrayInputStream(bytes), serviceContext);
 	}
 
