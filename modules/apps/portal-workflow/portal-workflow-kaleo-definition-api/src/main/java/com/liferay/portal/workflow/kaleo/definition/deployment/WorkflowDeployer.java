@@ -21,6 +21,15 @@ public interface WorkflowDeployer {
 			ServiceContext serviceContext)
 		throws PortalException;
 
+	public default WorkflowDefinition deploy(
+			String externalReferenceCode, String title, String name,
+			String scope, boolean system, boolean active, int version,
+			Definition definition, ServiceContext serviceContext)
+		throws PortalException {
+
+		throw new UnsupportedOperationException();
+	}
+
 	public WorkflowDefinition save(
 			String externalReferenceCode, String title, String name,
 			String scope, boolean system, Definition definition,
