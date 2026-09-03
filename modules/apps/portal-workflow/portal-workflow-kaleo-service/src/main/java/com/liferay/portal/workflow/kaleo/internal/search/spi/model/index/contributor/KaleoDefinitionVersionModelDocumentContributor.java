@@ -34,6 +34,8 @@ public class KaleoDefinitionVersionModelDocumentContributor
 
 		document.addKeyword(
 			Field.DESCRIPTION, kaleoDefinitionVersion.getDescription());
+		document.addDate(
+			Field.MODIFIED_DATE, kaleoDefinitionVersion.getModifiedDate());
 		document.addKeyword(Field.NAME, kaleoDefinitionVersion.getName());
 
 		try {
