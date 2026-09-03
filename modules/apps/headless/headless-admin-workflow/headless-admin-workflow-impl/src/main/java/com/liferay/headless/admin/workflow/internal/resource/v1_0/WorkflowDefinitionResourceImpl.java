@@ -85,6 +85,20 @@ public class WorkflowDefinitionResourceImpl
 	}
 
 	@Override
+	public void deleteWorkflowDefinitionByExternalReferenceCode(
+			String externalReferenceCode)
+		throws Exception {
+
+		com.liferay.portal.kernel.workflow.WorkflowDefinition
+			serviceBuilderWorkflowDefinition =
+				_workflowDefinitionManager.getWorkflowDefinition(
+					contextCompany.getCompanyId(), externalReferenceCode);
+
+		deleteWorkflowDefinition(
+			serviceBuilderWorkflowDefinition.getWorkflowDefinitionId());
+	}
+
+	@Override
 	public void deleteWorkflowDefinitionUndeploy(String name, String version)
 		throws Exception {
 
@@ -173,7 +187,8 @@ public class WorkflowDefinitionResourceImpl
 
 	@Override
 	public Page<WorkflowDefinition> getWorkflowDefinitionsPage(
-			Boolean active, String scope, Pagination pagination, Sort[] sorts)
+			Boolean active, String scope, Filter filter, Pagination pagination,
+			Sort[] sorts)
 		throws Exception {
 
 		return Page.of(
@@ -288,6 +303,17 @@ public class WorkflowDefinitionResourceImpl
 
 		_workflowDefinitionManager.getLatestWorkflowDefinition(
 			contextCompany.getCompanyId(), workflowDefinition.getName());
+
+		return postWorkflowDefinitionDeploy(workflowDefinition);
+	}
+
+	@Override
+	public WorkflowDefinition putWorkflowDefinitionByExternalReferenceCode(
+			String externalReferenceCode, WorkflowDefinition workflowDefinition)
+		throws Exception {
+
+		workflowDefinition.setExternalReferenceCode(
+			() -> externalReferenceCode);
 
 		return postWorkflowDefinitionDeploy(workflowDefinition);
 	}
