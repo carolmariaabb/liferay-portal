@@ -2138,6 +2138,14 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("permissions", additionalAssertFieldName)) {
+				if (workflowDefinition.getPermissions() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("scope", additionalAssertFieldName)) {
 				if (workflowDefinition.getScope() == null) {
 					valid = false;
@@ -2440,6 +2448,17 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 				if (!Objects.deepEquals(
 						workflowDefinition1.getNodes(),
 						workflowDefinition2.getNodes())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("permissions", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						workflowDefinition1.getPermissions(),
+						workflowDefinition2.getPermissions())) {
 
 					return false;
 				}
@@ -2930,6 +2949,11 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 		}
 
 		if (entityFieldName.equals("nodes")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("permissions")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
@@ -3425,4 +3449,4 @@ public abstract class BaseWorkflowDefinitionResourceTestCase {
 		_vulcanCRUDItemDelegateBuilderRegistry;
 
 }
-// LIFERAY-REST-BUILDER-HASH:758382197
+// LIFERAY-REST-BUILDER-HASH:1754028503
