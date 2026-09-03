@@ -14,6 +14,7 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
+import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.workflow.NoSuchWorkflowDefinitionException;
@@ -50,6 +51,26 @@ import org.osgi.service.component.annotations.Reference;
 @Component(service = WorkflowDefinitionManager.class)
 public class WorkflowDefinitionManagerImpl
 	implements WorkflowDefinitionManager {
+
+	@Override
+	public WorkflowDefinition deployWorkflowDefinition(
+			byte[] bytes, long companyId, String externalReferenceCode,
+			long groupId, String name, String scope, boolean system,
+			boolean active, int version, ModelPermissions modelPermissions,
+			String title, long userId)
+		throws WorkflowException {
+
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setCompanyId(companyId);
+		serviceContext.setModelPermissions(modelPermissions);
+		serviceContext.setScopeGroupId(groupId);
+		serviceContext.setUserId(userId);
+
+		return _workflowEngine.deployWorkflowDefinition(
+			externalReferenceCode, title, name, scope, system, active, version,
+			new UnsyncByteArrayInputStream(bytes), serviceContext);
+	}
 
 	@Override
 	public WorkflowDefinition deployWorkflowDefinition(
