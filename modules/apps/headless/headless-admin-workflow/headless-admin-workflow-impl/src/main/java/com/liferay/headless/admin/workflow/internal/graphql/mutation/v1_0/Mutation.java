@@ -144,6 +144,22 @@ public class Mutation {
 	}
 
 	@GraphQLField
+	public boolean deleteWorkflowDefinitionByExternalReferenceCode(
+			@GraphQLName("externalReferenceCode") String externalReferenceCode)
+		throws Exception {
+
+		_applyVoidComponentServiceObjects(
+			_workflowDefinitionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			workflowDefinitionResource ->
+				workflowDefinitionResource.
+					deleteWorkflowDefinitionByExternalReferenceCode(
+						externalReferenceCode));
+
+		return true;
+	}
+
+	@GraphQLField
 	public boolean deleteWorkflowDefinitionUndeploy(
 			@GraphQLName("name") String name,
 			@GraphQLName("version") String version)
@@ -234,6 +250,7 @@ public class Mutation {
 	public Response createWorkflowDefinitionsPageExportBatch(
 			@GraphQLName("active") Boolean active,
 			@GraphQLName("scope") String scope,
+			@GraphQLName("filter") String filterString,
 			@GraphQLName("sort") String sortsString,
 			@GraphQLName("callbackURL") String callbackURL,
 			@GraphQLName("contentType") String contentType,
@@ -247,6 +264,8 @@ public class Mutation {
 				workflowDefinitionResource.
 					postWorkflowDefinitionsPageExportBatch(
 						active, scope,
+						_filterBiFunction.apply(
+							workflowDefinitionResource, filterString),
 						_sortsBiFunction.apply(
 							workflowDefinitionResource, sortsString),
 						callbackURL, contentType, fieldNames));
@@ -279,6 +298,22 @@ public class Mutation {
 			workflowDefinitionResource ->
 				workflowDefinitionResource.putWorkflowDefinitionBatch(
 					callbackURL, object));
+	}
+
+	@GraphQLField
+	public WorkflowDefinition updateWorkflowDefinitionByExternalReferenceCode(
+			@GraphQLName("externalReferenceCode") String externalReferenceCode,
+			@GraphQLName("workflowDefinition") WorkflowDefinition
+				workflowDefinition)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_workflowDefinitionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			workflowDefinitionResource ->
+				workflowDefinitionResource.
+					putWorkflowDefinitionByExternalReferenceCode(
+						externalReferenceCode, workflowDefinition));
 	}
 
 	@GraphQLField
@@ -888,6 +923,9 @@ public class Mutation {
 
 	private AcceptLanguage _acceptLanguage;
 	private com.liferay.portal.kernel.model.Company _company;
+	private BiFunction
+		<Object, String, com.liferay.portal.kernel.search.filter.Filter>
+			_filterBiFunction;
 	private GroupLocalService _groupLocalService;
 	private HttpServletRequest _httpServletRequest;
 	private HttpServletResponse _httpServletResponse;
@@ -902,4 +940,4 @@ public class Mutation {
 		_vulcanBatchEngineImportTaskResource;
 
 }
-// LIFERAY-REST-BUILDER-HASH:1839914688
+// LIFERAY-REST-BUILDER-HASH:1691902294

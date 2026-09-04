@@ -299,9 +299,10 @@ public abstract class BaseKaleoLocalServiceTestCase {
 
 		kaleoDefinition = _kaleoDefinitionLocalService.updatedKaleoDefinition(
 			kaleoDefinition.getExternalReferenceCode(),
-			kaleoDefinition.getKaleoDefinitionId(), StringUtil.randomString(),
-			StringUtil.randomString(), kaleoDefinition.getContent(), system,
-			serviceContext);
+			kaleoDefinition.getKaleoDefinitionId(), kaleoDefinition.getName(),
+			StringUtil.randomString(), StringUtil.randomString(),
+			kaleoDefinition.getContent(), kaleoDefinition.getScope(), system,
+			kaleoDefinition.getVersion(), serviceContext);
 
 		_kaleoDefinitionLocalService.activateKaleoDefinition(
 			kaleoDefinition.getKaleoDefinitionId(), serviceContext);

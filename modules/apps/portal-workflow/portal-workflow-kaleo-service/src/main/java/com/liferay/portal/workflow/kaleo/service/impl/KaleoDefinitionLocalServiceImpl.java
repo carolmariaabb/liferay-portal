@@ -8,18 +8,24 @@ package com.liferay.portal.workflow.kaleo.service.impl;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.account.service.AccountEntryUserRelLocalService;
+import com.liferay.exportimport.kernel.empty.model.EmptyModelManager;
+import com.liferay.exportimport.kernel.empty.model.EmptyModelManagerUtil;
 import com.liferay.exportimport.kernel.staging.Staging;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.OrderByComparator;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowException;
 import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
@@ -171,6 +177,11 @@ public class KaleoDefinitionLocalServiceImpl
 
 		kaleoDefinition = kaleoDefinitionPersistence.update(kaleoDefinition);
 
+		// Resources
+
+		_resourceLocalService.addModelResources(
+			kaleoDefinition, serviceContext);
+
 		// Kaleo definition version
 
 		_kaleoDefinitionVersionLocalService.addKaleoDefinitionVersion(
@@ -229,8 +240,10 @@ public class KaleoDefinitionLocalServiceImpl
 		_kaleoTransitionLocalService.deleteCompanyKaleoTransitions(companyId);
 	}
 
+	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public void deleteKaleoDefinition(
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
+	public KaleoDefinition deleteKaleoDefinition(
 			String name, ServiceContext serviceContext)
 		throws PortalException {
 
@@ -245,12 +258,14 @@ public class KaleoDefinitionLocalServiceImpl
 					kaleoDefinition.getKaleoDefinitionId());
 		}
 
-		kaleoDefinitionPersistence.remove(kaleoDefinition);
+		kaleoDefinition = kaleoDefinitionPersistence.remove(kaleoDefinition);
 
 		// Kaleo definition version
 
 		_kaleoDefinitionVersionLocalService.deleteKaleoDefinitionVersions(
 			kaleoDefinition);
+
+		return kaleoDefinition;
 	}
 
 	@Override
@@ -329,6 +344,25 @@ public class KaleoDefinitionLocalServiceImpl
 	}
 
 	@Override
+	public KaleoDefinition getOrAddKaleoDefinition(
+			String externalReferenceCode, String name, String scope,
+			boolean system, ServiceContext serviceContext)
+		throws PortalException {
+
+		return _emptyModelManager.getOrAddEmptyModel(
+			KaleoDefinition.class, serviceContext.getCompanyId(),
+			() -> _addEmptyKaleoDefinition(
+				externalReferenceCode, name, scope, system, serviceContext),
+			externalReferenceCode,
+			(curExternalReferenceCode, companyId) -> _fetchKaleoDefinition(
+				curExternalReferenceCode, name, serviceContext),
+			(curExternalReferenceCode, companyId) ->
+				getKaleoDefinitionByExternalReferenceCode(
+					curExternalReferenceCode, companyId),
+			KaleoDefinition.class.getName());
+	}
+
+	@Override
 	public List<KaleoDefinition> getScopeKaleoDefinitions(
 		String scope, boolean active, int start, int end,
 		OrderByComparator<KaleoDefinition> orderByComparator,
@@ -376,9 +410,9 @@ public class KaleoDefinitionLocalServiceImpl
 
 	@Override
 	public KaleoDefinition updatedKaleoDefinition(
-			String externalReferenceCode, long kaleoDefinitionId, String title,
-			String description, String content, boolean system,
-			ServiceContext serviceContext)
+			String externalReferenceCode, long kaleoDefinitionId, String name,
+			String title, String description, String content, String scope,
+			boolean system, int version, ServiceContext serviceContext)
 		throws PortalException {
 
 		// Kaleo definition
@@ -390,16 +424,33 @@ public class KaleoDefinitionLocalServiceImpl
 		KaleoDefinition kaleoDefinition =
 			kaleoDefinitionPersistence.findByPrimaryKey(kaleoDefinitionId);
 
-		_validateGroupId(
-			serviceContext.getScopeGroupId(), kaleoDefinition.getScope());
+		_validateGroupId(serviceContext.getScopeGroupId(), scope);
+
+		boolean empty = false;
+
+		if (kaleoDefinition.getStatus() == WorkflowConstants.STATUS_EMPTY) {
+			empty = true;
+		}
+
+		int nextVersion = kaleoDefinition.getVersion() + 1;
+
+		if (empty) {
+			nextVersion = version;
+		}
+
+		kaleoDefinition.setStatus(
+			EmptyModelManagerUtil.solveEmptyModel(
+				externalReferenceCode, KaleoDefinition.class.getName(),
+				kaleoDefinition.getCompanyId(), 0, kaleoDefinition.getStatus(),
+				() -> WorkflowConstants.STATUS_DRAFT));
 
 		kaleoDefinition.setExternalReferenceCode(externalReferenceCode);
 		kaleoDefinition.setGroupId(
 			_staging.getLiveGroupId(serviceContext.getScopeGroupId()));
 		kaleoDefinition.setUserId(user.getUserId());
 		kaleoDefinition.setUserName(user.getFullName());
-		kaleoDefinition.setCreateDate(date);
 		kaleoDefinition.setModifiedDate(date);
+		kaleoDefinition.setName(name);
 		kaleoDefinition.setTitle(title);
 		kaleoDefinition.setDescription(description);
 
@@ -407,20 +458,80 @@ public class KaleoDefinitionLocalServiceImpl
 
 		kaleoDefinition.setContent(content);
 
-		int nextVersion = kaleoDefinition.getVersion() + 1;
-
+		kaleoDefinition.setScope(scope);
 		kaleoDefinition.setVersion(nextVersion);
-
 		kaleoDefinition.setActive(false);
 		kaleoDefinition.setSystem(system);
 
 		kaleoDefinition = kaleoDefinitionPersistence.update(kaleoDefinition);
 
+		// Resources
+
+		if (serviceContext.getModelPermissions() != null) {
+			_resourceLocalService.addModelResources(
+				kaleoDefinition, serviceContext);
+		}
+
 		// Kaleo definition version
 
 		_kaleoDefinitionVersionLocalService.addKaleoDefinitionVersion(
-			kaleoDefinitionId, kaleoDefinition.getName(), title, description,
-			content, _getVersion(nextVersion), serviceContext);
+			kaleoDefinitionId, name, title, description, content,
+			_getVersion(nextVersion), serviceContext);
+
+		return kaleoDefinition;
+	}
+
+	private KaleoDefinition _addEmptyKaleoDefinition(
+			String externalReferenceCode, String name, String scope,
+			boolean system, ServiceContext serviceContext)
+		throws PortalException {
+
+		_validateGroupId(serviceContext.getScopeGroupId(), scope);
+
+		long kaleoDefinitionId = counterLocalService.increment();
+
+		KaleoDefinition kaleoDefinition = kaleoDefinitionPersistence.create(
+			kaleoDefinitionId);
+
+		kaleoDefinition.setExternalReferenceCode(externalReferenceCode);
+		kaleoDefinition.setGroupId(
+			_staging.getLiveGroupId(serviceContext.getScopeGroupId()));
+
+		User user = _userLocalService.getUser(
+			serviceContext.getGuestOrUserId());
+
+		kaleoDefinition.setCompanyId(user.getCompanyId());
+		kaleoDefinition.setUserId(user.getUserId());
+		kaleoDefinition.setUserName(user.getFullName());
+
+		Date date = new Date();
+
+		kaleoDefinition.setCreateDate(date);
+		kaleoDefinition.setModifiedDate(date);
+
+		kaleoDefinition.setName(name);
+		kaleoDefinition.setScope(scope);
+		kaleoDefinition.setActive(false);
+		kaleoDefinition.setSystem(system);
+		kaleoDefinition.setStatus(WorkflowConstants.STATUS_EMPTY);
+
+		return kaleoDefinitionPersistence.update(kaleoDefinition);
+	}
+
+	private KaleoDefinition _fetchKaleoDefinition(
+		String externalReferenceCode, String name,
+		ServiceContext serviceContext) {
+
+		KaleoDefinition kaleoDefinition = null;
+
+		if (Validator.isNotNull(externalReferenceCode)) {
+			kaleoDefinition = fetchKaleoDefinitionByExternalReferenceCode(
+				externalReferenceCode, serviceContext.getCompanyId());
+		}
+
+		if (kaleoDefinition == null) {
+			kaleoDefinition = fetchKaleoDefinition(name, serviceContext);
+		}
 
 		return kaleoDefinition;
 	}
@@ -459,6 +570,9 @@ public class KaleoDefinitionLocalServiceImpl
 	private AccountEntryUserRelLocalService _accountEntryUserRelLocalService;
 
 	@Reference
+	private EmptyModelManager _emptyModelManager;
+
+	@Reference
 	private GroupLocalService _groupLocalService;
 
 	@Reference
@@ -483,6 +597,9 @@ public class KaleoDefinitionLocalServiceImpl
 
 	@Reference
 	private KaleoTransitionLocalService _kaleoTransitionLocalService;
+
+	@Reference
+	private ResourceLocalService _resourceLocalService;
 
 	@Reference
 	private Staging _staging;

@@ -15,6 +15,15 @@ import com.liferay.portal.workflow.kaleo.definition.Definition;
  */
 public interface WorkflowDeployer {
 
+	public default WorkflowDefinition deploy(
+			boolean active, Definition definition, String externalReferenceCode,
+			String name, String scope, ServiceContext serviceContext,
+			boolean system, String title, int version)
+		throws PortalException {
+
+		throw new UnsupportedOperationException();
+	}
+
 	public WorkflowDefinition deploy(
 			String externalReferenceCode, String title, String name,
 			String scope, boolean system, Definition definition,

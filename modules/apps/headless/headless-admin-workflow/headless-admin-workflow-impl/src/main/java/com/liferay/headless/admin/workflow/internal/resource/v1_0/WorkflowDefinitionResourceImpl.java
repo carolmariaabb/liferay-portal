@@ -5,6 +5,8 @@
 
 package com.liferay.headless.admin.workflow.internal.resource.v1_0;
 
+import com.liferay.exportimport.constants.ExportImportConstants;
+import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.headless.admin.workflow.dto.v1_0.Node;
 import com.liferay.headless.admin.workflow.dto.v1_0.Transition;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowDefinition;
@@ -14,15 +16,26 @@ import com.liferay.headless.admin.workflow.internal.dto.v1_0.util.TransitionUtil
 import com.liferay.headless.admin.workflow.internal.odata.entity.v1_0.WorkflowDefinitionEntityModel;
 import com.liferay.headless.admin.workflow.resource.v1_0.WorkflowDefinitionResource;
 import com.liferay.petra.function.UnsafeSupplier;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.search.BooleanClauseOccur;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.search.filter.BooleanFilter;
+import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.search.filter.TermFilter;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.ResourceActionLocalService;
+import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -36,15 +49,18 @@ import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+import com.liferay.portal.vulcan.permission.ModelPermissionsUtil;
+import com.liferay.portal.vulcan.util.SearchUtil;
 import com.liferay.portal.workflow.comparator.WorkflowComparatorFactory;
 import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
+import com.liferay.portal.workflow.constants.WorkflowPortletKeys;
+import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
+import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
+import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionVersionLocalService;
 import com.liferay.portal.workflow.manager.WorkflowDefinitionManager;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 
-import java.io.Serializable;
-
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -58,40 +74,14 @@ import org.osgi.service.component.annotations.ServiceScope;
  */
 @Component(
 	properties = "OSGI-INF/liferay/rest/v1_0/workflow-definition.properties",
+	property = "export.import.vulcan.batch.engine.task.item.delegate=true",
 	scope = ServiceScope.PROTOTYPE, service = WorkflowDefinitionResource.class
 )
 @CTAware
 public class WorkflowDefinitionResourceImpl
-	extends BaseWorkflowDefinitionResourceImpl {
-
-	@Override
-	public void create(
-			Collection<WorkflowDefinition> workflowDefinitions,
-			Map<String, Serializable> parameters)
-		throws Exception {
-
-		String createStrategy = (String)parameters.getOrDefault(
-			"createStrategy", "INSERT");
-
-		if (StringUtil.equalsIgnoreCase(createStrategy, "UPSERT")) {
-			if (contextBatchUnsafeConsumer != null) {
-				contextBatchUnsafeConsumer.accept(
-					workflowDefinitions,
-					workflowDefinition -> postWorkflowDefinitionDeploy(
-						workflowDefinition));
-			}
-			else {
-				for (WorkflowDefinition workflowDefinition :
-						workflowDefinitions) {
-
-					postWorkflowDefinitionDeploy(workflowDefinition);
-				}
-			}
-		}
-		else {
-			super.create(workflowDefinitions, parameters);
-		}
-	}
+	extends BaseWorkflowDefinitionResourceImpl
+	implements ExportImportVulcanBatchEngineTaskItemDelegate
+		<WorkflowDefinition> {
 
 	@Override
 	public void deleteWorkflowDefinition(Long workflowDefinitionId)
@@ -99,6 +89,24 @@ public class WorkflowDefinitionResourceImpl
 
 		WorkflowDefinition workflowDefinition = getWorkflowDefinition(
 			workflowDefinitionId);
+
+		postWorkflowDefinitionUpdateActive(
+			false, workflowDefinition.getName(),
+			workflowDefinition.getVersion());
+
+		deleteWorkflowDefinitionUndeploy(
+			workflowDefinition.getName(), workflowDefinition.getVersion());
+	}
+
+	@Override
+	public void deleteWorkflowDefinitionByExternalReferenceCode(
+			String externalReferenceCode)
+		throws Exception {
+
+		WorkflowDefinition workflowDefinition = _toWorkflowDefinition(
+			null,
+			() -> _workflowDefinitionManager.getWorkflowDefinition(
+				contextCompany.getCompanyId(), externalReferenceCode));
 
 		postWorkflowDefinitionUpdateActive(
 			false, workflowDefinition.getName(),
@@ -122,6 +130,48 @@ public class WorkflowDefinitionResourceImpl
 		throws Exception {
 
 		return _entityModel;
+	}
+
+	@Override
+	public ExportImportDescriptor<KaleoDefinition> getExportImportDescriptor() {
+		return new ExportImportDescriptor<KaleoDefinition>() {
+
+			@Override
+			public String getKey() {
+				return WorkflowDefinitionResourceImpl.class.getName();
+			}
+
+			@Override
+			public String getLabelLanguageKey() {
+				return "workflow-definitions";
+			}
+
+			@Override
+			public Class<KaleoDefinition> getModelClass() {
+				return KaleoDefinition.class;
+			}
+
+			@Override
+			public String getPortletId() {
+				return WorkflowPortletKeys.CONTROL_PANEL_WORKFLOW;
+			}
+
+			@Override
+			public int getRank() {
+				return 99;
+			}
+
+			@Override
+			public Scope getScope() {
+				return Scope.COMPANY;
+			}
+
+			@Override
+			public String getSectionKey() {
+				return ExportImportConstants.SECTION_KEY_CONTENT_AND_DATA;
+			}
+
+		};
 	}
 
 	@Override
@@ -155,11 +205,12 @@ public class WorkflowDefinitionResourceImpl
 
 	@Override
 	public Page<WorkflowDefinition> getWorkflowDefinitionsPage(
-			Boolean active, String scope, Pagination pagination, Sort[] sorts)
+			Boolean active, String scope, Filter filter, Pagination pagination,
+			Sort[] sorts)
 		throws Exception {
 
-		return Page.of(
-			HashMapBuilder.put(
+		Map<String, Map<String, String>> actions =
+			HashMapBuilder.<String, Map<String, String>>put(
 				"create",
 				addAction(
 					ActionKeys.ADD_DEFINITION, "postWorkflowDefinition",
@@ -189,19 +240,71 @@ public class WorkflowDefinitionResourceImpl
 				addAction(
 					ActionKeys.UPDATE, "putWorkflowDefinitionBatch",
 					WorkflowConstants.RESOURCE_NAME, null)
-			).build(),
-			transform(
-				_workflowDefinitionManager.getLatestWorkflowDefinitions(
-					active, contextCompany.getCompanyId(),
-					pagination.getEndPosition(),
-					_toOrderByComparator((Sort)ArrayUtil.getValue(sorts, 0)),
-					GetterUtil.getString(
-						scope, WorkflowDefinitionConstants.SCOPE_ALL),
-					pagination.getStartPosition(), contextUser.getUserId()),
-				this::_toWorkflowDefinition),
-			pagination,
-			_workflowDefinitionManager.getLatestWorkflowDefinitionsCount(
-				active, contextCompany.getCompanyId()));
+			).build();
+
+		if (filter == null) {
+			return Page.of(
+				actions,
+				transform(
+					_workflowDefinitionManager.getLatestWorkflowDefinitions(
+						active, contextCompany.getCompanyId(),
+						pagination.getEndPosition(),
+						_toOrderByComparator(
+							(Sort)ArrayUtil.getValue(sorts, 0)),
+						GetterUtil.getString(
+							scope, WorkflowDefinitionConstants.SCOPE_ALL),
+						pagination.getStartPosition(), contextUser.getUserId()),
+					this::_toWorkflowDefinition),
+				pagination,
+				_workflowDefinitionManager.getLatestWorkflowDefinitionsCount(
+					active, contextCompany.getCompanyId()));
+		}
+
+		return SearchUtil.search(
+			actions,
+			booleanQuery -> {
+				BooleanFilter booleanFilter =
+					booleanQuery.getPreBooleanFilter();
+
+				booleanFilter.add(
+					new TermFilter("latest", "true"), BooleanClauseOccur.MUST);
+
+				if (active != null) {
+					booleanFilter.add(
+						new TermFilter("active", active ? "1" : "0"),
+						BooleanClauseOccur.MUST);
+				}
+
+				if (Validator.isNotNull(scope) &&
+					!StringUtil.equals(
+						scope, WorkflowDefinitionConstants.SCOPE_ALL)) {
+
+					booleanFilter.add(
+						new TermFilter("scope", scope),
+						BooleanClauseOccur.MUST);
+				}
+			},
+			filter, KaleoDefinitionVersion.class.getName(), null, pagination,
+			queryConfig -> queryConfig.setSelectedFieldNames(
+				Field.ENTRY_CLASS_PK),
+			searchContext -> searchContext.setCompanyId(
+				contextCompany.getCompanyId()),
+			sorts,
+			document -> {
+				KaleoDefinitionVersion kaleoDefinitionVersion =
+					_kaleoDefinitionVersionLocalService.
+						fetchKaleoDefinitionVersion(
+							GetterUtil.getLong(
+								document.get(Field.ENTRY_CLASS_PK)));
+
+				if (kaleoDefinitionVersion == null) {
+					return null;
+				}
+
+				return _toWorkflowDefinition(
+					_workflowDefinitionManager.getWorkflowDefinition(
+						kaleoDefinitionVersion.getKaleoDefinitionId()));
+			});
 	}
 
 	@Override
@@ -221,15 +324,18 @@ public class WorkflowDefinitionResourceImpl
 
 		return _toWorkflowDefinition(
 			_workflowDefinitionManager.deployWorkflowDefinition(
+				GetterUtil.getBoolean(workflowDefinition.getActive(), true),
 				content.getBytes(), contextCompany.getCompanyId(),
 				workflowDefinition.getExternalReferenceCode(),
 				_getGroupId(workflowDefinition.getGroupExternalReferenceCode()),
+				_getModelPermissions(workflowDefinition),
 				workflowDefinition.getName(),
 				GetterUtil.getString(
 					workflowDefinition.getScope(),
 					WorkflowDefinitionConstants.SCOPE_ALL),
 				GetterUtil.getBoolean(workflowDefinition.getSystem()),
-				_getTitle(workflowDefinition), contextUser.getUserId()));
+				_getTitle(workflowDefinition), contextUser.getUserId(),
+				GetterUtil.getInteger(workflowDefinition.getVersion(), 1)));
 	}
 
 	@Override
@@ -274,6 +380,21 @@ public class WorkflowDefinitionResourceImpl
 		return postWorkflowDefinitionDeploy(workflowDefinition);
 	}
 
+	@Override
+	public WorkflowDefinition putWorkflowDefinitionByExternalReferenceCode(
+			String externalReferenceCode, WorkflowDefinition workflowDefinition)
+		throws Exception {
+
+		workflowDefinition.setExternalReferenceCode(
+			() -> externalReferenceCode);
+
+		try (SafeCloseable safeCloseable =
+				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
+
+			return postWorkflowDefinitionDeploy(workflowDefinition);
+		}
+	}
+
 	private long _getGroupId(String externalReferenceCode) throws Exception {
 		if (Validator.isNull(externalReferenceCode)) {
 			return 0;
@@ -287,6 +408,21 @@ public class WorkflowDefinitionResourceImpl
 		}
 
 		return group.getGroupId();
+	}
+
+	private ModelPermissions _getModelPermissions(
+			WorkflowDefinition workflowDefinition)
+		throws Exception {
+
+		if (workflowDefinition.getPermissions() == null) {
+			return null;
+		}
+
+		return ModelPermissionsUtil.toModelPermissions(
+			contextCompany.getCompanyId(), workflowDefinition.getPermissions(),
+			GetterUtil.getLong(workflowDefinition.getId()),
+			KaleoDefinition.class.getName(), _resourceActionLocalService,
+			_resourcePermissionLocalService, _roleLocalService);
 	}
 
 	private String _getTitle(WorkflowDefinition workflowDefinition)
@@ -442,6 +578,10 @@ public class WorkflowDefinitionResourceImpl
 	private GroupLocalService _groupLocalService;
 
 	@Reference
+	private KaleoDefinitionVersionLocalService
+		_kaleoDefinitionVersionLocalService;
+
+	@Reference
 	private Language _language;
 
 	@Reference
@@ -449,6 +589,15 @@ public class WorkflowDefinitionResourceImpl
 
 	@Reference
 	private Portal _portal;
+
+	@Reference
+	private ResourceActionLocalService _resourceActionLocalService;
+
+	@Reference
+	private ResourcePermissionLocalService _resourcePermissionLocalService;
+
+	@Reference
+	private RoleLocalService _roleLocalService;
 
 	@Reference
 	private UserLocalService _userLocalService;

@@ -146,9 +146,10 @@ public class DefaultWorkflowEngineImpl
 
 	@Override
 	public WorkflowDefinition deployWorkflowDefinition(
-			String externalReferenceCode, String title, String name,
-			String scope, boolean system, InputStream inputStream,
-			ServiceContext serviceContext)
+			boolean active, String externalReferenceCode,
+			InputStream inputStream, String name, String scope,
+			ServiceContext serviceContext, boolean system, String title,
+			int version)
 		throws WorkflowException {
 
 		try {
@@ -160,13 +161,12 @@ public class DefaultWorkflowEngineImpl
 
 			String definitionName = _getDefinitionName(definition, name);
 
-			KaleoDefinition kaleoDefinition =
-				kaleoDefinitionLocalService.fetchKaleoDefinition(
-					definitionName, serviceContext);
+			KaleoDefinition kaleoDefinition = _fetchKaleoDefinition(
+				externalReferenceCode, definitionName, serviceContext);
 
 			WorkflowDefinition workflowDefinition = _workflowDeployer.deploy(
-				externalReferenceCode, title, definitionName, scope, system,
-				definition, serviceContext);
+				active, definition, externalReferenceCode, definitionName,
+				scope, serviceContext, system, title, version);
 
 			_updateWorkflowDefinitionLinks(
 				serviceContext.getCompanyId(), kaleoDefinition,
@@ -180,6 +180,18 @@ public class DefaultWorkflowEngineImpl
 		catch (PortalException portalException) {
 			throw new WorkflowException(portalException);
 		}
+	}
+
+	@Override
+	public WorkflowDefinition deployWorkflowDefinition(
+			String externalReferenceCode, String title, String name,
+			String scope, boolean system, InputStream inputStream,
+			ServiceContext serviceContext)
+		throws WorkflowException {
+
+		return deployWorkflowDefinition(
+			true, externalReferenceCode, inputStream, name, scope,
+			serviceContext, system, title, 1);
 	}
 
 	@Override
@@ -465,9 +477,8 @@ public class DefaultWorkflowEngineImpl
 			String definitionName = _getDefinitionName(
 				definition, name, serviceContext);
 
-			KaleoDefinition kaleoDefinition =
-				kaleoDefinitionLocalService.fetchKaleoDefinition(
-					definitionName, serviceContext);
+			KaleoDefinition kaleoDefinition = _fetchKaleoDefinition(
+				externalReferenceCode, definitionName, serviceContext);
 
 			WorkflowDefinition workflowDefinition = _workflowDeployer.save(
 				externalReferenceCode, title, definitionName, scope, system,
@@ -796,6 +807,25 @@ public class DefaultWorkflowEngineImpl
 				kaleoTimerInstanceToken.getKaleoTimerInstanceTokenId(),
 				executionContext.getServiceContext());
 		}
+	}
+
+	private KaleoDefinition _fetchKaleoDefinition(
+		String externalReferenceCode, String name,
+		ServiceContext serviceContext) {
+
+		if (Validator.isNotNull(externalReferenceCode)) {
+			KaleoDefinition kaleoDefinition =
+				kaleoDefinitionLocalService.
+					fetchKaleoDefinitionByExternalReferenceCode(
+						externalReferenceCode, serviceContext.getCompanyId());
+
+			if (kaleoDefinition != null) {
+				return kaleoDefinition;
+			}
+		}
+
+		return kaleoDefinitionLocalService.fetchKaleoDefinition(
+			name, serviceContext);
 	}
 
 	private Definition _getDefinition(byte[] bytes) throws WorkflowException {

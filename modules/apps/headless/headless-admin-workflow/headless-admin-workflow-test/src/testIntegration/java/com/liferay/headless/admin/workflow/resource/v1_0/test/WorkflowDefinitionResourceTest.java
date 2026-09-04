@@ -31,6 +31,7 @@ import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
 import com.liferay.portal.workflow.kaleo.definition.util.WorkflowDefinitionContentUtil;
+import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionVersionLocalService;
 import com.liferay.portal.workflow.manager.WorkflowDefinitionManager;
 
 import java.util.Arrays;
@@ -238,6 +239,28 @@ public class WorkflowDefinitionResourceTest
 			true);
 	}
 
+	@Test
+	public void testPostWorkflowDefinitionDeployPreservesInactiveState()
+		throws Exception {
+
+		WorkflowDefinition randomWorkflowDefinition =
+			randomWorkflowDefinition();
+
+		randomWorkflowDefinition.setActive(false);
+
+		WorkflowDefinition workflowDefinition =
+			testGetWorkflowDefinitionsPage_addWorkflowDefinition(
+				randomWorkflowDefinition);
+
+		Assert.assertFalse(workflowDefinition.getActive());
+
+		WorkflowDefinition getWorkflowDefinition =
+			workflowDefinitionResource.getWorkflowDefinitionByName(
+				workflowDefinition.getName(), null, null);
+
+		Assert.assertFalse(getWorkflowDefinition.getActive());
+	}
+
 	@Override
 	@Test
 	public void testPostWorkflowDefinitionSave() throws Exception {
@@ -285,6 +308,97 @@ public class WorkflowDefinitionResourceTest
 
 		assertEquals(randomWorkflowDefinition, getWorkflowDefinition);
 		assertValid(getWorkflowDefinition);
+	}
+
+	@Override
+	@Test
+	public void testPutWorkflowDefinitionByExternalReferenceCode()
+		throws Exception {
+
+		WorkflowDefinition postWorkflowDefinition =
+			testPutWorkflowDefinitionByExternalReferenceCode_addWorkflowDefinition();
+
+		WorkflowDefinition randomWorkflowDefinition =
+			randomWorkflowDefinition();
+
+		// A content change on an existing external reference code bumps the
+		// version by exactly one; it does not reset to whatever version the
+		// request body happens to carry
+
+		randomWorkflowDefinition.setVersion("2");
+
+		WorkflowDefinition putWorkflowDefinition =
+			workflowDefinitionResource.
+				putWorkflowDefinitionByExternalReferenceCode(
+					postWorkflowDefinition.getExternalReferenceCode(),
+					randomWorkflowDefinition);
+
+		_workflowDefinitions.put(
+			putWorkflowDefinition.getName(), putWorkflowDefinition);
+
+		assertEquals(randomWorkflowDefinition, putWorkflowDefinition);
+		assertValid(putWorkflowDefinition);
+
+		WorkflowDefinition getWorkflowDefinition =
+			testPutWorkflowDefinitionByExternalReferenceCode_getWorkflowDefinition(
+				putWorkflowDefinition.getExternalReferenceCode());
+
+		assertEquals(randomWorkflowDefinition, getWorkflowDefinition);
+		assertValid(getWorkflowDefinition);
+
+		// An unknown external reference code creates a new definition at
+		// version one
+
+		WorkflowDefinition newWorkflowDefinition =
+			testPutWorkflowDefinitionByExternalReferenceCode_createWorkflowDefinition();
+
+		putWorkflowDefinition =
+			workflowDefinitionResource.
+				putWorkflowDefinitionByExternalReferenceCode(
+					newWorkflowDefinition.getExternalReferenceCode(),
+					newWorkflowDefinition);
+
+		_workflowDefinitions.put(
+			putWorkflowDefinition.getName(), putWorkflowDefinition);
+
+		assertEquals(newWorkflowDefinition, putWorkflowDefinition);
+		assertValid(putWorkflowDefinition);
+
+		getWorkflowDefinition =
+			testPutWorkflowDefinitionByExternalReferenceCode_getWorkflowDefinition(
+				putWorkflowDefinition.getExternalReferenceCode());
+
+		assertEquals(newWorkflowDefinition, getWorkflowDefinition);
+
+		Assert.assertEquals(
+			newWorkflowDefinition.getExternalReferenceCode(),
+			putWorkflowDefinition.getExternalReferenceCode());
+	}
+
+	@Test
+	public void testPutWorkflowDefinitionByExternalReferenceCodeAlwaysBumpsVersionWhenNotEmpty()
+		throws Exception {
+
+		WorkflowDefinition workflowDefinition =
+			testGetWorkflowDefinitionsPage_addWorkflowDefinition(
+				randomWorkflowDefinition());
+
+		int kaleoDefinitionVersionsCount =
+			_kaleoDefinitionVersionLocalService.getKaleoDefinitionVersionsCount(
+				TestPropsValues.getCompanyId(), workflowDefinition.getName());
+
+		WorkflowDefinition putWorkflowDefinition =
+			workflowDefinitionResource.
+				putWorkflowDefinitionByExternalReferenceCode(
+					workflowDefinition.getExternalReferenceCode(),
+					workflowDefinition);
+
+		Assert.assertEquals("2", putWorkflowDefinition.getVersion());
+
+		Assert.assertEquals(
+			kaleoDefinitionVersionsCount + 1,
+			_kaleoDefinitionVersionLocalService.getKaleoDefinitionVersionsCount(
+				TestPropsValues.getCompanyId(), workflowDefinition.getName()));
 	}
 
 	@Override
@@ -386,6 +500,15 @@ public class WorkflowDefinitionResourceTest
 	@Override
 	protected WorkflowDefinition
 			testDeleteWorkflowDefinition_addWorkflowDefinition()
+		throws Exception {
+
+		return testGetWorkflowDefinitionsPage_addWorkflowDefinition(
+			randomWorkflowDefinition());
+	}
+
+	@Override
+	protected WorkflowDefinition
+			testDeleteWorkflowDefinitionByExternalReferenceCode_addWorkflowDefinition()
 		throws Exception {
 
 		return testGetWorkflowDefinitionsPage_addWorkflowDefinition(
@@ -497,6 +620,34 @@ public class WorkflowDefinitionResourceTest
 		return testGetWorkflowDefinition_addWorkflowDefinition();
 	}
 
+	@Override
+	protected WorkflowDefinition
+			testPutWorkflowDefinitionByExternalReferenceCode_addWorkflowDefinition()
+		throws Exception {
+
+		return testGetWorkflowDefinitionsPage_addWorkflowDefinition(
+			randomWorkflowDefinition());
+	}
+
+	@Override
+	protected WorkflowDefinition
+		testPutWorkflowDefinitionByExternalReferenceCode_getWorkflowDefinition(
+			String externalReferenceCode) {
+
+		try {
+			com.liferay.portal.kernel.workflow.WorkflowDefinition
+				kernelWorkflowDefinition =
+					_workflowDefinitionManager.getWorkflowDefinition(
+						TestPropsValues.getCompanyId(), externalReferenceCode);
+
+			return workflowDefinitionResource.getWorkflowDefinitionByName(
+				kernelWorkflowDefinition.getName(), null, null);
+		}
+		catch (Exception exception) {
+			throw new RuntimeException(exception);
+		}
+	}
+
 	private static void _undeployWorkflowDefinition(
 			String workflowDefinitionName, int workflowDefinitionVersion)
 		throws Exception {
@@ -570,6 +721,10 @@ public class WorkflowDefinitionResourceTest
 
 	@Inject
 	private static WorkflowDefinitionManager _workflowDefinitionManager;
+
+	@Inject
+	private KaleoDefinitionVersionLocalService
+		_kaleoDefinitionVersionLocalService;
 
 	private final Map<String, WorkflowDefinition> _workflowDefinitions =
 		new HashMap<>();
