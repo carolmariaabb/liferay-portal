@@ -11,11 +11,9 @@ import com.liferay.account.service.AccountEntryUserRelLocalService;
 import com.liferay.exportimport.kernel.empty.model.EmptyModelManager;
 import com.liferay.exportimport.kernel.empty.model.EmptyModelManagerUtil;
 import com.liferay.exportimport.kernel.staging.Staging;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
@@ -351,21 +349,17 @@ public class KaleoDefinitionLocalServiceImpl
 			boolean system, ServiceContext serviceContext)
 		throws PortalException {
 
-		try (SafeCloseable safeCloseable =
-				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
-
-			return _emptyModelManager.getOrAddEmptyModel(
-				KaleoDefinition.class, serviceContext.getCompanyId(),
-				() -> _addEmptyKaleoDefinition(
-					externalReferenceCode, name, scope, system, serviceContext),
-				externalReferenceCode,
-				(curExternalReferenceCode, companyId) -> _fetchKaleoDefinition(
-					curExternalReferenceCode, name, serviceContext),
-				(curExternalReferenceCode, companyId) ->
-					getKaleoDefinitionByExternalReferenceCode(
-						curExternalReferenceCode, companyId),
-				KaleoDefinition.class.getName());
-		}
+		return _emptyModelManager.getOrAddEmptyModel(
+			KaleoDefinition.class, serviceContext.getCompanyId(),
+			() -> _addEmptyKaleoDefinition(
+				externalReferenceCode, name, scope, system, serviceContext),
+			externalReferenceCode,
+			(curExternalReferenceCode, companyId) -> _fetchKaleoDefinition(
+				curExternalReferenceCode, name, serviceContext),
+			(curExternalReferenceCode, companyId) ->
+				getKaleoDefinitionByExternalReferenceCode(
+					curExternalReferenceCode, companyId),
+			KaleoDefinition.class.getName());
 	}
 
 	@Override

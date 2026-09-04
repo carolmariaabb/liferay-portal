@@ -16,9 +16,11 @@ import com.liferay.headless.admin.workflow.internal.dto.v1_0.util.TransitionUtil
 import com.liferay.headless.admin.workflow.internal.odata.entity.v1_0.WorkflowDefinitionEntityModel;
 import com.liferay.headless.admin.workflow.resource.v1_0.WorkflowDefinitionResource;
 import com.liferay.petra.function.UnsafeSupplier;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.language.Language;
+import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.Field;
@@ -386,7 +388,11 @@ public class WorkflowDefinitionResourceImpl
 		workflowDefinition.setExternalReferenceCode(
 			() -> externalReferenceCode);
 
-		return postWorkflowDefinitionDeploy(workflowDefinition);
+		try (SafeCloseable safeCloseable =
+				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
+
+			return postWorkflowDefinitionDeploy(workflowDefinition);
+		}
 	}
 
 	private long _getGroupId(String externalReferenceCode) throws Exception {

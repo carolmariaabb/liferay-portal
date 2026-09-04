@@ -6,6 +6,7 @@
 package com.liferay.portal.workflow.kaleo.definition.internal.deployment;
 
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -13,6 +14,7 @@ import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.workflow.kaleo.KaleoWorkflowModelConverter;
@@ -188,9 +190,32 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		KaleoDefinition kaleoDefinition =
-			_kaleoDefinitionLocalService.getOrAddKaleoDefinition(
-				externalReferenceCode, name, scope, system, serviceContext);
+		// The getOrAdd/empty-model matching this feature relies on is only
+		// meaningful while resolving a lazy (forward) reference during
+		// export/import; everywhere else, matching and creation continue to
+		// work exactly as they did before this feature existed
+
+		if (LazyReferencingThreadLocal.isEnabled()) {
+			KaleoDefinition kaleoDefinition =
+				_kaleoDefinitionLocalService.getOrAddKaleoDefinition(
+					externalReferenceCode, name, scope, system, serviceContext);
+
+			return _kaleoDefinitionService.updateKaleoDefinition(
+				externalReferenceCode, kaleoDefinition.getKaleoDefinitionId(),
+				name, title, definition.getDescription(),
+				definition.getContent(), scope, system, version,
+				serviceContext);
+		}
+
+		KaleoDefinition kaleoDefinition = _fetchKaleoDefinition(
+			externalReferenceCode, name, serviceContext);
+
+		if (kaleoDefinition == null) {
+			return _kaleoDefinitionService.addKaleoDefinition(
+				externalReferenceCode, name, title, definition.getDescription(),
+				definition.getContent(), scope, system, version,
+				serviceContext);
+		}
 
 		return _kaleoDefinitionService.updateKaleoDefinition(
 			externalReferenceCode, kaleoDefinition.getKaleoDefinitionId(), name,
@@ -214,6 +239,25 @@ public class DefaultWorkflowDeployer implements WorkflowDeployer {
 		_portletResourcePermission.check(
 			permissionChecker, serviceContext.getScopeGroupId(),
 			ActionKeys.ADD_DEFINITION);
+	}
+
+	private KaleoDefinition _fetchKaleoDefinition(
+		String externalReferenceCode, String name,
+		ServiceContext serviceContext) {
+
+		if (Validator.isNotNull(externalReferenceCode)) {
+			KaleoDefinition kaleoDefinition =
+				_kaleoDefinitionLocalService.
+					fetchKaleoDefinitionByExternalReferenceCode(
+						externalReferenceCode, serviceContext.getCompanyId());
+
+			if (kaleoDefinition != null) {
+				return kaleoDefinition;
+			}
+		}
+
+		return _kaleoDefinitionLocalService.fetchKaleoDefinition(
+			name, serviceContext);
 	}
 
 	@Reference
