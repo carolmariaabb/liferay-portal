@@ -8,10 +8,14 @@ package com.liferay.portal.workflow.kaleo.service.impl;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.account.service.AccountEntryUserRelLocalService;
+import com.liferay.exportimport.kernel.empty.model.EmptyModelManager;
+import com.liferay.exportimport.kernel.empty.model.EmptyModelManagerUtil;
 import com.liferay.exportimport.kernel.staging.Staging;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
@@ -347,52 +351,21 @@ public class KaleoDefinitionLocalServiceImpl
 			boolean system, ServiceContext serviceContext)
 		throws PortalException {
 
-		KaleoDefinition kaleoDefinition = null;
+		try (SafeCloseable safeCloseable =
+				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
 
-		if (Validator.isNotNull(externalReferenceCode)) {
-			kaleoDefinition = fetchKaleoDefinitionByExternalReferenceCode(
-				externalReferenceCode, serviceContext.getCompanyId());
+			return _emptyModelManager.getOrAddEmptyModel(
+				KaleoDefinition.class, serviceContext.getCompanyId(),
+				() -> _addEmptyKaleoDefinition(
+					externalReferenceCode, name, scope, system, serviceContext),
+				externalReferenceCode,
+				(curExternalReferenceCode, companyId) -> _fetchKaleoDefinition(
+					curExternalReferenceCode, name, serviceContext),
+				(curExternalReferenceCode, companyId) ->
+					getKaleoDefinitionByExternalReferenceCode(
+						curExternalReferenceCode, companyId),
+				KaleoDefinition.class.getName());
 		}
-
-		if (kaleoDefinition == null) {
-			kaleoDefinition = fetchKaleoDefinition(name, serviceContext);
-		}
-
-		if (kaleoDefinition != null) {
-			return kaleoDefinition;
-		}
-
-		// Kaleo definition
-
-		_validateGroupId(serviceContext.getScopeGroupId(), scope);
-
-		long kaleoDefinitionId = counterLocalService.increment();
-
-		kaleoDefinition = kaleoDefinitionPersistence.create(kaleoDefinitionId);
-
-		kaleoDefinition.setExternalReferenceCode(externalReferenceCode);
-		kaleoDefinition.setGroupId(
-			_staging.getLiveGroupId(serviceContext.getScopeGroupId()));
-
-		User user = _userLocalService.getUser(
-			serviceContext.getGuestOrUserId());
-
-		kaleoDefinition.setCompanyId(user.getCompanyId());
-		kaleoDefinition.setUserId(user.getUserId());
-		kaleoDefinition.setUserName(user.getFullName());
-
-		Date date = new Date();
-
-		kaleoDefinition.setCreateDate(date);
-		kaleoDefinition.setModifiedDate(date);
-
-		kaleoDefinition.setName(name);
-		kaleoDefinition.setScope(scope);
-		kaleoDefinition.setActive(false);
-		kaleoDefinition.setSystem(system);
-		kaleoDefinition.setStatus(WorkflowConstants.STATUS_EMPTY);
-
-		return kaleoDefinitionPersistence.update(kaleoDefinition);
 	}
 
 	@Override
@@ -459,13 +432,23 @@ public class KaleoDefinitionLocalServiceImpl
 
 		_validateGroupId(serviceContext.getScopeGroupId(), scope);
 
-		int nextVersion = kaleoDefinition.getVersion() + 1;
+		boolean empty = false;
 
 		if (kaleoDefinition.getStatus() == WorkflowConstants.STATUS_EMPTY) {
-			nextVersion = version;
-
-			kaleoDefinition.setStatus(WorkflowConstants.STATUS_DRAFT);
+			empty = true;
 		}
+
+		int nextVersion = kaleoDefinition.getVersion() + 1;
+
+		if (empty) {
+			nextVersion = version;
+		}
+
+		kaleoDefinition.setStatus(
+			EmptyModelManagerUtil.solveEmptyModel(
+				externalReferenceCode, KaleoDefinition.class.getName(),
+				kaleoDefinition.getCompanyId(), 0, kaleoDefinition.getStatus(),
+				() -> WorkflowConstants.STATUS_DRAFT));
 
 		kaleoDefinition.setExternalReferenceCode(externalReferenceCode);
 		kaleoDefinition.setGroupId(
@@ -504,6 +487,61 @@ public class KaleoDefinitionLocalServiceImpl
 		return kaleoDefinition;
 	}
 
+	private KaleoDefinition _addEmptyKaleoDefinition(
+			String externalReferenceCode, String name, String scope,
+			boolean system, ServiceContext serviceContext)
+		throws PortalException {
+
+		_validateGroupId(serviceContext.getScopeGroupId(), scope);
+
+		long kaleoDefinitionId = counterLocalService.increment();
+
+		KaleoDefinition kaleoDefinition = kaleoDefinitionPersistence.create(
+			kaleoDefinitionId);
+
+		kaleoDefinition.setExternalReferenceCode(externalReferenceCode);
+		kaleoDefinition.setGroupId(
+			_staging.getLiveGroupId(serviceContext.getScopeGroupId()));
+
+		User user = _userLocalService.getUser(
+			serviceContext.getGuestOrUserId());
+
+		kaleoDefinition.setCompanyId(user.getCompanyId());
+		kaleoDefinition.setUserId(user.getUserId());
+		kaleoDefinition.setUserName(user.getFullName());
+
+		Date date = new Date();
+
+		kaleoDefinition.setCreateDate(date);
+		kaleoDefinition.setModifiedDate(date);
+
+		kaleoDefinition.setName(name);
+		kaleoDefinition.setScope(scope);
+		kaleoDefinition.setActive(false);
+		kaleoDefinition.setSystem(system);
+		kaleoDefinition.setStatus(WorkflowConstants.STATUS_EMPTY);
+
+		return kaleoDefinitionPersistence.update(kaleoDefinition);
+	}
+
+	private KaleoDefinition _fetchKaleoDefinition(
+		String externalReferenceCode, String name,
+		ServiceContext serviceContext) {
+
+		KaleoDefinition kaleoDefinition = null;
+
+		if (Validator.isNotNull(externalReferenceCode)) {
+			kaleoDefinition = fetchKaleoDefinitionByExternalReferenceCode(
+				externalReferenceCode, serviceContext.getCompanyId());
+		}
+
+		if (kaleoDefinition == null) {
+			kaleoDefinition = fetchKaleoDefinition(name, serviceContext);
+		}
+
+		return kaleoDefinition;
+	}
+
 	private String _getVersion(int version) {
 		return version + StringPool.PERIOD + 0;
 	}
@@ -536,6 +574,9 @@ public class KaleoDefinitionLocalServiceImpl
 
 	@Reference
 	private AccountEntryUserRelLocalService _accountEntryUserRelLocalService;
+
+	@Reference
+	private EmptyModelManager _emptyModelManager;
 
 	@Reference
 	private GroupLocalService _groupLocalService;
