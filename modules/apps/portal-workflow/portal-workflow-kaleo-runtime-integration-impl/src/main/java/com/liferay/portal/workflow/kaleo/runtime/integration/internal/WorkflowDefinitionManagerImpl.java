@@ -14,7 +14,6 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.WorkflowDefinitionLink;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.WorkflowDefinitionLinkLocalService;
-import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.workflow.NoSuchWorkflowDefinitionException;
@@ -54,35 +53,20 @@ public class WorkflowDefinitionManagerImpl
 
 	@Override
 	public WorkflowDefinition deployWorkflowDefinition(
-			boolean active, byte[] bytes, long companyId,
-			String externalReferenceCode, long groupId,
-			ModelPermissions modelPermissions, String name, String scope,
-			boolean system, String title, long userId, int version)
-		throws WorkflowException {
-
-		ServiceContext serviceContext = new ServiceContext();
-
-		serviceContext.setCompanyId(companyId);
-		serviceContext.setModelPermissions(modelPermissions);
-		serviceContext.setScopeGroupId(groupId);
-		serviceContext.setUserId(userId);
-
-		return _workflowEngine.deployWorkflowDefinition(
-			active, externalReferenceCode,
-			new UnsyncByteArrayInputStream(bytes), name, scope, serviceContext,
-			system, title, version);
-	}
-
-	@Override
-	public WorkflowDefinition deployWorkflowDefinition(
 			byte[] bytes, long companyId, String externalReferenceCode,
 			long groupId, String name, String scope, boolean system,
 			String title, long userId)
 		throws WorkflowException {
 
-		return deployWorkflowDefinition(
-			true, bytes, companyId, externalReferenceCode, groupId, null, name,
-			scope, system, title, userId, 1);
+		ServiceContext serviceContext = new ServiceContext();
+
+		serviceContext.setCompanyId(companyId);
+		serviceContext.setScopeGroupId(groupId);
+		serviceContext.setUserId(userId);
+
+		return _workflowEngine.deployWorkflowDefinition(
+			externalReferenceCode, title, name, scope, system,
+			new UnsyncByteArrayInputStream(bytes), serviceContext);
 	}
 
 	@Override

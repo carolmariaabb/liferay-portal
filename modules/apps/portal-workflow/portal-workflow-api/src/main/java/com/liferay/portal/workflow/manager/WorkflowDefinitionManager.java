@@ -6,7 +6,6 @@
 package com.liferay.portal.workflow.manager;
 
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.workflow.WorkflowDefinition;
 import com.liferay.portal.kernel.workflow.WorkflowException;
@@ -21,16 +20,6 @@ import java.util.List;
  * @author Eduardo Lundgren
  */
 public interface WorkflowDefinitionManager {
-
-	public default WorkflowDefinition deployWorkflowDefinition(
-			boolean active, byte[] bytes, long companyId,
-			String externalReferenceCode, long groupId,
-			ModelPermissions modelPermissions, String name, String scope,
-			boolean system, String title, long userId, int version)
-		throws WorkflowException {
-
-		throw new UnsupportedOperationException();
-	}
 
 	public default WorkflowDefinition deployWorkflowDefinition(
 			byte[] bytes, long companyId, String externalReferenceCode,
