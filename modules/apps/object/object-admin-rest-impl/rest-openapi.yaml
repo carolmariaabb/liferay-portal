@@ -710,6 +710,8 @@ components:
             properties:
                 groupExternalReferenceCode:
                     type: string
+                workflowDefinitionExternalReferenceCode:
+                    type: string
                 workflowDefinitionName:
                     type: string
             type: object

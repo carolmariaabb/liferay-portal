@@ -88,10 +88,10 @@ public interface KaleoDefinitionService extends BaseService {
 		throws PortalException;
 
 	public KaleoDefinition updateKaleoDefinition(
-			String externalReferenceCode, long kaleoDefinitionId, String title,
-			String description, String content, boolean system,
-			ServiceContext serviceContext)
+			String externalReferenceCode, long kaleoDefinitionId, String name,
+			String title, String description, String content, String scope,
+			boolean system, int version, ServiceContext serviceContext)
 		throws PortalException;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:63165950
+// LIFERAY-SERVICE-BUILDER-HASH:1474947243

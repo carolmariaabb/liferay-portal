@@ -320,8 +320,9 @@ public class KaleoDefinitionServiceHttp {
 	public static com.liferay.portal.workflow.kaleo.model.KaleoDefinition
 			updateKaleoDefinition(
 				HttpPrincipal httpPrincipal, String externalReferenceCode,
-				long kaleoDefinitionId, String title, String description,
-				String content, boolean system,
+				long kaleoDefinitionId, String name, String title,
+				String description, String content, String scope,
+				boolean system, int version,
 				com.liferay.portal.kernel.service.ServiceContext serviceContext)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
@@ -331,8 +332,9 @@ public class KaleoDefinitionServiceHttp {
 				_updateKaleoDefinitionParameterTypes6);
 
 			MethodHandler methodHandler = new MethodHandler(
-				methodKey, externalReferenceCode, kaleoDefinitionId, title,
-				description, content, system, serviceContext);
+				methodKey, externalReferenceCode, kaleoDefinitionId, name,
+				title, description, content, scope, system, version,
+				serviceContext);
 
 			Object returnObj = null;
 
@@ -395,9 +397,9 @@ public class KaleoDefinitionServiceHttp {
 	private static final Class<?>[] _updateKaleoDefinitionParameterTypes6 =
 		new Class[] {
 			String.class, long.class, String.class, String.class, String.class,
-			boolean.class,
+			String.class, String.class, boolean.class, int.class,
 			com.liferay.portal.kernel.service.ServiceContext.class
 		};
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1796864672
+// LIFERAY-SERVICE-BUILDER-HASH:2003197257
