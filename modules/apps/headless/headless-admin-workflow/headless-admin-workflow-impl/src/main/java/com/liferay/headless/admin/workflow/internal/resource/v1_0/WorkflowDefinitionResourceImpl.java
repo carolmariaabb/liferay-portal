@@ -16,6 +16,7 @@ import com.liferay.headless.admin.workflow.internal.dto.v1_0.util.TransitionUtil
 import com.liferay.headless.admin.workflow.internal.odata.entity.v1_0.WorkflowDefinitionEntityModel;
 import com.liferay.headless.admin.workflow.resource.v1_0.WorkflowDefinitionResource;
 import com.liferay.petra.function.UnsafeSupplier;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.change.tracking.CTAware;
 import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.language.Language;
@@ -25,6 +26,7 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.PermissionService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -37,18 +39,25 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.odata.entity.EntityModel;
+import com.liferay.portal.vulcan.fields.NestedFieldsSupplier;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+import com.liferay.portal.vulcan.permission.ModelPermissionsUtil;
+import com.liferay.portal.vulcan.permission.Permission;
+import com.liferay.portal.vulcan.permission.PermissionUtil;
 import com.liferay.portal.workflow.comparator.WorkflowComparatorFactory;
 import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
 import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionLocalService;
 import com.liferay.portal.workflow.constants.WorkflowPortletKeys;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
+import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
+import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionVersionLocalService;
 import com.liferay.portal.workflow.manager.WorkflowDefinitionManager;
 
 import jakarta.ws.rs.core.MultivaluedMap;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -258,7 +267,15 @@ public class WorkflowDefinitionResourceImpl
 			_workflowDefinitionManager.deployWorkflowDefinition(
 				content.getBytes(), contextCompany.getCompanyId(),
 				workflowDefinition.getExternalReferenceCode(),
-				_getGroupId(workflowDefinition), workflowDefinition.getName(),
+				_getGroupId(workflowDefinition),
+				ModelPermissionsUtil.toModelPermissions(
+					contextCompany.getCompanyId(),
+					workflowDefinition.getPermissions(),
+					GetterUtil.getLong(workflowDefinition.getId()),
+					KaleoDefinition.class.getName(),
+					resourceActionLocalService, resourcePermissionLocalService,
+					roleLocalService),
+				workflowDefinition.getName(),
 				GetterUtil.getString(
 					workflowDefinition.getScope(),
 					WorkflowDefinitionConstants.SCOPE_ALL),
@@ -459,6 +476,31 @@ public class WorkflowDefinitionResourceImpl
 							contextAcceptLanguage.getPreferredLocale(),
 							workflowNode),
 						Node.class));
+				setPermissions(
+					() -> NestedFieldsSupplier.supply(
+						"permissions",
+						nestedFieldNames -> {
+							KaleoDefinitionVersion kaleoDefinitionVersion =
+								_kaleoDefinitionVersionLocalService.getKaleoDefinitionVersion(
+									contextCompany.getCompanyId(), workflowDefinition.getName(),
+									workflowDefinition.getVersion() + StringPool.PERIOD + 0);
+							String permissionName = KaleoDefinitionVersion.class.getName();
+
+							_permissionService.checkPermission(
+								contextCompany.getGroupId(), permissionName,
+								kaleoDefinitionVersion.getKaleoDefinitionVersionId());
+
+							Collection<Permission> permissions =
+								PermissionUtil.getPermissions(
+									contextCompany.
+										getCompanyId(),
+									resourceActionLocalService.
+										getResourceActions(permissionName),
+									kaleoDefinitionVersion.getKaleoDefinitionVersionId(),
+									permissionName, null);
+
+							return permissions.toArray(new Permission[0]);
+						}));
 				setScope(workflowDefinition::getScope);
 				setSystem(workflowDefinition::isSystem);
 				setTitle(
@@ -493,6 +535,14 @@ public class WorkflowDefinitionResourceImpl
 			}
 		};
 	}
+
+	@Reference
+	private KaleoDefinitionVersionLocalService
+		_kaleoDefinitionVersionLocalService;
+
+	@Reference
+	private PermissionService _permissionService;
+
 
 	private WorkflowDefinition _toWorkflowDefinition(
 		com.liferay.portal.kernel.workflow.WorkflowDefinition
