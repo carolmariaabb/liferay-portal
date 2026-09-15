@@ -158,19 +158,13 @@ public class DefaultWorkflowEngineImpl
 				_workflowValidator.validate(definition);
 			}
 
-			String definitionName = _getDefinitionName(definition, name);
-
-			KaleoDefinition kaleoDefinition =
-				kaleoDefinitionLocalService.fetchKaleoDefinition(
-					definitionName, serviceContext);
-
 			WorkflowDefinition workflowDefinition = _workflowDeployer.deploy(
-				externalReferenceCode, title, definitionName, scope, system,
-				definition, serviceContext);
+				externalReferenceCode, title,
+				_getDefinitionName(definition, name), scope, system, definition,
+				serviceContext);
 
 			_updateWorkflowDefinitionLinks(
-				serviceContext.getCompanyId(), kaleoDefinition,
-				workflowDefinition);
+				serviceContext.getCompanyId(), workflowDefinition);
 
 			return workflowDefinition;
 		}
@@ -462,20 +456,13 @@ public class DefaultWorkflowEngineImpl
 		try {
 			Definition definition = _getDefinition(bytes);
 
-			String definitionName = _getDefinitionName(
-				definition, name, serviceContext);
-
-			KaleoDefinition kaleoDefinition =
-				kaleoDefinitionLocalService.fetchKaleoDefinition(
-					definitionName, serviceContext);
-
 			WorkflowDefinition workflowDefinition = _workflowDeployer.save(
-				externalReferenceCode, title, definitionName, scope, system,
-				definition, serviceContext);
+				externalReferenceCode, title,
+				_getDefinitionName(definition, name, serviceContext), scope,
+				system, definition, serviceContext);
 
 			_updateWorkflowDefinitionLinks(
-				serviceContext.getCompanyId(), kaleoDefinition,
-				workflowDefinition);
+				serviceContext.getCompanyId(), workflowDefinition);
 
 			return workflowDefinition;
 		}
@@ -906,21 +893,22 @@ public class DefaultWorkflowEngineImpl
 	}
 
 	private void _updateWorkflowDefinitionLinks(
-			long companyId, KaleoDefinition kaleoDefinition,
-			WorkflowDefinition workflowDefinition)
+			long companyId, WorkflowDefinition workflowDefinition)
 		throws PortalException {
+
+		KaleoDefinition kaleoDefinition =
+			kaleoDefinitionLocalService.
+				fetchKaleoDefinitionByExternalReferenceCode(
+					workflowDefinition.getExternalReferenceCode(), companyId);
 
 		if (kaleoDefinition == null) {
 			return;
 		}
 
-		List<WorkflowDefinitionLink> workflowDefinitionLinks =
-			workflowDefinitionLinkLocalService.getWorkflowDefinitionLinks(
-				companyId, kaleoDefinition.getName(),
-				kaleoDefinition.getVersion());
-
 		for (WorkflowDefinitionLink workflowDefinitionLink :
-				workflowDefinitionLinks) {
+				workflowDefinitionLinkLocalService.getWorkflowDefinitionLinks(
+					companyId, kaleoDefinition.getName(),
+					kaleoDefinition.getVersion())) {
 
 			workflowDefinitionLink.setWorkflowDefinitionVersion(
 				workflowDefinition.getVersion());
