@@ -8,6 +8,7 @@ package com.liferay.headless.admin.workflow.internal.resource.v1_0;
 import com.liferay.exportimport.constants.ExportImportConstants;
 import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.headless.admin.workflow.dto.v1_0.Node;
+import com.liferay.headless.admin.workflow.dto.v1_0.Status;
 import com.liferay.headless.admin.workflow.dto.v1_0.Transition;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowDefinition;
 import com.liferay.headless.admin.workflow.internal.dto.v1_0.util.CreatorUtil;
@@ -38,6 +39,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.language.LanguageResources;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.fields.NestedFieldsSupplier;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -47,8 +49,6 @@ import com.liferay.portal.vulcan.permission.Permission;
 import com.liferay.portal.vulcan.permission.PermissionUtil;
 import com.liferay.portal.workflow.comparator.WorkflowComparatorFactory;
 import com.liferay.portal.workflow.constants.WorkflowDefinitionConstants;
-import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
-import com.liferay.portal.workflow.kaleo.service.KaleoDefinitionLocalService;
 import com.liferay.portal.workflow.constants.WorkflowPortletKeys;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinition;
 import com.liferay.portal.workflow.kaleo.model.KaleoDefinitionVersion;
@@ -339,6 +339,14 @@ public class WorkflowDefinitionResourceImpl
 		workflowDefinition.setExternalReferenceCode(
 			() -> externalReferenceCode);
 
+		Status status = workflowDefinition.getStatus();
+
+		if ((status != null) &&
+			(status.getCode() == WorkflowConstants.STATUS_DRAFT)) {
+
+			return postWorkflowDefinitionSave(workflowDefinition);
+		}
+
 		return postWorkflowDefinitionDeploy(workflowDefinition);
 	}
 
@@ -435,6 +443,12 @@ public class WorkflowDefinitionResourceImpl
 		com.liferay.portal.kernel.workflow.WorkflowDefinition
 			workflowDefinition) {
 
+		KaleoDefinition kaleoDefinition =
+			_kaleoDefinitionLocalService.
+				fetchKaleoDefinitionByExternalReferenceCode(
+					workflowDefinition.getExternalReferenceCode(),
+					contextCompany.getCompanyId());
+
 		return new WorkflowDefinition() {
 			{
 				setActions(
@@ -514,6 +528,22 @@ public class WorkflowDefinitionResourceImpl
 							return permissions.toArray(new Permission[0]);
 						}));
 				setScope(workflowDefinition::getScope);
+				setStatus(
+					() -> new Status() {
+						{
+							setCode(kaleoDefinition::getStatus);
+							setLabel(
+								() -> WorkflowConstants.getStatusLabel(
+									kaleoDefinition.getStatus()));
+							setLabel_i18n(
+								() -> _language.get(
+									LanguageResources.getResourceBundle(
+										contextAcceptLanguage.
+											getPreferredLocale()),
+									WorkflowConstants.getStatusLabel(
+										kaleoDefinition.getStatus())));
+						}
+					});
 				setSystem(workflowDefinition::isSystem);
 				setTitle(
 					() -> workflowDefinition.getTitle(
