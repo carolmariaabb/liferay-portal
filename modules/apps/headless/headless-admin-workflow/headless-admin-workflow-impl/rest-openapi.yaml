@@ -178,6 +178,16 @@ components:
                     readOnly: true
                     type: string
             type: object
+        Status:
+            properties:
+                code:
+                    format: int32
+                    type: integer
+                label:
+                    type: string
+                label_i18n:
+                    type: string
+            type: object
         Transition:
             description:
                 Represents the transition to be launched by the task's workflow.
@@ -246,6 +256,8 @@ components:
                     type: array
                 scope:
                     type: string
+                status:
+                    $ref: "#/components/schemas/Status"
                 system:
                     type: boolean
                 title:
