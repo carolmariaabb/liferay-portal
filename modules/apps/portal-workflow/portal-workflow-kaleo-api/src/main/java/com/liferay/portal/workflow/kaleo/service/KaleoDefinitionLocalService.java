@@ -152,7 +152,6 @@ public interface KaleoDefinitionLocalService
 	public KaleoDefinition deleteKaleoDefinition(long kaleoDefinitionId)
 		throws PortalException;
 
-	@Indexable(type = IndexableType.DELETE)
 	public KaleoDefinition deleteKaleoDefinition(
 			String name, ServiceContext serviceContext)
 		throws PortalException;
@@ -458,4 +457,4 @@ public interface KaleoDefinitionLocalService
 		throws E;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1054585512
+// LIFERAY-SERVICE-BUILDER-HASH:771821584
