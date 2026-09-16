@@ -15,12 +15,14 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowException;
@@ -138,7 +140,7 @@ public class KaleoDefinitionLocalServiceImpl
 
 		KaleoDefinition kaleoDefinition = _addKaleoDefinition(
 			externalReferenceCode, name, title, description, content, scope,
-			system, version, WorkflowConstants.STATUS_DRAFT, serviceContext);
+			version, system, WorkflowConstants.STATUS_DRAFT, serviceContext);
 
 		// Kaleo definition version
 
@@ -198,15 +200,14 @@ public class KaleoDefinitionLocalServiceImpl
 		_kaleoTransitionLocalService.deleteCompanyKaleoTransitions(companyId);
 	}
 
+	@Indexable(type = IndexableType.DELETE)
 	@Override
-	public void deleteKaleoDefinition(
-			String name, ServiceContext serviceContext)
+	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
+	public KaleoDefinition deleteKaleoDefinition(
+			KaleoDefinition kaleoDefinition)
 		throws PortalException {
 
 		// Kaleo definition
-
-		KaleoDefinition kaleoDefinition = getKaleoDefinition(
-			name, serviceContext);
 
 		if (kaleoDefinition.isActive()) {
 			throw new WorkflowException(
@@ -214,12 +215,23 @@ public class KaleoDefinitionLocalServiceImpl
 					kaleoDefinition.getKaleoDefinitionId());
 		}
 
-		kaleoDefinitionPersistence.remove(kaleoDefinition);
+		kaleoDefinition = kaleoDefinitionPersistence.remove(kaleoDefinition);
 
 		// Kaleo definition version
 
 		_kaleoDefinitionVersionLocalService.deleteKaleoDefinitionVersions(
 			kaleoDefinition);
+
+		return kaleoDefinition;
+	}
+
+	@Override
+	public KaleoDefinition deleteKaleoDefinition(
+			String name, ServiceContext serviceContext)
+		throws PortalException {
+
+		return kaleoDefinitionLocalService.deleteKaleoDefinition(
+			getKaleoDefinition(name, serviceContext));
 	}
 
 	@Override
@@ -307,7 +319,7 @@ public class KaleoDefinitionLocalServiceImpl
 			KaleoDefinition.class, serviceContext.getCompanyId(),
 			() -> _addKaleoDefinition(
 				externalReferenceCode, name, externalReferenceCode,
-				StringPool.BLANK, StringPool.BLANK, scope, system, 1,
+				StringPool.BLANK, StringPool.BLANK, scope, 1, system,
 				WorkflowConstants.STATUS_EMPTY, serviceContext),
 			externalReferenceCode,
 			this::fetchKaleoDefinitionByExternalReferenceCode,
@@ -428,8 +440,8 @@ public class KaleoDefinitionLocalServiceImpl
 
 	private KaleoDefinition _addKaleoDefinition(
 			String externalReferenceCode, String name, String title,
-			String description, String content, String scope, boolean system,
-			int version, int status, ServiceContext serviceContext)
+			String description, String content, String scope, int version,
+			boolean system, int status, ServiceContext serviceContext)
 		throws PortalException {
 
 		KaleoDefinition kaleoDefinition = kaleoDefinitionPersistence.create(
