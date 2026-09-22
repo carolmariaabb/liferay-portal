@@ -2016,6 +2016,8 @@ public class ObjectFieldLocalServiceImpl
 						StringPool.COMMA,
 						ObjectFieldConstants.BUSINESS_TYPE_INTEGER,
 						StringPool.COMMA,
+						ObjectFieldConstants.BUSINESS_TYPE_LOCATION,
+						StringPool.COMMA,
 						ObjectFieldConstants.BUSINESS_TYPE_LONG_INTEGER,
 						StringPool.COMMA,
 						ObjectFieldConstants.BUSINESS_TYPE_LONG_TEXT,
