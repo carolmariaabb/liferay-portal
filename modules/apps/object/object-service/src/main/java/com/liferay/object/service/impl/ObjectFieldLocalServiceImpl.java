@@ -529,6 +529,13 @@ public class ObjectFieldLocalServiceImpl
 			Table<?> table = getTable(
 				objectDefinitionId, objectField.getName());
 
+			if (objectField.compareBusinessType(
+					ObjectFieldConstants.BUSINESS_TYPE_LOCATION)) {
+
+				return table.getColumn(
+					"address_" + objectField.getDBColumnName());
+			}
+
 			return table.getColumn(objectField.getDBColumnName());
 		}
 		catch (PortalException portalException) {
