@@ -432,6 +432,13 @@ public class ObjectEntryKeywordQueryContributor
 		}
 		else if (Objects.equals(
 					objectField.getBusinessType(),
+					ObjectFieldConstants.BUSINESS_TYPE_LOCATION)) {
+
+			// TODO
+
+		}
+		else if (Objects.equals(
+					objectField.getBusinessType(),
 					ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT) ||
 				 Objects.equals(
 					 objectField.getDBType(),

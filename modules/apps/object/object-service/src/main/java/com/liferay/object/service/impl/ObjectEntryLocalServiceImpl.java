@@ -5172,6 +5172,13 @@ public class ObjectEntryLocalServiceImpl
 				table, objectField.getDBColumnName(), search);
 		}
 
+		if (objectField.compareBusinessType(
+				ObjectFieldConstants.BUSINESS_TYPE_LOCATION)) {
+
+			return ObjectEntrySearchUtil.getLocationFieldPredicate(
+				table, objectField.getDBColumnName(), search);
+		}
+
 		Column<?, ?> column = table.getColumn(objectField.getDBColumnName());
 
 		if (column == null) {
@@ -7036,12 +7043,15 @@ public class ObjectEntryLocalServiceImpl
 
 			columnNames.set(index - 1, columnName);
 
+			Map<String, Serializable> valueMap =
+				(Map<String, Serializable>)value;
+
 			_setColumn(
 				columnNames, index,
 				(Map<String, Serializable>)insertedValues.computeIfAbsent(
 					objectField.getName(), key -> new HashMap<>()),
 				preparedStatement, column.getSQLType(),
-				MapUtil.getLong((Map<String, Serializable>)value, columnName));
+				valueMap.get(columnName));
 		}
 		else if (objectField.compareBusinessType(
 					ObjectFieldConstants.BUSINESS_TYPE_ENCRYPTED)) {

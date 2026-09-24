@@ -89,6 +89,10 @@ public class ObjectEntryVariablesUtil {
 						"type", valueJSONObject.getString("type")
 					).build());
 			}
+			else if ((objectField != null) &&
+					 objectField.compareBusinessType(
+						 ObjectFieldConstants.BUSINESS_TYPE_LOCATION)) {
+			}
 			else {
 				values.put(
 					jsonObject.getString("name"),

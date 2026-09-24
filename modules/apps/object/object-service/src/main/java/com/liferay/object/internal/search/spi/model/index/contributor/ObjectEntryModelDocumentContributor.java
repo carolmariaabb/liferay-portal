@@ -278,6 +278,13 @@ public class ObjectEntryModelDocumentContributor
 		}
 		else if (StringUtil.equals(
 					objectField.getBusinessType(),
+					ObjectFieldConstants.BUSINESS_TYPE_LOCATION)) {
+
+			// TODO
+
+		}
+		else if (StringUtil.equals(
+					objectField.getBusinessType(),
 					ObjectFieldConstants.BUSINESS_TYPE_RICH_TEXT)) {
 
 			fieldValue = HtmlParserUtil.extractText(

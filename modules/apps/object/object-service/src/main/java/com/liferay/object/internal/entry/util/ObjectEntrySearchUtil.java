@@ -183,6 +183,20 @@ public class ObjectEntrySearchUtil {
 			));
 	}
 
+	public static Predicate getLocationFieldPredicate(
+		Table<?> table, String dbColumnName, String search) {
+
+		String[] parts = StringUtil.split(search, CharPool.UNDERLINE);
+
+		if (parts.length != 3) {
+			return null;
+		}
+
+		// TODO
+
+		return null;
+	}
+
 	public static Predicate getObjectEntryIndexPredicate(
 		Long[] groupIds, ObjectDefinition objectDefinition,
 		Predicate predicate) {
