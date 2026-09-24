@@ -9,21 +9,21 @@ import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTemplateCont
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.render.DDMFormFieldRenderingContext;
 import com.liferay.map.util.MapProviderHelperUtil;
+import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.dynamic.data.mapping.form.field.type.constants.ObjectDDMFormFieldTypeConstants;
 import com.liferay.object.dynamic.data.mapping.form.field.type.internal.BaseDDMFormFieldTemplateContextContributor;
+import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
-import com.liferay.portal.kernel.util.WebKeys;
 
 import jakarta.portlet.PortletPreferences;
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.Map;
+import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -43,69 +43,63 @@ public class LocationDDMFormFieldTemplateContextContributor
 		DDMFormField ddmFormField,
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
 
-		ThemeDisplay themeDisplay = _getThemeDisplay(
-			ddmFormFieldRenderingContext);
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.fetchObjectDefinition(
+				GetterUtil.getLong(
+					ddmFormField.getProperty("objectDefinitionId")));
+
+		long groupId = _getGroupId(ddmFormField, objectDefinition);
 
 		return HashMapBuilder.<String, Object>put(
-			"googleMapsAPIKey", _getGoogleMapsAPIKey(themeDisplay)
+			"googleMapsAPIKey",
+			() -> {
+				PortletPreferences companyPortletPreferences =
+					PrefsPropsUtil.getPreferences(
+						objectDefinition.getCompanyId());
+
+				String companyGoogleMapsAPIKey =
+					companyPortletPreferences.getValue(
+						"googleMapsAPIKey", null);
+
+				Group group = _groupLocalService.fetchGroup(groupId);
+
+				if ((group == null) || group.isControlPanel()) {
+					return companyGoogleMapsAPIKey;
+				}
+
+				return GetterUtil.getString(
+					group.getTypeSettingsProperty("googleMapsAPIKey"),
+					companyGoogleMapsAPIKey);
+			}
 		).put(
-			"mapProviderKey", _getMapProviderKey(themeDisplay)
+			"mapProviderKey",
+			GetterUtil.getString(
+				MapProviderHelperUtil.getMapProviderKey(
+					_groupLocalService, objectDefinition.getCompanyId(),
+					groupId),
+				"OpenStreetMap")
 		).putAll(
 			super.getParameters(ddmFormField, ddmFormFieldRenderingContext)
 		).build();
 	}
 
-	private String _getGoogleMapsAPIKey(ThemeDisplay themeDisplay) {
-		if (themeDisplay == null) {
-			return null;
+	private long _getGroupId(
+		DDMFormField ddmFormField, ObjectDefinition objectDefinition) {
+
+		if (Objects.equals(
+				objectDefinition.getScope(),
+				ObjectDefinitionConstants.SCOPE_DEPOT)) {
+
+			return 0;
 		}
 
-		PortletPreferences companyPortletPreferences =
-			PrefsPropsUtil.getPreferences(themeDisplay.getCompanyId());
-
-		String companyGoogleMapsAPIKey = companyPortletPreferences.getValue(
-			"googleMapsAPIKey", null);
-
-		Group group = themeDisplay.getScopeGroup();
-
-		if ((group == null) || group.isControlPanel()) {
-			return companyGoogleMapsAPIKey;
-		}
-
-		return GetterUtil.getString(
-			group.getTypeSettingsProperty("googleMapsAPIKey"),
-			companyGoogleMapsAPIKey);
+		return GetterUtil.getLong(ddmFormField.getProperty("groupId"));
 	}
-
-	private String _getMapProviderKey(ThemeDisplay themeDisplay) {
-		if (themeDisplay == null) {
-			return _DEFAULT_MAP_PROVIDER_KEY;
-		}
-
-		return GetterUtil.getString(
-			MapProviderHelperUtil.getMapProviderKey(
-				_groupLocalService, themeDisplay.getCompanyId(),
-				themeDisplay.getScopeGroupId()),
-			_DEFAULT_MAP_PROVIDER_KEY);
-	}
-
-	private ThemeDisplay _getThemeDisplay(
-		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
-
-		HttpServletRequest httpServletRequest =
-			ddmFormFieldRenderingContext.getHttpServletRequest();
-
-		if (httpServletRequest == null) {
-			return null;
-		}
-
-		return (ThemeDisplay)httpServletRequest.getAttribute(
-			WebKeys.THEME_DISPLAY);
-	}
-
-	private static final String _DEFAULT_MAP_PROVIDER_KEY = "OpenStreetMap";
 
 	@Reference
 	private GroupLocalService _groupLocalService;
+
+	@Reference
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 }
