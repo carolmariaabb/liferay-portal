@@ -30,7 +30,9 @@ export type Space = {
 export type SpaceSettings = {
 	availableLanguageIds?: string[];
 	defaultLanguageId?: string;
+	googleMapsAPIKey?: string;
 	logoColor?: LogoColor;
+	mapProviderKey?: string;
 	sharingEnabled?: boolean;
 	trashEnabled?: boolean;
 	trashEntriesMaxAge?: number;

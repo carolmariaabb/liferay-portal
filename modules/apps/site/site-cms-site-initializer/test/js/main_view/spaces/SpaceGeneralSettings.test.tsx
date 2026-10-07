@@ -332,4 +332,159 @@ describe('SpaceGeneralSettings', () => {
 			expect(SpaceService.updateSpace).not.toBeCalled();
 		});
 	});
+
+	describe('Location provider', () => {
+		const clickSave = () =>
+			userEvent.click(screen.getByRole('button', {name: 'save'}));
+
+		const getSavedSettings = () =>
+			(SpaceService.updateSpace as jest.Mock).mock.calls[0][1].settings;
+
+		afterEach(() => {
+			(global as any).Liferay.FeatureFlags = {};
+		});
+
+		it('is not displayed when the feature flag is disabled', () => {
+			(global as any).Liferay.FeatureFlags = {};
+
+			renderComponent();
+
+			expect(
+				screen.queryByText('location-provider')
+			).not.toBeInTheDocument();
+		});
+
+		describe('with the feature flag enabled', () => {
+			const STORED_SPACE = {
+				...SPACE,
+				settings: {
+					...SPACE.settings,
+					googleMapsAPIKey: 'abcdefgh3f8a',
+					mapProviderKey: 'GoogleMaps',
+				},
+			};
+
+			beforeEach(() => {
+				(global as any).Liferay.FeatureFlags = {'LPD-11388': true};
+			});
+
+			it('selects OpenStreetMap by default without an API key field', () => {
+				renderComponent();
+
+				expect(
+					screen.getByRole('radio', {name: 'openstreetmap'})
+				).toBeChecked();
+				expect(
+					screen.queryByLabelText(/^api-key/)
+				).not.toBeInTheDocument();
+			});
+
+			it('does not send the provider when it was never configured and not changed', async () => {
+				renderComponent();
+
+				await clickSave();
+
+				await waitFor(() => {
+					expect(SpaceService.updateSpace).toBeCalled();
+				});
+
+				expect(getSavedSettings()).not.toHaveProperty('mapProviderKey');
+			});
+
+			it('requires an API key when Google Maps is selected', async () => {
+				renderComponent();
+
+				await userEvent.click(
+					screen.getByRole('radio', {name: 'google-maps'})
+				);
+
+				expect(screen.getByLabelText(/^api-key/)).toBeRequired();
+
+				await clickSave();
+
+				expect(SpaceService.updateSpace).not.toBeCalled();
+			});
+
+			it('saves Google Maps with the typed API key', async () => {
+				renderComponent();
+
+				await userEvent.click(
+					screen.getByRole('radio', {name: 'google-maps'})
+				);
+				await userEvent.type(
+					screen.getByLabelText(/^api-key/),
+					'my-api-key'
+				);
+
+				await clickSave();
+
+				await waitFor(() => {
+					expect(SpaceService.updateSpace).toBeCalled();
+				});
+
+				expect(getSavedSettings()).toMatchObject({
+					googleMapsAPIKey: 'my-api-key',
+					mapProviderKey: 'GoogleMaps',
+				});
+			});
+
+			it('masks the stored API key until the eye is clicked', async () => {
+				renderComponent({space: STORED_SPACE});
+
+				const apiKeyField = screen.getByLabelText(/^api-key/);
+
+				expect(apiKeyField).toHaveValue('••••••••3f8a');
+				expect(apiKeyField).toHaveAttribute('readonly');
+
+				await userEvent.click(
+					screen.getByRole('button', {name: /show/})
+				);
+
+				expect(apiKeyField).toHaveValue('abcdefgh3f8a');
+				expect(apiKeyField).not.toHaveAttribute('readonly');
+
+				await userEvent.click(
+					screen.getByRole('button', {name: /hide/})
+				);
+
+				expect(apiKeyField).toHaveValue('••••••••3f8a');
+			});
+
+			it('saves the stored API key unchanged', async () => {
+				renderComponent({space: STORED_SPACE});
+
+				await clickSave();
+
+				await waitFor(() => {
+					expect(SpaceService.updateSpace).toBeCalled();
+				});
+
+				expect(getSavedSettings()).toMatchObject({
+					googleMapsAPIKey: 'abcdefgh3f8a',
+					mapProviderKey: 'GoogleMaps',
+				});
+			});
+
+			it('saves a replaced API key', async () => {
+				renderComponent({space: STORED_SPACE});
+
+				await userEvent.click(
+					screen.getByRole('button', {name: /show/})
+				);
+
+				const apiKeyField = screen.getByLabelText(/^api-key/);
+
+				await userEvent.clear(apiKeyField);
+				await userEvent.type(apiKeyField, 'new-key');
+
+				await clickSave();
+
+				await waitFor(() => {
+					expect(SpaceService.updateSpace).toBeCalled();
+				});
+
+				expect(getSavedSettings().googleMapsAPIKey).toBe('new-key');
+			});
+		});
+	});
 });

@@ -28,9 +28,17 @@ import {LogoColor, Space} from '../../common/types/Space';
 import {ERC_MAX_LENGTH} from '../../common/utils/constants';
 import focusInvalidElement from '../../common/utils/focusInvalidElement';
 import SpaceBaseFields from './SpaceBaseFields';
+import SpaceLocationProviderPanel, {
+	GOOGLE_MAPS,
+	OPEN_STREET_MAP,
+} from './SpaceLocationProviderPanel';
 import SpacePanel from './SpacePanel';
 
 const MINUTES_PER_DAY = 1440;
+
+function isLocationProviderEnabled() {
+	return Boolean(Liferay.FeatureFlags['LPD-11388']);
+}
 
 export default function SpaceGeneralSettings({
 	backURL,
@@ -56,6 +64,7 @@ export default function SpaceGeneralSettings({
 		handleChange,
 		handleSubmit,
 		setFieldError,
+		setFieldTouched,
 		setFieldValue,
 		submitForm,
 		touched,
@@ -65,7 +74,9 @@ export default function SpaceGeneralSettings({
 			description: space.description,
 			erc: initialERC,
 			friendlyURL: initialFriendlyURL,
+			googleMapsAPIKey: space.settings?.googleMapsAPIKey ?? '',
 			logoColor: space.settings?.logoColor as LogoColor,
+			mapProviderKey: space.settings?.mapProviderKey ?? OPEN_STREET_MAP,
 			name: space.name,
 			sharingEnabled: space.settings?.sharingEnabled ?? false,
 			trashEnabled: space.settings?.trashEnabled ?? true,
@@ -80,7 +91,9 @@ export default function SpaceGeneralSettings({
 				description,
 				erc,
 				friendlyURL,
+				googleMapsAPIKey,
 				logoColor = 'outline-0',
+				mapProviderKey,
 				name,
 				sharingEnabled,
 				trashEnabled,
@@ -96,6 +109,17 @@ export default function SpaceGeneralSettings({
 					name,
 					settings: {
 						logoColor,
+						...(isLocationProviderEnabled() &&
+						(space.settings?.mapProviderKey ||
+							mapProviderKey !== OPEN_STREET_MAP)
+							? {
+									googleMapsAPIKey:
+										mapProviderKey === GOOGLE_MAPS
+											? googleMapsAPIKey
+											: undefined,
+									mapProviderKey,
+								}
+							: {}),
 						sharingEnabled,
 						trashEnabled,
 						trashEntriesMaxAge:
@@ -154,6 +178,11 @@ export default function SpaceGeneralSettings({
 									)
 								: undefined,
 					],
+					googleMapsAPIKey:
+						isLocationProviderEnabled() &&
+						values.mapProviderKey === GOOGLE_MAPS
+							? [required]
+							: [],
 					name: [
 						required,
 						nonNumeric,
@@ -369,6 +398,26 @@ export default function SpaceGeneralSettings({
 					)}
 				</>
 			</SpacePanel>
+
+			{isLocationProviderEnabled() && (
+				<SpaceLocationProviderPanel
+					errorMessage={
+						touched.googleMapsAPIKey
+							? (errors?.googleMapsAPIKey as string)
+							: undefined
+					}
+					googleMapsAPIKey={values.googleMapsAPIKey}
+					mapProviderKey={values.mapProviderKey}
+					onChangeAPIKey={(value) => {
+						setFieldValue('googleMapsAPIKey', value);
+						setFieldTouched('googleMapsAPIKey', true, false);
+					}}
+					onChangeMapProviderKey={(value) =>
+						setFieldValue('mapProviderKey', value)
+					}
+					storedAPIKey={space.settings?.googleMapsAPIKey}
+				/>
+			)}
 
 			<ClayButton.Group className="mt-2" spaced>
 				<ClayButton onClick={onSave}>
