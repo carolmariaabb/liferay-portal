@@ -290,7 +290,16 @@ components:
                     type: array
                 defaultLanguageId:
                     type: string
+                googleMapsAPIKey:
+                    description:
+                        The Google Maps API key used by the Location fields of the asset library.
+                    type: string
                 logoColor:
+                    type: string
+                mapProviderKey:
+                    description:
+                        Sets the maps API provider to use when displaying geolocalized assets.
+                    enum: [GoogleMaps, OpenStreetMap]
                     type: string
                 mimeTypeLimits:
                     items:

@@ -46,6 +46,7 @@ import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.odata.entity.EntityField;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 
 import java.util.ArrayList;
@@ -185,6 +186,55 @@ public class AssetLibraryResourceTest extends BaseAssetLibraryResourceTestCase {
 		_testPatchAssetLibraryWithoutUpdatePermission();
 	}
 
+	@FeatureFlag("LPD-11388")
+	@Test
+	@TestInfo("LPD-106772")
+	public void testPatchAssetLibraryMapSettings() throws Exception {
+		AssetLibrary assetLibrary = _addAssetLibrary();
+
+		Settings settings = assetLibrary.getSettings();
+
+		Assert.assertNull(settings.getMapProviderKey());
+
+		assetLibrary = _patchMapSettings(
+			assetLibrary, "my-api-key", Settings.MapProviderKey.GOOGLE_MAPS);
+
+		_assertMapSettings(
+			assetLibrary, "my-api-key", Settings.MapProviderKey.GOOGLE_MAPS);
+
+		settings = new Settings();
+
+		settings.setTrashEnabled(false);
+
+		assetLibrary.setSettings(settings);
+
+		assetLibrary = assetLibraryResource.patchAssetLibrary(
+			assetLibrary.getExternalReferenceCode(), assetLibrary);
+
+		_assertMapSettings(
+			assetLibrary, "my-api-key", Settings.MapProviderKey.GOOGLE_MAPS);
+
+		assetLibrary = _patchMapSettings(
+			assetLibrary, null, Settings.MapProviderKey.OPEN_STREET_MAP);
+
+		_assertMapSettings(
+			assetLibrary, "my-api-key",
+			Settings.MapProviderKey.OPEN_STREET_MAP);
+	}
+
+	@FeatureFlag(enable = false, value = "LPD-11388")
+	@Test
+	@TestInfo("LPD-106772")
+	public void testPatchAssetLibraryMapSettingsWhenFeatureFlagIsDisabled()
+		throws Exception {
+
+		AssetLibrary assetLibrary = _patchMapSettings(
+			_addAssetLibrary(), "my-api-key",
+			Settings.MapProviderKey.GOOGLE_MAPS);
+
+		_assertMapSettings(assetLibrary, null, null);
+	}
+
 	@Override
 	@Test
 	@TestInfo("LPD-92654")
@@ -242,6 +292,24 @@ public class AssetLibraryResourceTest extends BaseAssetLibraryResourceTestCase {
 					LocaleUtil.getDefault(), "please-enter-a-unique-name"),
 				problem.getTitle());
 		}
+	}
+
+	@FeatureFlag("LPD-11388")
+	@Test
+	@TestInfo("LPD-106772")
+	public void testPostAssetLibraryMapSettings() throws Exception {
+		AssetLibrary assetLibrary = randomAssetLibrary();
+
+		Settings settings = new Settings();
+
+		settings.setGoogleMapsAPIKey("my-api-key");
+		settings.setMapProviderKey(Settings.MapProviderKey.GOOGLE_MAPS);
+
+		assetLibrary.setSettings(settings);
+
+		_assertMapSettings(
+			assetLibraryResource.postAssetLibrary(assetLibrary), "my-api-key",
+			Settings.MapProviderKey.GOOGLE_MAPS);
 	}
 
 	@Override
@@ -511,6 +579,47 @@ public class AssetLibraryResourceTest extends BaseAssetLibraryResourceTestCase {
 			unicodeProperties.get("depotEntryType"));
 	}
 
+	private void _assertMapSettings(
+			AssetLibrary assetLibrary, String expectedGoogleMapsAPIKey,
+			Settings.MapProviderKey expectedMapProviderKey)
+		throws Exception {
+
+		Settings settings = assetLibrary.getSettings();
+
+		Assert.assertEquals(
+			expectedGoogleMapsAPIKey, settings.getGoogleMapsAPIKey());
+		Assert.assertEquals(
+			expectedMapProviderKey, settings.getMapProviderKey());
+
+		settings = assetLibraryResource.getAssetLibrary(
+			assetLibrary.getExternalReferenceCode()
+		).getSettings();
+
+		Assert.assertEquals(
+			expectedGoogleMapsAPIKey, settings.getGoogleMapsAPIKey());
+		Assert.assertEquals(
+			expectedMapProviderKey, settings.getMapProviderKey());
+
+		Group group = _groupLocalService.getGroupByExternalReferenceCode(
+			assetLibrary.getExternalReferenceCode(),
+			testCompany.getCompanyId());
+
+		UnicodeProperties unicodeProperties = group.getTypeSettingsProperties();
+
+		Assert.assertEquals(
+			expectedGoogleMapsAPIKey,
+			unicodeProperties.get("googleMapsAPIKey"));
+
+		if (expectedMapProviderKey == null) {
+			Assert.assertNull(unicodeProperties.get("MAP_PROVIDER_KEY"));
+		}
+		else {
+			Assert.assertEquals(
+				expectedMapProviderKey.getValue(),
+				unicodeProperties.get("MAP_PROVIDER_KEY"));
+		}
+	}
+
 	private void _assertSettings(
 		AssetLibrary assetLibrary, boolean expectedAutoTaggingEnabled,
 		String[] expectedAvailableLanguageIds, String expectedDefaultLanguageId,
@@ -554,6 +663,24 @@ public class AssetLibraryResourceTest extends BaseAssetLibraryResourceTestCase {
 		return TransformUtil.transformToArray(
 			ListUtil.fromArray(locales),
 			(Locale locale) -> _language.getLanguageId(locale), String.class);
+	}
+
+	private AssetLibrary _patchMapSettings(
+			AssetLibrary assetLibrary, String googleMapsAPIKey,
+			Settings.MapProviderKey mapProviderKey)
+		throws Exception {
+
+		Settings settings = new Settings();
+
+		settings.setGoogleMapsAPIKey(googleMapsAPIKey);
+		settings.setMapProviderKey(mapProviderKey);
+
+		AssetLibrary patchAssetLibrary = new AssetLibrary();
+
+		patchAssetLibrary.setSettings(settings);
+
+		return assetLibraryResource.patchAssetLibrary(
+			assetLibrary.getExternalReferenceCode(), patchAssetLibrary);
 	}
 
 	private AssetLibrary _postAssetLibraryWithSettings(

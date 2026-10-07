@@ -22,8 +22,11 @@ import com.liferay.headless.asset.library.dto.v1_0.Settings;
 import com.liferay.headless.asset.library.internal.odata.entity.v1_0.AssetLibraryEntityModel;
 import com.liferay.headless.asset.library.internal.util.AssetLibraryUtil;
 import com.liferay.headless.asset.library.resource.v1_0.AssetLibraryResource;
+import com.liferay.map.constants.MapProviderWebKeys;
 import com.liferay.petra.function.UnsafeSupplier;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.DuplicateGroupExternalReferenceCodeException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.search.Field;
@@ -44,6 +47,7 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.odata.entity.EntityModel;
+import com.liferay.portal.security.key.secret.SecretResolver;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
@@ -365,6 +369,9 @@ public class AssetLibraryResourceImpl extends BaseAssetLibraryResourceImpl {
 				group = _groupLocalService.updateGroup(group);
 			}
 
+			_storeGoogleMapsAPIKey(
+				group.getCompanyId(), group.getGroupId(), unicodeProperties);
+
 			DepotEntry updatedDepotEntry = _depotEntryService.updateDepotEntry(
 				depotEntry.getDepotEntryId(), nameMap, descriptionMap,
 				_getDepotAppCustomizationMap(
@@ -399,6 +406,9 @@ public class AssetLibraryResourceImpl extends BaseAssetLibraryResourceImpl {
 		group = depotEntry.getGroup();
 
 		if ((unicodeProperties != null) && !unicodeProperties.isEmpty()) {
+			_storeGoogleMapsAPIKey(
+				group.getCompanyId(), group.getGroupId(), unicodeProperties);
+
 			_groupLocalService.updateGroup(
 				group.getGroupId(),
 				UnicodePropertiesBuilder.create(
@@ -549,10 +559,37 @@ public class AssetLibraryResourceImpl extends BaseAssetLibraryResourceImpl {
 		return UnicodePropertiesBuilder.create(
 			true
 		).put(
+			MapProviderWebKeys.MAP_PROVIDER_KEY,
+			() -> {
+				if (!FeatureFlagManagerUtil.isEnabled(
+						contextCompany.getCompanyId(), "LPD-11388")) {
+
+					return null;
+				}
+
+				return GetterUtil.getString(
+					settings.getMapProviderKeyAsString(),
+					unicodeProperties.getProperty(
+						MapProviderWebKeys.MAP_PROVIDER_KEY));
+			}
+		).put(
 			"autoTaggingEnabled",
 			_getBooleanValue(
 				unicodeProperties.getProperty("autoTaggingEnabled"),
 				settings.getAutoTaggingEnabled())
+		).put(
+			"googleMapsAPIKey",
+			() -> {
+				if (!FeatureFlagManagerUtil.isEnabled(
+						contextCompany.getCompanyId(), "LPD-11388")) {
+
+					return null;
+				}
+
+				return GetterUtil.getString(
+					settings.getGoogleMapsAPIKey(),
+					unicodeProperties.getProperty("googleMapsAPIKey"));
+			}
 		).put(
 			"inheritLocales",
 			() -> {
@@ -608,8 +645,30 @@ public class AssetLibraryResourceImpl extends BaseAssetLibraryResourceImpl {
 		return UnicodePropertiesBuilder.create(
 			true
 		).put(
+			MapProviderWebKeys.MAP_PROVIDER_KEY,
+			() -> {
+				if (!FeatureFlagManagerUtil.isEnabled(
+						contextCompany.getCompanyId(), "LPD-11388")) {
+
+					return null;
+				}
+
+				return settings.getMapProviderKeyAsString();
+			}
+		).put(
 			"autoTaggingEnabled",
 			GetterUtil.getBoolean(settings.getAutoTaggingEnabled())
+		).put(
+			"googleMapsAPIKey",
+			() -> {
+				if (!FeatureFlagManagerUtil.isEnabled(
+						contextCompany.getCompanyId(), "LPD-11388")) {
+
+					return null;
+				}
+
+				return settings.getGoogleMapsAPIKey();
+			}
 		).put(
 			"inheritLocales",
 			!GetterUtil.getBoolean(settings.getUseCustomLanguages())
@@ -632,6 +691,29 @@ public class AssetLibraryResourceImpl extends BaseAssetLibraryResourceImpl {
 			"trashEntriesMaxAge",
 			GetterUtil.getInteger(settings.getTrashEntriesMaxAge())
 		).build();
+	}
+
+	private void _storeGoogleMapsAPIKey(
+		long companyId, long groupId, UnicodeProperties unicodeProperties) {
+
+		if (unicodeProperties == null) {
+			return;
+		}
+
+		String googleMapsAPIKey = unicodeProperties.getProperty(
+			"googleMapsAPIKey");
+
+		if (Validator.isNull(googleMapsAPIKey)) {
+			return;
+		}
+
+		unicodeProperties.setProperty(
+			"googleMapsAPIKey",
+			_secretResolver.store(
+				companyId,
+				StringBundler.concat(
+					"preference/group/", groupId, "/googleMapsAPIKey"),
+				googleMapsAPIKey));
 	}
 
 	private AssetLibrary _toAssetLibrary(DepotEntry depotEntry)
@@ -816,5 +898,8 @@ public class AssetLibraryResourceImpl extends BaseAssetLibraryResourceImpl {
 		target = "(model.class.name=com.liferay.portal.kernel.model.Group)"
 	)
 	private ModelResourcePermission<Group> _groupModelResourcePermission;
+
+	@Reference
+	private SecretResolver _secretResolver;
 
 }
