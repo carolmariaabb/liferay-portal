@@ -140,9 +140,27 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 					objectEntry.getObjectDefinitionId()) &&
 				!objectEntry.isInTrash()) {
 
+				if (_log.isDebugEnabled()) {
+					_log.debug(
+						StringBundler.concat(
+							"LPP-65921 Firing onAfterDelete for object entry ",
+							objectEntry.getObjectEntryId(),
+							" of object definition ",
+							objectEntry.getObjectDefinitionId(), " as user ",
+							user.getFullName()));
+				}
+
 				_executeObjectActions(
 					ObjectActionTriggerConstants.KEY_ON_AFTER_DELETE,
 					objectEntry, objectEntry, user);
+			}
+			else if (_log.isDebugEnabled()) {
+				_log.debug(
+					StringBundler.concat(
+						"LPP-65921 Not firing onAfterDelete for object entry ",
+						objectEntry.getObjectEntryId(),
+						" of object definition ",
+						objectEntry.getObjectDefinitionId()));
 			}
 
 			ObjectEntry rootObjectEntry =

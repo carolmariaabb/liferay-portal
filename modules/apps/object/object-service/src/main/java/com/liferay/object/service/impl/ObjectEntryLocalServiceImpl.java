@@ -3964,6 +3964,15 @@ public class ObjectEntryLocalServiceImpl
 				if (WorkflowConstants.STATUS_DRAFT ==
 						objectDefinition2.getStatus()) {
 
+					if (_log.isDebugEnabled()) {
+						_log.debug(
+							StringBundler.concat(
+								"LPP-65921 Skipping related object entries of ",
+								"draft object definition ",
+								objectDefinition2.getObjectDefinitionId(),
+								" for parent object entry ", primaryKey));
+					}
+
 					continue;
 				}
 

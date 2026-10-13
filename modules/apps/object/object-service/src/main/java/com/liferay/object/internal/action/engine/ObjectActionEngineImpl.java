@@ -107,12 +107,20 @@ public class ObjectActionEngineImpl implements ObjectActionEngine {
 		throws E {
 
 		if ((companyId == 0) || (userId == 0)) {
+			_logSkip(
+				"Invalid company or user", className, companyId,
+				objectActionTriggerKey, userId);
+
 			return;
 		}
 
 		User user = _userLocalService.fetchUser(userId);
 
 		if ((user == null) || (companyId != user.getCompanyId())) {
+			_logSkip(
+				"User not found or from another company", className, companyId,
+				objectActionTriggerKey, userId);
+
 			return;
 		}
 
@@ -121,6 +129,10 @@ public class ObjectActionEngineImpl implements ObjectActionEngine {
 				user.getCompanyId(), className);
 
 		if (objectDefinition == null) {
+			_logSkip(
+				"Object definition not found", className, companyId,
+				objectActionTriggerKey, userId);
+
 			return;
 		}
 
@@ -130,7 +142,22 @@ public class ObjectActionEngineImpl implements ObjectActionEngine {
 				objectActionTriggerKey);
 
 		if (objectActions.isEmpty()) {
+			_logSkip(
+				"No active object actions", className, companyId,
+				objectActionTriggerKey, userId);
+
 			return;
+		}
+
+		if (_log.isDebugEnabled() &&
+			StringUtil.equals(
+				objectActionTriggerKey,
+				ObjectActionTriggerConstants.KEY_ON_AFTER_DELETE)) {
+
+			_log.debug(
+				StringBundler.concat(
+					"LPP-65921 Executing ", objectActions.size(),
+					" object actions for ", className));
 		}
 
 		String name = PrincipalThreadLocal.getName();
@@ -178,6 +205,21 @@ public class ObjectActionEngineImpl implements ObjectActionEngine {
 		}
 	}
 
+	private void _logSkip(
+		String reason, String className, long companyId,
+		String objectActionTriggerKey, long userId) {
+
+		if (_log.isDebugEnabled() &&
+			StringUtil.equals(
+				objectActionTriggerKey,
+				ObjectActionTriggerConstants.KEY_ON_AFTER_DELETE)) {
+
+			_log.debug(
+				StringBundler.concat(
+					"LPP-65921 Skipping object actions: ", reason));
+		}
+	}
+
 	private boolean _evaluateConditionExpression(
 			String conditionExpression, Map<String, Object> variables)
 		throws Exception {
@@ -218,6 +260,16 @@ public class ObjectActionEngineImpl implements ObjectActionEngine {
 				ObjectActionTriggerConstants.KEY_ON_AFTER_UPDATE) &&
 			objectEntryIdsMap.containsKey(objectAction.getObjectActionId())) {
 
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					StringBundler.concat(
+						"LPP-65921 Skipping object action ",
+						objectAction.getObjectActionId(), " trigger ",
+						objectAction.getObjectActionTriggerKey(),
+						" because it already ran on this thread ",
+						" with object entry IDs map ", objectEntryIdsMap));
+			}
+
 			return;
 		}
 
@@ -241,6 +293,16 @@ public class ObjectActionEngineImpl implements ObjectActionEngine {
 		try {
 			if (!_evaluateConditionExpression(
 					objectAction.getConditionExpression(), variables)) {
+
+				if (_log.isDebugEnabled()) {
+					_log.debug(
+						StringBundler.concat(
+							"LPP-65921 Skipping object action ",
+							objectAction.getObjectActionId(),
+							" because condition expression \"",
+							objectAction.getConditionExpression(),
+							"\" is false for object entry ", objectEntryId));
+				}
 
 				return;
 			}
@@ -291,6 +353,15 @@ public class ObjectActionEngineImpl implements ObjectActionEngine {
 				objectAction.getObjectActionId(),
 				objectAction.getParametersUnicodeProperties(),
 				payloadJSONObject, userId);
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(
+					StringBundler.concat(
+						"LPP-65921 Executed object action ",
+						objectAction.getObjectActionId(), " trigger ",
+						objectAction.getObjectActionTriggerKey(),
+						" for object entry ", objectEntryId));
+			}
 
 			_updateObjectActionStatus(
 				objectAction, ObjectActionConstants.STATUS_SUCCESS);
