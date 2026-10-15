@@ -6,6 +6,7 @@
 package com.liferay.dynamic.data.mapping.service;
 
 import com.liferay.dynamic.data.mapping.model.DDMStructureLink;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
@@ -41,9 +42,10 @@ public class DDMStructureLinkServiceUtil {
 	}
 
 	public static List<DDMStructureLink> getStructureLinks(
-		long classNameId, long classPK, long[] groupIds, String keywords,
-		String resourceClassName, int start, int end,
-		OrderByComparator<DDMStructureLink> orderByComparator) {
+			long classNameId, long classPK, long[] groupIds, String keywords,
+			String resourceClassName, int start, int end,
+			OrderByComparator<DDMStructureLink> orderByComparator)
+		throws PortalException {
 
 		return getService().getStructureLinks(
 			classNameId, classPK, groupIds, keywords, resourceClassName, start,
@@ -51,8 +53,9 @@ public class DDMStructureLinkServiceUtil {
 	}
 
 	public static int getStructureLinksCount(
-		long classNameId, long classPK, long[] groupIds, String keywords,
-		String resourceClassName) {
+			long classNameId, long classPK, long[] groupIds, String keywords,
+			String resourceClassName)
+		throws PortalException {
 
 		return getService().getStructureLinksCount(
 			classNameId, classPK, groupIds, keywords, resourceClassName);
@@ -67,4 +70,4 @@ public class DDMStructureLinkServiceUtil {
 			DDMStructureLinkServiceUtil.class, DDMStructureLinkService.class);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1481032231
+// LIFERAY-SERVICE-BUILDER-HASH:1839582659

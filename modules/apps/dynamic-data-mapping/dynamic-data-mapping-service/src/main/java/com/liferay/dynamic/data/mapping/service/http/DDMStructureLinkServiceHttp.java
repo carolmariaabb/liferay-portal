@@ -43,13 +43,14 @@ public class DDMStructureLinkServiceHttp {
 
 	public static java.util.List
 		<com.liferay.dynamic.data.mapping.model.DDMStructureLink>
-			getStructureLinks(
-				HttpPrincipal httpPrincipal, long classNameId, long classPK,
-				long[] groupIds, String keywords, String resourceClassName,
-				int start, int end,
-				com.liferay.portal.kernel.util.OrderByComparator
-					<com.liferay.dynamic.data.mapping.model.DDMStructureLink>
-						orderByComparator) {
+				getStructureLinks(
+					HttpPrincipal httpPrincipal, long classNameId, long classPK,
+					long[] groupIds, String keywords, String resourceClassName,
+					int start, int end,
+					com.liferay.portal.kernel.util.OrderByComparator
+						<com.liferay.dynamic.data.mapping.model.
+							DDMStructureLink> orderByComparator)
+			throws com.liferay.portal.kernel.exception.PortalException {
 
 		try {
 			MethodKey methodKey = new MethodKey(
@@ -66,6 +67,13 @@ public class DDMStructureLinkServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
 				throw new com.liferay.portal.kernel.exception.SystemException(
 					exception);
 			}
@@ -84,8 +92,9 @@ public class DDMStructureLinkServiceHttp {
 	}
 
 	public static int getStructureLinksCount(
-		HttpPrincipal httpPrincipal, long classNameId, long classPK,
-		long[] groupIds, String keywords, String resourceClassName) {
+			HttpPrincipal httpPrincipal, long classNameId, long classPK,
+			long[] groupIds, String keywords, String resourceClassName)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		try {
 			MethodKey methodKey = new MethodKey(
@@ -102,6 +111,13 @@ public class DDMStructureLinkServiceHttp {
 				returnObj = TunnelUtil.invoke(httpPrincipal, methodHandler);
 			}
 			catch (Exception exception) {
+				if (exception instanceof
+						com.liferay.portal.kernel.exception.PortalException) {
+
+					throw (com.liferay.portal.kernel.exception.PortalException)
+						exception;
+				}
+
 				throw new com.liferay.portal.kernel.exception.SystemException(
 					exception);
 			}
@@ -132,4 +148,4 @@ public class DDMStructureLinkServiceHttp {
 		};
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-2063968339
+// LIFERAY-SERVICE-BUILDER-HASH:1297000621

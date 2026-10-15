@@ -41,10 +41,11 @@ public class DDMStructureLinkServiceWrapper
 
 	@Override
 	public java.util.List<DDMStructureLink> getStructureLinks(
-		long classNameId, long classPK, long[] groupIds, String keywords,
-		String resourceClassName, int start, int end,
-		com.liferay.portal.kernel.util.OrderByComparator<DDMStructureLink>
-			orderByComparator) {
+			long classNameId, long classPK, long[] groupIds, String keywords,
+			String resourceClassName, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator<DDMStructureLink>
+				orderByComparator)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmStructureLinkService.getStructureLinks(
 			classNameId, classPK, groupIds, keywords, resourceClassName, start,
@@ -53,8 +54,9 @@ public class DDMStructureLinkServiceWrapper
 
 	@Override
 	public int getStructureLinksCount(
-		long classNameId, long classPK, long[] groupIds, String keywords,
-		String resourceClassName) {
+			long classNameId, long classPK, long[] groupIds, String keywords,
+			String resourceClassName)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmStructureLinkService.getStructureLinksCount(
 			classNameId, classPK, groupIds, keywords, resourceClassName);
@@ -75,4 +77,4 @@ public class DDMStructureLinkServiceWrapper
 	private DDMStructureLinkService _ddmStructureLinkService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:24415512
+// LIFERAY-SERVICE-BUILDER-HASH:-1993443368

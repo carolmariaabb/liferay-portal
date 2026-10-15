@@ -55,14 +55,16 @@ public interface DDMStructureLinkService extends BaseService {
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<DDMStructureLink> getStructureLinks(
-		long classNameId, long classPK, long[] groupIds, String keywords,
-		String resourceClassName, int start, int end,
-		OrderByComparator<DDMStructureLink> orderByComparator);
+			long classNameId, long classPK, long[] groupIds, String keywords,
+			String resourceClassName, int start, int end,
+			OrderByComparator<DDMStructureLink> orderByComparator)
+		throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getStructureLinksCount(
-		long classNameId, long classPK, long[] groupIds, String keywords,
-		String resourceClassName);
+			long classNameId, long classPK, long[] groupIds, String keywords,
+			String resourceClassName)
+		throws PortalException;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1557168791
+// LIFERAY-SERVICE-BUILDER-HASH:1025804993
