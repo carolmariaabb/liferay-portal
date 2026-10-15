@@ -8,11 +8,14 @@ package com.liferay.dynamic.data.mapping.service.impl;
 import com.liferay.dynamic.data.mapping.model.DDMStructureLink;
 import com.liferay.dynamic.data.mapping.service.base.DDMStructureLinkServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
 import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Brian Wing Shun Chan
@@ -29,9 +32,12 @@ public class DDMStructureLinkServiceImpl
 
 	@Override
 	public List<DDMStructureLink> getStructureLinks(
-		long classNameId, long classPK, long[] groupIds, String keywords,
-		String resourceClassName, int start, int end,
-		OrderByComparator<DDMStructureLink> orderByComparator) {
+			long classNameId, long classPK, long[] groupIds, String keywords,
+			String resourceClassName, int start, int end,
+			OrderByComparator<DDMStructureLink> orderByComparator)
+		throws PortalException {
+
+		_validateResourceClassName(resourceClassName);
 
 		return ddmStructureLinkFinder.filterFindByKeywords(
 			classNameId, classPK, groupIds, keywords, resourceClassName, start,
@@ -40,11 +46,27 @@ public class DDMStructureLinkServiceImpl
 
 	@Override
 	public int getStructureLinksCount(
-		long classNameId, long classPK, long[] groupIds, String keywords,
-		String resourceClassName) {
+			long classNameId, long classPK, long[] groupIds, String keywords,
+			String resourceClassName)
+		throws PortalException {
+
+		_validateResourceClassName(resourceClassName);
 
 		return ddmStructureLinkFinder.filterCountByKeywords(
 			classNameId, classPK, groupIds, keywords, resourceClassName);
 	}
+
+	private void _validateResourceClassName(String resourceClassName)
+		throws PortalException {
+
+		if (_classNameLocalService.fetchClassName(resourceClassName) == null) {
+			throw new PortalException(
+				"Resource class name \"" + resourceClassName +
+					"\" is not valid");
+		}
+	}
+
+	@Reference
+	private ClassNameLocalService _classNameLocalService;
 
 }
