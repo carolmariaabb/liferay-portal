@@ -250,8 +250,8 @@ public class ObjectEntryVersionDraftPersistenceTest {
 			"objectEntryVersionDraftId", true, "companyId", true, "userId",
 			true, "userName", true, "createDate", true, "modifiedDate", true,
 			"objectDefinitionId", true, "objectEntryId", true, "baseVersion",
-			true, "content", true, "displayDate", true, "expirationDate", true,
-			"reviewDate", true);
+			true, "displayDate", true, "expirationDate", true, "reviewDate",
+			true);
 	}
 
 	@Test
@@ -535,4 +535,4 @@ public class ObjectEntryVersionDraftPersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1099414695
+// LIFERAY-SERVICE-BUILDER-HASH:-769978015

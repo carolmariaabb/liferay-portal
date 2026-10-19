@@ -162,7 +162,7 @@ create table ObjectEntryVersionDraft (
 	objectDefinitionId LONG,
 	objectEntryId LONG,
 	baseVersion INTEGER,
-	content VARCHAR(75) null,
+	content TEXT null,
 	displayDate DATE null,
 	expirationDate DATE null,
 	reviewDate DATE null

@@ -67,7 +67,7 @@ public class ObjectEntryVersionDraftModelImpl
 		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
 		{"modifiedDate", Types.TIMESTAMP}, {"objectDefinitionId", Types.BIGINT},
 		{"objectEntryId", Types.BIGINT}, {"baseVersion", Types.INTEGER},
-		{"content", Types.VARCHAR}, {"displayDate", Types.TIMESTAMP},
+		{"content", Types.CLOB}, {"displayDate", Types.TIMESTAMP},
 		{"expirationDate", Types.TIMESTAMP}, {"reviewDate", Types.TIMESTAMP}
 	};
 
@@ -85,14 +85,14 @@ public class ObjectEntryVersionDraftModelImpl
 		TABLE_COLUMNS_MAP.put("objectDefinitionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("objectEntryId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("baseVersion", Types.INTEGER);
-		TABLE_COLUMNS_MAP.put("content", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("content", Types.CLOB);
 		TABLE_COLUMNS_MAP.put("displayDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("expirationDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("reviewDate", Types.TIMESTAMP);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table ObjectEntryVersionDraft (mvccVersion LONG default 0 not null,objectEntryVersionDraftId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,objectDefinitionId LONG,objectEntryId LONG,baseVersion INTEGER,content VARCHAR(75) null,displayDate DATE null,expirationDate DATE null,reviewDate DATE null)";
+		"create table ObjectEntryVersionDraft (mvccVersion LONG default 0 not null,objectEntryVersionDraftId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,objectDefinitionId LONG,objectEntryId LONG,baseVersion INTEGER,content TEXT null,displayDate DATE null,expirationDate DATE null,reviewDate DATE null)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table ObjectEntryVersionDraft";
@@ -1044,4 +1044,4 @@ public class ObjectEntryVersionDraftModelImpl
 	private ObjectEntryVersionDraft _escapedModel;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1902853315
+// LIFERAY-SERVICE-BUILDER-HASH:1581619784
