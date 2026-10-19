@@ -31,6 +31,16 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 			objectEntryVersionDraftLocalService;
 	}
 
+	@Override
+	public com.liferay.object.model.ObjectEntryVersionDraft
+			addObjectEntryVersionDraft(
+				long userId, long objectEntryId, int baseVersion)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectEntryVersionDraftLocalService.addObjectEntryVersionDraft(
+			userId, objectEntryId, baseVersion);
+	}
+
 	/**
 	 * Adds the object entry version draft to the database. Also notifies the appropriate model listeners.
 	 *
@@ -115,6 +125,23 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 
 		return _objectEntryVersionDraftLocalService.
 			deleteObjectEntryVersionDraft(objectEntryVersionDraft);
+	}
+
+	@Override
+	public void deleteObjectEntryVersionDraftsByObjectDefinitionId(
+		long objectDefinitionId) {
+
+		_objectEntryVersionDraftLocalService.
+			deleteObjectEntryVersionDraftsByObjectDefinitionId(
+				objectDefinitionId);
+	}
+
+	@Override
+	public void deleteObjectEntryVersionDraftsByObjectEntryId(
+		long objectEntryId) {
+
+		_objectEntryVersionDraftLocalService.
+			deleteObjectEntryVersionDraftsByObjectEntryId(objectEntryId);
 	}
 
 	/**
@@ -291,6 +318,14 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 			start, end);
 	}
 
+	@Override
+	public java.util.List<com.liferay.object.model.ObjectEntryVersionDraft>
+		getObjectEntryVersionDrafts(long objectEntryId) {
+
+		return _objectEntryVersionDraftLocalService.getObjectEntryVersionDrafts(
+			objectEntryId);
+	}
+
 	/**
 	 * Returns the number of object entry version drafts.
 	 *
@@ -322,6 +357,17 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 
 		return _objectEntryVersionDraftLocalService.getPersistedModel(
 			primaryKeyObj);
+	}
+
+	@Override
+	public com.liferay.object.model.ObjectEntryVersionDraft
+			updateObjectEntryVersionDraft(
+				long userId, long objectEntryVersionDraftId, String content)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectEntryVersionDraftLocalService.
+			updateObjectEntryVersionDraft(
+				userId, objectEntryVersionDraftId, content);
 	}
 
 	/**
@@ -367,4 +413,4 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 		_objectEntryVersionDraftLocalService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1797063590
+// LIFERAY-SERVICE-BUILDER-HASH:1856400741

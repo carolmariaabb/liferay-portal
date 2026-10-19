@@ -36,6 +36,13 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>com.liferay.object.service.impl.ObjectEntryVersionDraftLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static ObjectEntryVersionDraft addObjectEntryVersionDraft(
+			long userId, long objectEntryId, int baseVersion)
+		throws PortalException {
+
+		return getService().addObjectEntryVersionDraft(
+			userId, objectEntryId, baseVersion);
+	}
 
 	/**
 	 * Adds the object entry version draft to the database. Also notifies the appropriate model listeners.
@@ -110,6 +117,20 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 
 		return getService().deleteObjectEntryVersionDraft(
 			objectEntryVersionDraft);
+	}
+
+	public static void deleteObjectEntryVersionDraftsByObjectDefinitionId(
+		long objectDefinitionId) {
+
+		getService().deleteObjectEntryVersionDraftsByObjectDefinitionId(
+			objectDefinitionId);
+	}
+
+	public static void deleteObjectEntryVersionDraftsByObjectEntryId(
+		long objectEntryId) {
+
+		getService().deleteObjectEntryVersionDraftsByObjectEntryId(
+			objectEntryId);
 	}
 
 	/**
@@ -259,6 +280,12 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 		return getService().getObjectEntryVersionDrafts(start, end);
 	}
 
+	public static List<ObjectEntryVersionDraft> getObjectEntryVersionDrafts(
+		long objectEntryId) {
+
+		return getService().getObjectEntryVersionDrafts(objectEntryId);
+	}
+
 	/**
 	 * Returns the number of object entry version drafts.
 	 *
@@ -284,6 +311,14 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 		throws PortalException {
 
 		return getService().getPersistedModel(primaryKeyObj);
+	}
+
+	public static ObjectEntryVersionDraft updateObjectEntryVersionDraft(
+			long userId, long objectEntryVersionDraftId, String content)
+		throws PortalException {
+
+		return getService().updateObjectEntryVersionDraft(
+			userId, objectEntryVersionDraftId, content);
 	}
 
 	/**
@@ -313,4 +348,4 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 			ObjectEntryVersionDraftLocalService.class);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1472656699
+// LIFERAY-SERVICE-BUILDER-HASH:-336583742

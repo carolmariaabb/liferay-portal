@@ -52,6 +52,9 @@ public interface ObjectEntryVersionDraftLocalService
 	 *
 	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.object.service.impl.ObjectEntryVersionDraftLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the object entry version draft local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link ObjectEntryVersionDraftLocalServiceUtil} if injection and service tracking are not available.
 	 */
+	public ObjectEntryVersionDraft addObjectEntryVersionDraft(
+			long userId, long objectEntryId, int baseVersion)
+		throws PortalException;
 
 	/**
 	 * Adds the object entry version draft to the database. Also notifies the appropriate model listeners.
@@ -112,6 +115,12 @@ public interface ObjectEntryVersionDraftLocalService
 	@Indexable(type = IndexableType.DELETE)
 	public ObjectEntryVersionDraft deleteObjectEntryVersionDraft(
 		ObjectEntryVersionDraft objectEntryVersionDraft);
+
+	public void deleteObjectEntryVersionDraftsByObjectDefinitionId(
+		long objectDefinitionId);
+
+	public void deleteObjectEntryVersionDraftsByObjectEntryId(
+		long objectEntryId);
 
 	/**
 	 * @throws PortalException
@@ -229,6 +238,10 @@ public interface ObjectEntryVersionDraftLocalService
 	public List<ObjectEntryVersionDraft> getObjectEntryVersionDrafts(
 		int start, int end);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public List<ObjectEntryVersionDraft> getObjectEntryVersionDrafts(
+		long objectEntryId);
+
 	/**
 	 * Returns the number of object entry version drafts.
 	 *
@@ -252,6 +265,10 @@ public interface ObjectEntryVersionDraftLocalService
 	public PersistedModel getPersistedModel(Serializable primaryKeyObj)
 		throws PortalException;
 
+	public ObjectEntryVersionDraft updateObjectEntryVersionDraft(
+			long userId, long objectEntryVersionDraftId, String content)
+		throws PortalException;
+
 	/**
 	 * Updates the object entry version draft in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
@@ -267,4 +284,4 @@ public interface ObjectEntryVersionDraftLocalService
 		ObjectEntryVersionDraft objectEntryVersionDraft);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1227436637
+// LIFERAY-SERVICE-BUILDER-HASH:-746789984
