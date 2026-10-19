@@ -85,6 +85,10 @@ public interface ObjectEntryResource {
 			String externalReferenceCode, Integer version)
 		throws Exception;
 
+	public ObjectEntry getByExternalReferenceCodeDraft(
+			String externalReferenceCode, Long draftId)
+		throws Exception;
+
 	public Page<ObjectEntry> getByExternalReferenceCodeVersionsPage(
 			String externalReferenceCode, Pagination pagination,
 			com.liferay.portal.kernel.search.Sort[] sorts)
@@ -131,6 +135,10 @@ public interface ObjectEntryResource {
 
 	public ObjectEntry getScopeScopeKeyByExternalReferenceCodeByVersion(
 			String scopeKey, String externalReferenceCode, Integer version)
+		throws Exception;
+
+	public ObjectEntry getScopeScopeKeyByExternalReferenceCodeDraft(
+			String scopeKey, String externalReferenceCode, Long draftId)
 		throws Exception;
 
 	public Response getScopeScopeKeyByExternalReferenceCodeTranslation(
@@ -269,6 +277,10 @@ public interface ObjectEntryResource {
 			String externalReferenceCode, Integer version)
 		throws Exception;
 
+	public ObjectEntry putByExternalReferenceCodeDraft(
+			String externalReferenceCode, Long draftId, ObjectEntry objectEntry)
+		throws Exception;
+
 	public void putByExternalReferenceCodeObjectActionObjectActionName(
 			String externalReferenceCode, String objectActionName)
 		throws Exception;
@@ -301,6 +313,11 @@ public interface ObjectEntryResource {
 
 	public ObjectEntry putScopeScopeKeyByExternalReferenceCodeByVersionRestore(
 			String scopeKey, String externalReferenceCode, Integer version)
+		throws Exception;
+
+	public ObjectEntry putScopeScopeKeyByExternalReferenceCodeDraft(
+			String scopeKey, String externalReferenceCode, Long draftId,
+			ObjectEntry objectEntry)
 		throws Exception;
 
 	public void
@@ -409,4 +426,4 @@ public interface ObjectEntryResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:748127110
+// LIFERAY-REST-BUILDER-HASH:1140639730
