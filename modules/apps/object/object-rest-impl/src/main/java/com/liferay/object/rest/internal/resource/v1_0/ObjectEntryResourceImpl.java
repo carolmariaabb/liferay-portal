@@ -439,6 +439,26 @@ public class ObjectEntryResourceImpl
 	}
 
 	@Override
+	public ObjectEntry getByExternalReferenceCodeDraft(
+			String externalReferenceCode, Long draftId)
+		throws Exception {
+
+		if (!_objectDefinition.isEnableObjectEntryVersioning()) {
+			throw new UnsupportedOperationException();
+		}
+
+		DefaultObjectEntryManager defaultObjectEntryManager =
+			DefaultObjectEntryManagerProvider.provide(
+				_objectEntryManagerRegistry.getObjectEntryManager(
+					_objectDefinition.getCompanyId(),
+					_objectDefinition.getStorageType()));
+
+		return defaultObjectEntryManager.getObjectEntryDraft(
+			_getDTOConverterContext(null), externalReferenceCode,
+			_objectDefinition, null, draftId);
+	}
+
+	@Override
 	public Page<ObjectEntry> getByExternalReferenceCodeVersionsPage(
 			String externalReferenceCode, Pagination pagination, Sort[] sorts)
 		throws Exception {
@@ -776,6 +796,26 @@ public class ObjectEntryResourceImpl
 		return defaultObjectEntryManager.getObjectEntryByVersion(
 			_getDTOConverterContext(null), externalReferenceCode,
 			_objectDefinition, scopeKey, version);
+	}
+
+	@Override
+	public ObjectEntry getScopeScopeKeyByExternalReferenceCodeDraft(
+			String scopeKey, String externalReferenceCode, Long draftId)
+		throws Exception {
+
+		if (!_objectDefinition.isEnableObjectEntryVersioning()) {
+			throw new UnsupportedOperationException();
+		}
+
+		DefaultObjectEntryManager defaultObjectEntryManager =
+			DefaultObjectEntryManagerProvider.provide(
+				_objectEntryManagerRegistry.getObjectEntryManager(
+					_objectDefinition.getCompanyId(),
+					_objectDefinition.getStorageType()));
+
+		return defaultObjectEntryManager.getObjectEntryDraft(
+			_getDTOConverterContext(null), externalReferenceCode,
+			_objectDefinition, scopeKey, draftId);
 	}
 
 	@Override
@@ -1270,6 +1310,26 @@ public class ObjectEntryResourceImpl
 	}
 
 	@Override
+	public ObjectEntry putByExternalReferenceCodeDraft(
+			String externalReferenceCode, Long draftId, ObjectEntry objectEntry)
+		throws Exception {
+
+		if (!_objectDefinition.isEnableObjectEntryVersioning()) {
+			throw new UnsupportedOperationException();
+		}
+
+		DefaultObjectEntryManager defaultObjectEntryManager =
+			DefaultObjectEntryManagerProvider.provide(
+				_objectEntryManagerRegistry.getObjectEntryManager(
+					_objectDefinition.getCompanyId(),
+					_objectDefinition.getStorageType()));
+
+		return defaultObjectEntryManager.updateObjectEntryDraft(
+			_getDTOConverterContext(null), externalReferenceCode,
+			_objectDefinition, objectEntry, null, draftId);
+	}
+
+	@Override
 	public void putByExternalReferenceCodeObjectActionObjectActionName(
 			String externalReferenceCode, String objectActionName)
 		throws Exception {
@@ -1377,6 +1437,27 @@ public class ObjectEntryResourceImpl
 		return defaultObjectEntryManager.restoreObjectEntryByVersion(
 			_getDTOConverterContext(null), externalReferenceCode,
 			_objectDefinition, scopeKey, version);
+	}
+
+	@Override
+	public ObjectEntry putScopeScopeKeyByExternalReferenceCodeDraft(
+			String scopeKey, String externalReferenceCode, Long draftId,
+			ObjectEntry objectEntry)
+		throws Exception {
+
+		if (!_objectDefinition.isEnableObjectEntryVersioning()) {
+			throw new UnsupportedOperationException();
+		}
+
+		DefaultObjectEntryManager defaultObjectEntryManager =
+			DefaultObjectEntryManagerProvider.provide(
+				_objectEntryManagerRegistry.getObjectEntryManager(
+					_objectDefinition.getCompanyId(),
+					_objectDefinition.getStorageType()));
+
+		return defaultObjectEntryManager.updateObjectEntryDraft(
+			_getDTOConverterContext(null), externalReferenceCode,
+			_objectDefinition, objectEntry, scopeKey, draftId);
 	}
 
 	@Override

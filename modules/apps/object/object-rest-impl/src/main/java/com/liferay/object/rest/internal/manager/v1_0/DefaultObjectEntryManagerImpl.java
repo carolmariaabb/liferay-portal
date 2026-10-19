@@ -30,6 +30,7 @@ import com.liferay.object.entry.scope.provider.ObjectEntryScopeProviderRegistry;
 import com.liferay.object.entry.util.ObjectEntryDTOConverterUtil;
 import com.liferay.object.entry.util.ObjectEntryThreadLocal;
 import com.liferay.object.exception.NoSuchObjectEntryException;
+import com.liferay.object.exception.NoSuchObjectEntryVersionDraftException;
 import com.liferay.object.exception.ObjectEntryValuesException;
 import com.liferay.object.field.attachment.AttachmentManager;
 import com.liferay.object.field.business.type.ObjectFieldBusinessType;
@@ -41,6 +42,7 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.model.ObjectEntryTable;
 import com.liferay.object.model.ObjectEntryVersion;
+import com.liferay.object.model.ObjectEntryVersionDraft;
 import com.liferay.object.model.ObjectEntryVersionTable;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectFolder;
@@ -77,6 +79,7 @@ import com.liferay.object.service.ObjectEntryFolderLocalService;
 import com.liferay.object.service.ObjectEntryFolderService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectEntryService;
+import com.liferay.object.service.ObjectEntryVersionDraftLocalService;
 import com.liferay.object.service.ObjectEntryVersionLocalService;
 import com.liferay.object.service.ObjectEntryVersionService;
 import com.liferay.object.service.ObjectFieldLocalService;
@@ -1021,6 +1024,23 @@ public class DefaultObjectEntryManagerImpl
 	}
 
 	@Override
+	public ObjectEntry getObjectEntryDraft(
+			DTOConverterContext dtoConverterContext,
+			String externalReferenceCode, ObjectDefinition objectDefinition,
+			String scopeKey, long draftId)
+		throws Exception {
+
+		ObjectEntry objectEntry = getObjectEntry(
+			objectDefinition.getCompanyId(), dtoConverterContext,
+			externalReferenceCode, objectDefinition, scopeKey);
+
+		return _toObjectEntryDraft(
+			objectEntry,
+			_getObjectEntryVersionDraft(
+				draftId, objectDefinition, objectEntry.getId()));
+	}
+
+	@Override
 	public Page<ObjectEntry> getRelatedObjectEntries(
 			Aggregation aggregation, DTOConverterContext dtoConverterContext,
 			String externalReferenceCode, String filterString,
@@ -1508,6 +1528,37 @@ public class DefaultObjectEntryManagerImpl
 		return _updateObjectEntry(
 			companyId, dtoConverterContext, externalReferenceCode,
 			objectDefinition, objectEntry, false, scopeKey);
+	}
+
+	@Override
+	public ObjectEntry updateObjectEntryDraft(
+			DTOConverterContext dtoConverterContext,
+			String externalReferenceCode, ObjectDefinition objectDefinition,
+			ObjectEntry objectEntry, String scopeKey, long draftId)
+		throws Exception {
+
+		ObjectEntry currentObjectEntry = getObjectEntry(
+			objectDefinition.getCompanyId(), dtoConverterContext,
+			externalReferenceCode, objectDefinition, scopeKey);
+
+		ObjectEntryVersionDraft objectEntryVersionDraft =
+			_getObjectEntryVersionDraft(
+				draftId, objectDefinition, currentObjectEntry.getId());
+
+		_objectEntryService.checkModelResourcePermission(
+			objectDefinition.getObjectDefinitionId(),
+			currentObjectEntry.getId(), ActionKeys.UPDATE);
+
+		validateObjectEntry(
+			dtoConverterContext, objectDefinition, objectEntry,
+			Collections.emptyList(), scopeKey);
+
+		return _toObjectEntryDraft(
+			currentObjectEntry,
+			_objectEntryVersionDraftLocalService.updateObjectEntryVersionDraft(
+				dtoConverterContext.getUserId(),
+				objectEntryVersionDraft.getObjectEntryVersionDraftId(),
+				String.valueOf(objectEntry)));
 	}
 
 	public ObjectEntry updateRelatedObjectEntry(
@@ -2867,6 +2918,26 @@ public class DefaultObjectEntryManagerImpl
 		return defaultDTOConverterContext;
 	}
 
+	private ObjectEntryVersionDraft _getObjectEntryVersionDraft(
+			long draftId, ObjectDefinition objectDefinition, long objectEntryId)
+		throws Exception {
+
+		ObjectEntryVersionDraft objectEntryVersionDraft =
+			_objectEntryVersionDraftLocalService.getObjectEntryVersionDraft(
+				draftId);
+
+		if ((objectEntryVersionDraft.getObjectDefinitionId() !=
+				objectDefinition.getObjectDefinitionId()) ||
+			(objectEntryVersionDraft.getObjectEntryId() != objectEntryId)) {
+
+			throw new NoSuchObjectEntryVersionDraftException(
+				StringBundler.concat(
+					"No draft ", draftId, " exists for entry ", objectEntryId));
+		}
+
+		return objectEntryVersionDraft;
+	}
+
 	private Map<String, ObjectRelationship> _getObjectRelationships(
 			ObjectDefinition objectDefinition, ObjectEntry objectEntry)
 		throws Exception {
@@ -3934,6 +4005,20 @@ public class DefaultObjectEntryManagerImpl
 			serviceBuilderObjectEntry);
 	}
 
+	private ObjectEntry _toObjectEntryDraft(
+		ObjectEntry objectEntry,
+		ObjectEntryVersionDraft objectEntryVersionDraft) {
+
+		ObjectEntry draftObjectEntry = ObjectEntry.toDTO(
+			objectEntryVersionDraft.getContent());
+
+		draftObjectEntry.setExternalReferenceCode(
+			objectEntry::getExternalReferenceCode);
+		draftObjectEntry.setId(objectEntry::getId);
+
+		return draftObjectEntry;
+	}
+
 	private Map<String, Serializable> _toObjectValues(
 			long allowedRelationshipObjectFieldId, Locale locale,
 			ObjectDefinition objectDefinition, ObjectEntry objectEntry,
@@ -4513,6 +4598,10 @@ public class DefaultObjectEntryManagerImpl
 
 	@Reference
 	private ObjectEntryService _objectEntryService;
+
+	@Reference
+	private ObjectEntryVersionDraftLocalService
+		_objectEntryVersionDraftLocalService;
 
 	@Reference
 	private ObjectEntryVersionLocalService _objectEntryVersionLocalService;

@@ -176,6 +176,12 @@ public interface DefaultObjectEntryManager extends ObjectEntryManager {
 			String scopeKey, int version)
 		throws Exception;
 
+	public ObjectEntry getObjectEntryDraft(
+			DTOConverterContext dtoConverterContext,
+			String externalReferenceCode, ObjectDefinition objectDefinition,
+			String scopeKey, long draftId)
+		throws Exception;
+
 	public Page<ObjectEntry> getRelatedObjectEntries(
 			Aggregation aggregation, DTOConverterContext dtoConverterContext,
 			String externalReferenceCode, String filterString,
@@ -280,6 +286,12 @@ public interface DefaultObjectEntryManager extends ObjectEntryManager {
 			ObjectDefinition objectDefinition, ObjectEntry objectEntry,
 			String scopeKey,
 			com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry)
+		throws Exception;
+
+	public ObjectEntry updateObjectEntryDraft(
+			DTOConverterContext dtoConverterContext,
+			String externalReferenceCode, ObjectDefinition objectDefinition,
+			ObjectEntry objectEntry, String scopeKey, long draftId)
 		throws Exception;
 
 	public ObjectEntry updateRelatedObjectEntry(
