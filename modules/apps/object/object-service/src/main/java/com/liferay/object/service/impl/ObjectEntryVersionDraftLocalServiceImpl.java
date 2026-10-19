@@ -100,6 +100,7 @@ public class ObjectEntryVersionDraftLocalServiceImpl
 
 		objectEntryVersionDraft.setUserId(user.getUserId());
 		objectEntryVersionDraft.setUserName(user.getFullName());
+
 		objectEntryVersionDraft.setModifiedDate(new Date());
 		objectEntryVersionDraft.setContent(content);
 
