@@ -187,6 +187,10 @@ public interface ObjectEntryResource {
 			String externalReferenceCode, Integer version)
 		throws Exception;
 
+	public ValidationResponse postByExternalReferenceCodeDraftValidate(
+			String externalReferenceCode, Long draftId)
+		throws Exception;
+
 	public ObjectEntry postByExternalReferenceCodeExpire(
 			String externalReferenceCode)
 		throws Exception;
@@ -242,6 +246,11 @@ public interface ObjectEntryResource {
 
 	public ObjectEntry postScopeScopeKeyByExternalReferenceCodeByVersionExpire(
 			String scopeKey, String externalReferenceCode, Integer version)
+		throws Exception;
+
+	public ValidationResponse
+			postScopeScopeKeyByExternalReferenceCodeDraftValidate(
+				String scopeKey, String externalReferenceCode, Long draftId)
 		throws Exception;
 
 	public ObjectEntry postScopeScopeKeyByExternalReferenceCodeExpire(
@@ -426,4 +435,4 @@ public interface ObjectEntryResource {
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1140639730
+// LIFERAY-REST-BUILDER-HASH:-1197994141

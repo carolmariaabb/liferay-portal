@@ -1699,6 +1699,41 @@ public abstract class BaseObjectEntryResourceImpl
 			@io.swagger.v3.oas.annotations.Parameter(
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
 				name = "externalReferenceCode", required = true
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "draftId", required = true
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "ObjectEntry")}
+	)
+	@jakarta.ws.rs.Path(
+		"/by-external-reference-code/{externalReferenceCode}/drafts/{draftId}/validate"
+	)
+	@jakarta.ws.rs.POST
+	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
+	@Override
+	public ValidationResponse postByExternalReferenceCodeDraftValidate(
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@jakarta.validation.constraints.NotNull
+			@jakarta.ws.rs.PathParam("externalReferenceCode")
+			String externalReferenceCode,
+			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+			@jakarta.validation.constraints.NotNull
+			@jakarta.ws.rs.PathParam("draftId")
+			Long draftId)
+		throws Exception {
+
+		return new ValidationResponse();
+	}
+
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "externalReferenceCode", required = true
 			)
 		}
 	)
@@ -2179,6 +2214,50 @@ public abstract class BaseObjectEntryResourceImpl
 		throws Exception {
 
 		return new ObjectEntry();
+	}
+
+	@io.swagger.v3.oas.annotations.Parameters(
+		value = {
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "scopeKey", required = true
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "externalReferenceCode", required = true
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
+				name = "draftId", required = true
+			)
+		}
+	)
+	@io.swagger.v3.oas.annotations.tags.Tags(
+		value = {@io.swagger.v3.oas.annotations.tags.Tag(name = "ObjectEntry")}
+	)
+	@jakarta.ws.rs.Path(
+		"/scopes/{scopeKey}/by-external-reference-code/{externalReferenceCode}/drafts/{draftId}/validate"
+	)
+	@jakarta.ws.rs.POST
+	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
+	@Override
+	public ValidationResponse
+			postScopeScopeKeyByExternalReferenceCodeDraftValidate(
+				@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+				@jakarta.validation.constraints.NotNull
+				@jakarta.ws.rs.PathParam("scopeKey")
+				String scopeKey,
+				@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+				@jakarta.validation.constraints.NotNull
+				@jakarta.ws.rs.PathParam("externalReferenceCode")
+				String externalReferenceCode,
+				@io.swagger.v3.oas.annotations.Parameter(hidden = true)
+				@jakarta.validation.constraints.NotNull
+				@jakarta.ws.rs.PathParam("draftId")
+				Long draftId)
+		throws Exception {
+
+		return new ValidationResponse();
 	}
 
 	@io.swagger.v3.oas.annotations.Parameters(
@@ -3897,4 +3976,4 @@ public abstract class BaseObjectEntryResourceImpl
 	}
 
 }
-// LIFERAY-REST-BUILDER-HASH:1832270094
+// LIFERAY-REST-BUILDER-HASH:-22933156
