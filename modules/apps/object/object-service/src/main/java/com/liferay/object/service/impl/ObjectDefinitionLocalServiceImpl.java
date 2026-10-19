@@ -103,6 +103,7 @@ import com.liferay.object.service.ObjectDefinitionSettingLocalService;
 import com.liferay.object.service.ObjectEntryFolderLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectEntryService;
+import com.liferay.object.service.ObjectEntryVersionDraftLocalService;
 import com.liferay.object.service.ObjectEntryVersionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectFolderItemLocalService;
@@ -629,6 +630,10 @@ public class ObjectDefinitionLocalServiceImpl
 
 					_objectEntryVersionLocalService.
 						deleteObjectEntryVersionByObjectDefinitionId(
+							objectDefinition.getObjectDefinitionId());
+
+					_objectEntryVersionDraftLocalService.
+						deleteObjectEntryVersionDraftsByObjectDefinitionId(
 							objectDefinition.getObjectDefinitionId());
 
 					_sharingEntryLocalService.deleteCompanySharingEntries(
@@ -4190,6 +4195,10 @@ public class ObjectDefinitionLocalServiceImpl
 
 	@Reference
 	private ObjectEntryService _objectEntryService;
+
+	@Reference
+	private ObjectEntryVersionDraftLocalService
+		_objectEntryVersionDraftLocalService;
 
 	@Reference
 	private ObjectEntryVersionLocalService _objectEntryVersionLocalService;

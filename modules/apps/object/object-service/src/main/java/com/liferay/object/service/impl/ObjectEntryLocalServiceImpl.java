@@ -122,6 +122,7 @@ import com.liferay.object.scope.ObjectDefinitionScoped;
 import com.liferay.object.scope.ObjectScopeProvider;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.search.StrictObjectReindexThreadLocal;
+import com.liferay.object.service.ObjectEntryVersionDraftLocalService;
 import com.liferay.object.service.ObjectEntryVersionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectFieldSettingLocalService;
@@ -937,6 +938,10 @@ public class ObjectEntryLocalServiceImpl
 
 			_objectEntryVersionLocalService.deleteObjectEntryVersions(
 				objectEntry.getObjectEntryId());
+
+			_objectEntryVersionDraftLocalService.
+				deleteObjectEntryVersionDraftsByObjectEntryId(
+					objectEntry.getObjectEntryId());
 
 			_sharingEntryLocalService.deleteSharingEntries(
 				_classNameLocalService.getClassNameId(
@@ -9559,6 +9564,10 @@ public class ObjectEntryLocalServiceImpl
 
 	private ServiceTrackerList<ObjectEntryReviewNotificationContributor>
 		_objectEntryReviewNotificationContributors;
+
+	@Reference
+	private ObjectEntryVersionDraftLocalService
+		_objectEntryVersionDraftLocalService;
 
 	@Reference
 	private ObjectEntryVersionLocalService _objectEntryVersionLocalService;
