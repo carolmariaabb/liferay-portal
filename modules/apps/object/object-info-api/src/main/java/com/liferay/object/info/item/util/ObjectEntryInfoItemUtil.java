@@ -5,6 +5,7 @@
 
 package com.liferay.object.info.item.util;
 
+import com.liferay.object.entry.preview.ObjectEntryPreviewVersionProviderUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntryVersion;
 import com.liferay.object.model.ObjectField;
@@ -86,8 +87,14 @@ public class ObjectEntryInfoItemUtil {
 
 		if (objectDefinition.isEnableObjectEntryVersioning()) {
 			ObjectEntryVersion objectEntryVersion =
-				ObjectEntryVersionLocalServiceUtil.fetchObjectEntryVersion(
-					serviceBuilderObjectEntry.getObjectEntryId(), version);
+				ObjectEntryPreviewVersionProviderUtil.
+					fetchPreviewObjectEntryVersion(serviceBuilderObjectEntry);
+
+			if (objectEntryVersion == null) {
+				objectEntryVersion =
+					ObjectEntryVersionLocalServiceUtil.fetchObjectEntryVersion(
+						serviceBuilderObjectEntry.getObjectEntryId(), version);
+			}
 
 			if (objectEntryVersion != null) {
 				dtoConverterContext.setAttribute(

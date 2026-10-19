@@ -52,6 +52,10 @@ import org.osgi.service.component.annotations.Reference;
 )
 public class ObjectEntryLaunchEntryManager implements LaunchEntryManager {
 
+	public static final String PREVIEW_KEY_PREFIX_DRAFT = "draft:";
+
+	public static final String PREVIEW_KEY_PREFIX_VERSION = "version:";
+
 	@Override
 	public Draft addDraft(long classPK, String versionKey)
 		throws PortalException {
@@ -270,7 +274,8 @@ public class ObjectEntryLaunchEntryManager implements LaunchEntryManager {
 
 			@Override
 			public Serializable getPreviewPrimaryKey() {
-				return objectEntryVersionDraft.getObjectEntryVersionDraftId();
+				return PREVIEW_KEY_PREFIX_DRAFT +
+					objectEntryVersionDraft.getObjectEntryVersionDraftId();
 			}
 
 			@Override
@@ -305,7 +310,8 @@ public class ObjectEntryLaunchEntryManager implements LaunchEntryManager {
 
 			@Override
 			public Serializable getPreviewPrimaryKey() {
-				return objectEntryVersion.getObjectEntryVersionId();
+				return PREVIEW_KEY_PREFIX_VERSION +
+					objectEntryVersion.getObjectEntryVersionId();
 			}
 
 			@Override

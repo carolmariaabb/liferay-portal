@@ -50,6 +50,7 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.cache.thread.local.Lifecycle;
 import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCache;
 import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCacheManager;
+import com.liferay.portal.kernel.launch.LaunchPreviewThreadLocal;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
@@ -138,6 +139,12 @@ public class ObjectEntryInfoItemFieldValuesProvider
 		if (objectEntry.getVersion() > 0) {
 			key = StringBundler.concat(
 				key, StringPool.POUND, objectEntry.getVersion());
+		}
+
+		long launchSetId = LaunchPreviewThreadLocal.getLaunchSetId();
+
+		if (launchSetId > -1) {
+			key = StringBundler.concat(key, "#launch#", launchSetId);
 		}
 
 		InfoItemFieldValues infoItemFieldValues = threadLocalCache.get(key);
