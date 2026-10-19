@@ -259,6 +259,12 @@ public interface DefaultObjectEntryManager extends ObjectEntryManager {
 			String scopeKey)
 		throws Exception;
 
+	public ObjectEntry publishObjectEntryDraft(
+			DTOConverterContext dtoConverterContext,
+			ObjectDefinition objectDefinition, long objectEntryId,
+			long draftId)
+		throws Exception;
+
 	public ObjectEntry restoreObjectEntryByVersion(
 			DTOConverterContext dtoConverterContext,
 			String externalReferenceCode, ObjectDefinition objectDefinition,
@@ -312,6 +318,12 @@ public interface DefaultObjectEntryManager extends ObjectEntryManager {
 			ObjectDefinition objectDefinition, ObjectEntry objectEntry,
 			List<String> objectValidationRuleExternalReferenceCodes,
 			String scopeKey)
+		throws Exception;
+
+	public void validateObjectEntryDraft(
+			DTOConverterContext dtoConverterContext,
+			String externalReferenceCode, ObjectDefinition objectDefinition,
+			String scopeKey, long draftId)
 		throws Exception;
 
 }

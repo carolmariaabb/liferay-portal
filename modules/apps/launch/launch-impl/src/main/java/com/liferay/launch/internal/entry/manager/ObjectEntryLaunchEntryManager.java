@@ -11,7 +11,6 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectEntryVersion;
 import com.liferay.object.model.ObjectEntryVersionDraft;
-import com.liferay.object.rest.dto.v1_0.Status;
 import com.liferay.object.rest.manager.v1_0.DefaultObjectEntryManager;
 import com.liferay.object.rest.manager.v1_0.DefaultObjectEntryManagerProvider;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManagerRegistry;
@@ -202,28 +201,21 @@ public class ObjectEntryLaunchEntryManager implements LaunchEntryManager {
 
 			User user = _userLocalService.getUser(serviceContext.getUserId());
 
-			com.liferay.object.rest.dto.v1_0.ObjectEntry objectEntryDTO =
-				com.liferay.object.rest.dto.v1_0.ObjectEntry.toDTO(
-					objectEntryVersionDraft.getContent());
-
-			Status status = new Status();
-
-			status.setCode(() -> WorkflowConstants.STATUS_APPROVED);
-
-			objectEntryDTO.setStatus(() -> status);
+			ObjectDefinition objectDefinition =
+				_objectDefinitionLocalService.getObjectDefinition(
+					objectEntry.getObjectDefinitionId());
 
 			DefaultObjectEntryManager defaultObjectEntryManager =
 				DefaultObjectEntryManagerProvider.provide(
 					_objectEntryManagerRegistry.getObjectEntryManager(
 						objectEntry.getCompanyId(),
-						objectEntry.getObjectDefinition(
-						).getStorageType()));
+						objectDefinition.getStorageType()));
 
-			defaultObjectEntryManager.updateObjectEntry(
+			defaultObjectEntryManager.publishObjectEntryDraft(
 				new DefaultDTOConverterContext(
 					false, null, null, null, null, user.getLocale(), null,
 					user),
-				objectEntry.getObjectDefinition(), classPK, objectEntryDTO);
+				objectDefinition, classPK, draftId);
 		}
 		catch (PortalException portalException) {
 			throw portalException;
@@ -231,9 +223,6 @@ public class ObjectEntryLaunchEntryManager implements LaunchEntryManager {
 		catch (Exception exception) {
 			throw new PortalException(exception);
 		}
-
-		_objectEntryVersionDraftLocalService.deleteObjectEntryVersionDraft(
-			objectEntryVersionDraft);
 
 		return _toVersion(
 			_objectEntryVersionLocalService.fetchLatestObjectEntryVersion(

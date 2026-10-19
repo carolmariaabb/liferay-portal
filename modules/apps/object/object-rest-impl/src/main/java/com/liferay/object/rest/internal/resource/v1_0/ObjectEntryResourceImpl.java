@@ -967,6 +967,14 @@ public class ObjectEntryResourceImpl
 	}
 
 	@Override
+	public ValidationResponse postByExternalReferenceCodeDraftValidate(
+			String externalReferenceCode, Long draftId)
+		throws Exception {
+
+		return _validateObjectEntryDraft(null, externalReferenceCode, draftId);
+	}
+
+	@Override
 	public ObjectEntry postByExternalReferenceCodeExpire(
 			String externalReferenceCode)
 		throws Exception {
@@ -1198,6 +1206,16 @@ public class ObjectEntryResourceImpl
 		return defaultObjectEntryManager.expireObjectEntryByVersion(
 			_getDTOConverterContext(null), externalReferenceCode,
 			_objectDefinition, scopeKey, version);
+	}
+
+	@Override
+	public ValidationResponse
+			postScopeScopeKeyByExternalReferenceCodeDraftValidate(
+				String scopeKey, String externalReferenceCode, Long draftId)
+		throws Exception {
+
+		return _validateObjectEntryDraft(
+			scopeKey, externalReferenceCode, draftId);
 	}
 
 	@Override
@@ -1940,6 +1958,30 @@ public class ObjectEntryResourceImpl
 		return translationResponse;
 	}
 
+	private ValidationResponse _toValidationResponse(
+		ObjectEntryValidationException objectEntryValidationException) {
+
+		return new ValidationResponse() {
+			{
+				setValidationErrors(
+					() -> transformToArray(
+						objectEntryValidationException.getValidationErrors(),
+						validationError -> new ValidationError() {
+							{
+								setErrorMessage(
+									validationError::getErrorMessage);
+								setObjectFieldName(
+									validationError::getObjectFieldName);
+								setObjectValidationRuleExternalReferenceCode(
+									validationError::
+										getObjectValidationRuleExternalReferenceCode);
+							}
+						},
+						ValidationError.class));
+			}
+		};
+	}
+
 	private ValidationResponse _validateObjectEntry(
 			String scopeKey, ValidationRequest validationRequest)
 		throws Exception {
@@ -1964,26 +2006,33 @@ public class ObjectEntryResourceImpl
 				scopeKey);
 		}
 		catch (ObjectEntryValidationException objectEntryValidationException) {
-			return new ValidationResponse() {
-				{
-					setValidationErrors(
-						() -> transformToArray(
-							objectEntryValidationException.
-								getValidationErrors(),
-							validationError -> new ValidationError() {
-								{
-									setErrorMessage(
-										validationError::getErrorMessage);
-									setObjectFieldName(
-										validationError::getObjectFieldName);
-									setObjectValidationRuleExternalReferenceCode(
-										validationError::
-											getObjectValidationRuleExternalReferenceCode);
-								}
-							},
-							ValidationError.class));
-				}
-			};
+			return _toValidationResponse(objectEntryValidationException);
+		}
+
+		return new ValidationResponse();
+	}
+
+	private ValidationResponse _validateObjectEntryDraft(
+			String scopeKey, String externalReferenceCode, Long draftId)
+		throws Exception {
+
+		if (!_objectDefinition.isEnableObjectEntryVersioning()) {
+			throw new UnsupportedOperationException();
+		}
+
+		DefaultObjectEntryManager defaultObjectEntryManager =
+			DefaultObjectEntryManagerProvider.provide(
+				_objectEntryManagerRegistry.getObjectEntryManager(
+					_objectDefinition.getCompanyId(),
+					_objectDefinition.getStorageType()));
+
+		try {
+			defaultObjectEntryManager.validateObjectEntryDraft(
+				_getDTOConverterContext(null), externalReferenceCode,
+				_objectDefinition, scopeKey, draftId);
+		}
+		catch (ObjectEntryValidationException objectEntryValidationException) {
+			return _toValidationResponse(objectEntryValidationException);
 		}
 
 		return new ValidationResponse();

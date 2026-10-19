@@ -1400,6 +1400,41 @@ public class DefaultObjectEntryManagerImpl
 	}
 
 	@Override
+	public ObjectEntry publishObjectEntryDraft(
+			DTOConverterContext dtoConverterContext,
+			ObjectDefinition objectDefinition, long objectEntryId, long draftId)
+		throws Exception {
+
+		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
+			_objectEntryService.getObjectEntry(objectEntryId);
+
+		ObjectEntryVersionDraft objectEntryVersionDraft =
+			_getObjectEntryVersionDraft(
+				draftId, objectDefinition, objectEntryId);
+
+		ObjectEntry objectEntry = ObjectEntry.toDTO(
+			objectEntryVersionDraft.getContent());
+
+		objectEntry.setExternalReferenceCode(
+			serviceBuilderObjectEntry::getExternalReferenceCode);
+		objectEntry.setId(serviceBuilderObjectEntry::getObjectEntryId);
+
+		Status status = new Status();
+
+		status.setCode(serviceBuilderObjectEntry::getStatus);
+
+		objectEntry.setStatus(() -> status);
+
+		objectEntry = updateObjectEntry(
+			dtoConverterContext, objectDefinition, objectEntryId, objectEntry);
+
+		_objectEntryVersionDraftLocalService.deleteObjectEntryVersionDraft(
+			objectEntryVersionDraft);
+
+		return objectEntry;
+	}
+
+	@Override
 	public ObjectEntry restoreObjectEntry(
 			DTOConverterContext dtoConverterContext,
 			String externalReferenceCode, ObjectDefinition objectDefinition,
@@ -1549,10 +1584,6 @@ public class DefaultObjectEntryManagerImpl
 			objectDefinition.getObjectDefinitionId(),
 			currentObjectEntry.getId(), ActionKeys.UPDATE);
 
-		validateObjectEntry(
-			dtoConverterContext, objectDefinition, objectEntry,
-			Collections.emptyList(), scopeKey);
-
 		return _toObjectEntryDraft(
 			currentObjectEntry,
 			_objectEntryVersionDraftLocalService.updateObjectEntryVersionDraft(
@@ -1615,6 +1646,21 @@ public class DefaultObjectEntryManagerImpl
 			objectValidationRuleExternalReferenceCodes,
 			_createServiceContext(
 				dtoConverterContext, objectDefinition, objectEntry, scopeKey));
+	}
+
+	@Override
+	public void validateObjectEntryDraft(
+			DTOConverterContext dtoConverterContext,
+			String externalReferenceCode, ObjectDefinition objectDefinition,
+			String scopeKey, long draftId)
+		throws Exception {
+
+		validateObjectEntry(
+			dtoConverterContext, objectDefinition,
+			getObjectEntryDraft(
+				dtoConverterContext, externalReferenceCode, objectDefinition,
+				scopeKey, draftId),
+			Collections.emptyList(), scopeKey);
 	}
 
 	private Map<String, String> _addAction(
