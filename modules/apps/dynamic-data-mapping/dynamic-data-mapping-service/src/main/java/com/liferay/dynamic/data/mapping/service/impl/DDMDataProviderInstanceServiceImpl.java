@@ -90,7 +90,7 @@ public class DDMDataProviderInstanceServiceImpl
 			getPermissionChecker(),
 			dataProviderInstance.getDataProviderInstanceId(), ActionKeys.VIEW);
 
-		return dataProviderInstance;
+		return _removeAuthenticationData(dataProviderInstance);
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class DDMDataProviderInstanceServiceImpl
 			getPermissionChecker(),
 			dataProviderInstance.getDataProviderInstanceId(), ActionKeys.VIEW);
 
-		return dataProviderInstance;
+		return _removeAuthenticationData(dataProviderInstance);
 	}
 
 	@Override
@@ -120,8 +120,9 @@ public class DDMDataProviderInstanceServiceImpl
 		_ddmDataProviderInstanceModelResourcePermission.check(
 			getPermissionChecker(), dataProviderInstanceId, ActionKeys.VIEW);
 
-		return ddmDataProviderInstancePersistence.findByPrimaryKey(
-			dataProviderInstanceId);
+		return _removeAuthenticationData(
+			ddmDataProviderInstancePersistence.findByPrimaryKey(
+				dataProviderInstanceId));
 	}
 
 	@Override
@@ -137,15 +138,17 @@ public class DDMDataProviderInstanceServiceImpl
 			ddmDataProviderInstance.getDataProviderInstanceId(),
 			ActionKeys.VIEW);
 
-		return ddmDataProviderInstance;
+		return _removeAuthenticationData(ddmDataProviderInstance);
 	}
 
 	@Override
 	public List<DDMDataProviderInstance> getDataProviderInstances(
 		long companyId, long[] groupIds, int start, int end) {
 
-		return ddmDataProviderInstanceFinder.filterByC_G(
-			companyId, groupIds, start, end);
+		return TransformUtil.transform(
+			ddmDataProviderInstanceFinder.filterByC_G(
+				companyId, groupIds, start, end),
+			this::_removeAuthenticationData);
 	}
 
 	@Override
@@ -189,9 +192,11 @@ public class DDMDataProviderInstanceServiceImpl
 		boolean andOperator, int start, int end,
 		OrderByComparator<DDMDataProviderInstance> orderByComparator) {
 
-		return ddmDataProviderInstanceFinder.filterFindByC_G_N_D(
-			companyId, groupIds, name, description, andOperator, start, end,
-			orderByComparator);
+		return TransformUtil.transform(
+			ddmDataProviderInstanceFinder.filterFindByC_G_N_D(
+				companyId, groupIds, name, description, andOperator, start, end,
+				orderByComparator),
+			this::_removeAuthenticationData);
 	}
 
 	@Override
@@ -250,6 +255,22 @@ public class DDMDataProviderInstanceServiceImpl
 		DDMDataProviderInstance ddmDataProviderInstance) {
 
 		try {
+			if (_ddmDataProviderInstanceModelResourcePermission.contains(
+					getPermissionChecker(),
+					ddmDataProviderInstance.getDataProviderInstanceId(),
+					ActionKeys.UPDATE)) {
+
+				return ddmDataProviderInstance;
+			}
+		}
+		catch (PortalException portalException) {
+			_log.error(portalException);
+		}
+
+		DDMDataProviderInstance filteredDDMDataProviderInstance =
+			(DDMDataProviderInstance)ddmDataProviderInstance.clone();
+
+		try {
 			JSONObject definitionJSONObject = _jsonFactory.createJSONObject(
 				ddmDataProviderInstance.getDefinition());
 
@@ -263,19 +284,21 @@ public class DDMDataProviderInstanceServiceImpl
 			definitionJSONObject.put(
 				"fieldValues", _filterFieldValues(fieldValuesJSONArray));
 
-			ddmDataProviderInstance.setDefinition(
+			filteredDDMDataProviderInstance.setDefinition(
 				definitionJSONObject.toString());
 		}
 		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
 				_log.warn(
 					"Unable to remove authentication data from data " +
-						"providers search",
+						"provider instance",
 					exception);
 			}
+
+			filteredDDMDataProviderInstance.setDefinition("{}");
 		}
 
-		return ddmDataProviderInstance;
+		return filteredDDMDataProviderInstance;
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

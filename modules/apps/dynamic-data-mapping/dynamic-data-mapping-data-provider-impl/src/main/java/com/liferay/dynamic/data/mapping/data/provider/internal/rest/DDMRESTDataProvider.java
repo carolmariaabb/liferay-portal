@@ -19,7 +19,7 @@ import com.liferay.dynamic.data.mapping.data.provider.DDMDataProviderResponseSta
 import com.liferay.dynamic.data.mapping.data.provider.configuration.DDMDataProviderConfiguration;
 import com.liferay.dynamic.data.mapping.data.provider.settings.DDMDataProviderSettingsProvider;
 import com.liferay.dynamic.data.mapping.model.DDMDataProviderInstance;
-import com.liferay.dynamic.data.mapping.service.DDMDataProviderInstanceService;
+import com.liferay.dynamic.data.mapping.service.DDMDataProviderInstanceLocalService;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
@@ -30,6 +30,9 @@ import com.liferay.portal.kernel.cache.MultiVMPool;
 import com.liferay.portal.kernel.cache.PortalCache;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -84,17 +87,19 @@ public class DDMRESTDataProvider implements DDMDataProvider {
 
 		try {
 			DDMDataProviderInstance ddmDataProviderInstance =
-				_ddmDataProviderInstanceService.fetchDataProviderInstanceByUuid(
-					ddmDataProviderRequest.getDDMDataProviderId());
+				_ddmDataProviderInstanceLocalService.
+					fetchDataProviderInstanceByUuid(
+						ddmDataProviderRequest.getDDMDataProviderId());
 
 			if ((ddmDataProviderInstance == null) &&
 				Validator.isNumber(
 					ddmDataProviderRequest.getDDMDataProviderId())) {
 
 				ddmDataProviderInstance =
-					_ddmDataProviderInstanceService.fetchDataProviderInstance(
-						GetterUtil.getLong(
-							ddmDataProviderRequest.getDDMDataProviderId()));
+					_ddmDataProviderInstanceLocalService.
+						fetchDataProviderInstance(
+							GetterUtil.getLong(
+								ddmDataProviderRequest.getDDMDataProviderId()));
 			}
 
 			if (ddmDataProviderInstance == null) {
@@ -103,6 +108,14 @@ public class DDMRESTDataProvider implements DDMDataProvider {
 					DDMDataProviderResponseStatus.SERVICE_UNAVAILABLE
 				).build();
 			}
+
+			// The remote service strips the stored credentials from the
+			// instance, so use the local service and check VIEW explicitly
+
+			_ddmDataProviderInstanceModelResourcePermission.check(
+				PermissionThreadLocal.getPermissionChecker(),
+				ddmDataProviderInstance.getDataProviderInstanceId(),
+				ActionKeys.VIEW);
 
 			DDMRESTDataProviderSettings ddmRESTDataProviderSettings =
 				_ddmDataProviderInstanceSettings.getSettings(
@@ -520,7 +533,14 @@ public class DDMRESTDataProvider implements DDMDataProvider {
 	private volatile DDMDataProviderConfiguration _ddmDataProviderConfiguration;
 
 	@Reference
-	private DDMDataProviderInstanceService _ddmDataProviderInstanceService;
+	private DDMDataProviderInstanceLocalService
+		_ddmDataProviderInstanceLocalService;
+
+	@Reference(
+		target = "(model.class.name=com.liferay.dynamic.data.mapping.model.DDMDataProviderInstance)"
+	)
+	private ModelResourcePermission<DDMDataProviderInstance>
+		_ddmDataProviderInstanceModelResourcePermission;
 
 	@Reference
 	private DDMDataProviderInstanceSettings _ddmDataProviderInstanceSettings;
