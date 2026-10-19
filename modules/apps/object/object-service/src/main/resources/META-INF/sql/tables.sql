@@ -151,6 +151,23 @@ create table ObjectEntryVersion (
 	statusDate DATE null
 );
 
+create table ObjectEntryVersionDraft (
+	mvccVersion LONG default 0 not null,
+	objectEntryVersionDraftId LONG not null primary key,
+	companyId LONG,
+	userId LONG,
+	userName VARCHAR(75) null,
+	createDate DATE null,
+	modifiedDate DATE null,
+	objectDefinitionId LONG,
+	objectEntryId LONG,
+	baseVersion INTEGER,
+	content VARCHAR(75) null,
+	displayDate DATE null,
+	expirationDate DATE null,
+	reviewDate DATE null
+);
+
 create table ObjectField (
 	mvccVersion LONG default 0 not null,
 	uuid_ VARCHAR(75) null,
