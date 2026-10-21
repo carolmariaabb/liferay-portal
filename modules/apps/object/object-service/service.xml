@@ -431,6 +431,49 @@
 			<finder-column name="status" />
 		</finder>
 	</entity>
+	<entity local-service="true" name="ObjectEntryVersionDraft" remote-service="false">
+
+		<!-- External reference code -->
+
+		<column name="externalReferenceCode" type="String" />
+
+		<!-- PK fields -->
+
+		<column name="objectEntryVersionDraftId" primary="true" type="long" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+
+		<!-- Other fields -->
+
+		<column name="objectDefinitionId" type="long" />
+		<column name="objectEntryId" type="long" />
+		<column name="content" type="String" />
+		<column name="version" type="int" />
+		<column name="status" type="int" />
+		<column name="statusByUserId" type="long" />
+		<column name="statusByUserName" type="String" />
+		<column name="statusDate" type="Date" />
+
+		<!-- Finder methods -->
+
+		<finder name="ObjectDefinitionId" return-type="Collection">
+			<finder-column name="objectDefinitionId" />
+		</finder>
+		<finder name="ObjectEntryId" return-type="Collection">
+			<finder-column name="objectEntryId" />
+		</finder>
+		<finder name="ERC_C_ODI" return-type="ObjectEntryVersionDraft" unique="true">
+			<finder-column name="externalReferenceCode" />
+			<finder-column name="companyId" />
+			<finder-column name="objectDefinitionId" />
+		</finder>
+	</entity>
 	<entity local-service="true" name="ObjectField" remote-service="true" uuid="true">
 
 		<!-- External reference code -->
@@ -1237,6 +1280,7 @@
 		<exception>DefaultObjectLayout</exception>
 		<exception>DefaultObjectView</exception>
 		<exception>DuplicateObjectEntryFolderExternalReferenceCode</exception>
+		<exception>DuplicateObjectEntryVersionDraftExternalReferenceCode</exception>
 		<exception>DuplicateObjectFieldExternalReferenceCode</exception>
 		<exception>DuplicateObjectRelationship</exception>
 		<exception>DuplicateObjectRelationshipExternalReferenceCode</exception>
@@ -1286,6 +1330,7 @@
 		<exception>ObjectEntryGroupId</exception>
 		<exception>ObjectEntryScope</exception>
 		<exception>ObjectEntryValues</exception>
+		<exception>ObjectEntryVersionDraftStatus</exception>
 		<exception>ObjectFieldBusinessType</exception>
 		<exception>ObjectFieldDBType</exception>
 		<exception>ObjectFieldLabel</exception>
