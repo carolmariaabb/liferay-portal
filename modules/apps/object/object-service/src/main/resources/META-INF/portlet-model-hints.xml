@@ -187,7 +187,9 @@
 		<field name="modifiedDate" type="Date" />
 		<field name="objectDefinitionId" type="long" />
 		<field name="objectEntryId" type="long" />
-		<field name="content" type="String" />
+		<field name="content" type="String">
+			<hint-collection name="CLOB" />
+		</field>
 		<field name="version" type="int" />
 		<field name="status" type="int" />
 		<field name="statusByUserId" type="long" />
