@@ -52,6 +52,9 @@ public interface ObjectEntryVersionDraftLocalService
 	 *
 	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.object.service.impl.ObjectEntryVersionDraftLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the object entry version draft local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link ObjectEntryVersionDraftLocalServiceUtil} if injection and service tracking are not available.
 	 */
+	public ObjectEntryVersionDraft addObjectEntryVersionDraft(
+			long userId, long objectEntryId, int version)
+		throws PortalException;
 
 	/**
 	 * Adds the object entry version draft to the database. Also notifies the appropriate model listeners.
@@ -112,6 +115,11 @@ public interface ObjectEntryVersionDraftLocalService
 	@Indexable(type = IndexableType.DELETE)
 	public ObjectEntryVersionDraft deleteObjectEntryVersionDraft(
 		ObjectEntryVersionDraft objectEntryVersionDraft);
+
+	public void deleteObjectEntryVersionDraftByObjectDefinitionId(
+		long objectDefinitionId);
+
+	public void deleteObjectEntryVersionDrafts(long objectEntryId);
 
 	/**
 	 * @throws PortalException
@@ -267,4 +275,4 @@ public interface ObjectEntryVersionDraftLocalService
 		ObjectEntryVersionDraft objectEntryVersionDraft);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1227436637
+// LIFERAY-SERVICE-BUILDER-HASH:-1898754918

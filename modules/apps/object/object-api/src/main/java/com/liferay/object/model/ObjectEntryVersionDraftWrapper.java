@@ -47,6 +47,7 @@ public class ObjectEntryVersionDraftWrapper
 		attributes.put("objectEntryId", getObjectEntryId());
 		attributes.put("content", getContent());
 		attributes.put("version", getVersion());
+		attributes.put("status", getStatus());
 
 		return attributes;
 	}
@@ -118,6 +119,12 @@ public class ObjectEntryVersionDraftWrapper
 
 		if (version != null) {
 			setVersion(version);
+		}
+
+		Integer status = (Integer)attributes.get("status");
+
+		if (status != null) {
+			setStatus(status);
 		}
 	}
 
@@ -214,6 +221,16 @@ public class ObjectEntryVersionDraftWrapper
 	@Override
 	public long getPrimaryKey() {
 		return model.getPrimaryKey();
+	}
+
+	/**
+	 * Returns the status of this object entry version draft.
+	 *
+	 * @return the status of this object entry version draft
+	 */
+	@Override
+	public int getStatus() {
+		return model.getStatus();
 	}
 
 	/**
@@ -352,6 +369,16 @@ public class ObjectEntryVersionDraftWrapper
 	}
 
 	/**
+	 * Sets the status of this object entry version draft.
+	 *
+	 * @param status the status of this object entry version draft
+	 */
+	@Override
+	public void setStatus(int status) {
+		model.setStatus(status);
+	}
+
+	/**
 	 * Sets the user ID of this object entry version draft.
 	 *
 	 * @param userId the user ID of this object entry version draft
@@ -404,4 +431,4 @@ public class ObjectEntryVersionDraftWrapper
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1566795800
+// LIFERAY-SERVICE-BUILDER-HASH:1323715826

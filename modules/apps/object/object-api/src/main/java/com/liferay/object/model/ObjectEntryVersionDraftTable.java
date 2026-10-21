@@ -59,10 +59,13 @@ public class ObjectEntryVersionDraftTable
 	public final Column<ObjectEntryVersionDraftTable, Integer> version =
 		createColumn(
 			"version", Integer.class, Types.INTEGER, Column.FLAG_DEFAULT);
+	public final Column<ObjectEntryVersionDraftTable, Integer> status =
+		createColumn(
+			"status", Integer.class, Types.INTEGER, Column.FLAG_DEFAULT);
 
 	private ObjectEntryVersionDraftTable() {
 		super("ObjectEntryVersionDraft", ObjectEntryVersionDraftTable::new);
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1928135254
+// LIFERAY-SERVICE-BUILDER-HASH:-1968731481

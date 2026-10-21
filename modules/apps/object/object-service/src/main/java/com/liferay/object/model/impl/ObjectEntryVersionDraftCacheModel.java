@@ -69,7 +69,7 @@ public class ObjectEntryVersionDraftCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(23);
+		StringBundler sb = new StringBundler(25);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -93,6 +93,8 @@ public class ObjectEntryVersionDraftCacheModel
 		sb.append(content);
 		sb.append(", version=");
 		sb.append(version);
+		sb.append(", status=");
+		sb.append(status);
 		sb.append("}");
 
 		return sb.toString();
@@ -141,6 +143,7 @@ public class ObjectEntryVersionDraftCacheModel
 		}
 
 		objectEntryVersionDraftImpl.setVersion(version);
+		objectEntryVersionDraftImpl.setStatus(status);
 
 		objectEntryVersionDraftImpl.resetOriginalValues();
 
@@ -168,6 +171,8 @@ public class ObjectEntryVersionDraftCacheModel
 		content = (String)objectInput.readObject();
 
 		version = objectInput.readInt();
+
+		status = objectInput.readInt();
 	}
 
 	@Override
@@ -202,6 +207,8 @@ public class ObjectEntryVersionDraftCacheModel
 		}
 
 		objectOutput.writeInt(version);
+
+		objectOutput.writeInt(status);
 	}
 
 	public long mvccVersion;
@@ -215,6 +222,7 @@ public class ObjectEntryVersionDraftCacheModel
 	public long objectEntryId;
 	public String content;
 	public int version;
+	public int status;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-253094407
+// LIFERAY-SERVICE-BUILDER-HASH:1236189108

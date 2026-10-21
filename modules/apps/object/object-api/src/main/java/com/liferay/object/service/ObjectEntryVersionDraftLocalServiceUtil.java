@@ -36,6 +36,13 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>com.liferay.object.service.impl.ObjectEntryVersionDraftLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static ObjectEntryVersionDraft addObjectEntryVersionDraft(
+			long userId, long objectEntryId, int version)
+		throws PortalException {
+
+		return getService().addObjectEntryVersionDraft(
+			userId, objectEntryId, version);
+	}
 
 	/**
 	 * Adds the object entry version draft to the database. Also notifies the appropriate model listeners.
@@ -110,6 +117,17 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 
 		return getService().deleteObjectEntryVersionDraft(
 			objectEntryVersionDraft);
+	}
+
+	public static void deleteObjectEntryVersionDraftByObjectDefinitionId(
+		long objectDefinitionId) {
+
+		getService().deleteObjectEntryVersionDraftByObjectDefinitionId(
+			objectDefinitionId);
+	}
+
+	public static void deleteObjectEntryVersionDrafts(long objectEntryId) {
+		getService().deleteObjectEntryVersionDrafts(objectEntryId);
 	}
 
 	/**
@@ -313,4 +331,4 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 			ObjectEntryVersionDraftLocalService.class);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1472656699
+// LIFERAY-SERVICE-BUILDER-HASH:433091941

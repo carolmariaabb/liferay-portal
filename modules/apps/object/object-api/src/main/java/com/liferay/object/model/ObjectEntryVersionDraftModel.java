@@ -235,6 +235,20 @@ public interface ObjectEntryVersionDraftModel
 	 */
 	public void setVersion(int version);
 
+	/**
+	 * Returns the status of this object entry version draft.
+	 *
+	 * @return the status of this object entry version draft
+	 */
+	public int getStatus();
+
+	/**
+	 * Sets the status of this object entry version draft.
+	 *
+	 * @param status the status of this object entry version draft
+	 */
+	public void setStatus(int status);
+
 	@Override
 	public ObjectEntryVersionDraft cloneWithOriginalValues();
 
@@ -243,4 +257,4 @@ public interface ObjectEntryVersionDraftModel
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1302943864
+// LIFERAY-SERVICE-BUILDER-HASH:1852721643

@@ -31,6 +31,16 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 			objectEntryVersionDraftLocalService;
 	}
 
+	@Override
+	public com.liferay.object.model.ObjectEntryVersionDraft
+			addObjectEntryVersionDraft(
+				long userId, long objectEntryId, int version)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectEntryVersionDraftLocalService.addObjectEntryVersionDraft(
+			userId, objectEntryId, version);
+	}
+
 	/**
 	 * Adds the object entry version draft to the database. Also notifies the appropriate model listeners.
 	 *
@@ -115,6 +125,21 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 
 		return _objectEntryVersionDraftLocalService.
 			deleteObjectEntryVersionDraft(objectEntryVersionDraft);
+	}
+
+	@Override
+	public void deleteObjectEntryVersionDraftByObjectDefinitionId(
+		long objectDefinitionId) {
+
+		_objectEntryVersionDraftLocalService.
+			deleteObjectEntryVersionDraftByObjectDefinitionId(
+				objectDefinitionId);
+	}
+
+	@Override
+	public void deleteObjectEntryVersionDrafts(long objectEntryId) {
+		_objectEntryVersionDraftLocalService.deleteObjectEntryVersionDrafts(
+			objectEntryId);
 	}
 
 	/**
@@ -367,4 +392,4 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 		_objectEntryVersionDraftLocalService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1797063590
+// LIFERAY-SERVICE-BUILDER-HASH:135859530

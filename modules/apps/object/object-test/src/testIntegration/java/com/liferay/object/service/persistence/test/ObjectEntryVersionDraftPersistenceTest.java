@@ -135,6 +135,8 @@ public class ObjectEntryVersionDraftPersistenceTest {
 
 		newObjectEntryVersionDraft.setVersion(RandomTestUtil.nextInt());
 
+		newObjectEntryVersionDraft.setStatus(RandomTestUtil.nextInt());
+
 		newObjectEntryVersionDraft = _persistence.update(
 			newObjectEntryVersionDraft);
 
@@ -180,6 +182,9 @@ public class ObjectEntryVersionDraftPersistenceTest {
 		Assert.assertEquals(
 			existingObjectEntryVersionDraft.getVersion(),
 			newObjectEntryVersionDraft.getVersion());
+		Assert.assertEquals(
+			existingObjectEntryVersionDraft.getStatus(),
+			newObjectEntryVersionDraft.getStatus());
 	}
 
 	@Test
@@ -229,7 +234,8 @@ public class ObjectEntryVersionDraftPersistenceTest {
 			"ObjectEntryVersionDraft", "mvccVersion", true,
 			"objectEntryVersionDraftId", true, "companyId", true, "userId",
 			true, "userName", true, "createDate", true, "modifiedDate", true,
-			"objectDefinitionId", true, "objectEntryId", true, "version", true);
+			"objectDefinitionId", true, "objectEntryId", true, "version", true,
+			"status", true);
 	}
 
 	@Test
@@ -495,6 +501,8 @@ public class ObjectEntryVersionDraftPersistenceTest {
 
 		objectEntryVersionDraft.setVersion(RandomTestUtil.nextInt());
 
+		objectEntryVersionDraft.setStatus(RandomTestUtil.nextInt());
+
 		_objectEntryVersionDrafts.add(
 			_persistence.update(objectEntryVersionDraft));
 
@@ -507,4 +515,4 @@ public class ObjectEntryVersionDraftPersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1640888592
+// LIFERAY-SERVICE-BUILDER-HASH:1770733825

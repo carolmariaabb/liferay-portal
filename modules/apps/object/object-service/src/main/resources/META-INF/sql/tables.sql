@@ -162,7 +162,8 @@ create table ObjectEntryVersionDraft (
 	objectDefinitionId LONG,
 	objectEntryId LONG,
 	content TEXT null,
-	version INTEGER
+	version INTEGER,
+	status INTEGER
 );
 
 create table ObjectField (

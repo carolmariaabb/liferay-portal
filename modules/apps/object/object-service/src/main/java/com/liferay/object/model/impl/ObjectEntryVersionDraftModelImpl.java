@@ -67,7 +67,7 @@ public class ObjectEntryVersionDraftModelImpl
 		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
 		{"modifiedDate", Types.TIMESTAMP}, {"objectDefinitionId", Types.BIGINT},
 		{"objectEntryId", Types.BIGINT}, {"content", Types.CLOB},
-		{"version", Types.INTEGER}
+		{"version", Types.INTEGER}, {"status", Types.INTEGER}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -85,10 +85,11 @@ public class ObjectEntryVersionDraftModelImpl
 		TABLE_COLUMNS_MAP.put("objectEntryId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("content", Types.CLOB);
 		TABLE_COLUMNS_MAP.put("version", Types.INTEGER);
+		TABLE_COLUMNS_MAP.put("status", Types.INTEGER);
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table ObjectEntryVersionDraft (mvccVersion LONG default 0 not null,objectEntryVersionDraftId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,objectDefinitionId LONG,objectEntryId LONG,content TEXT null,version INTEGER)";
+		"create table ObjectEntryVersionDraft (mvccVersion LONG default 0 not null,objectEntryVersionDraftId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,objectDefinitionId LONG,objectEntryId LONG,content TEXT null,version INTEGER,status INTEGER)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table ObjectEntryVersionDraft";
@@ -262,6 +263,8 @@ public class ObjectEntryVersionDraftModelImpl
 				"content", ObjectEntryVersionDraft::getContent);
 			attributeGetterFunctions.put(
 				"version", ObjectEntryVersionDraft::getVersion);
+			attributeGetterFunctions.put(
+				"status", ObjectEntryVersionDraft::getStatus);
 
 			_attributeGetterFunctions = Collections.unmodifiableMap(
 				attributeGetterFunctions);
@@ -325,6 +328,10 @@ public class ObjectEntryVersionDraftModelImpl
 				"version",
 				(BiConsumer<ObjectEntryVersionDraft, Integer>)
 					ObjectEntryVersionDraft::setVersion);
+			attributeSetterBiConsumers.put(
+				"status",
+				(BiConsumer<ObjectEntryVersionDraft, Integer>)
+					ObjectEntryVersionDraft::setStatus);
 
 			_attributeSetterBiConsumers = Collections.unmodifiableMap(
 				(Map)attributeSetterBiConsumers);
@@ -538,6 +545,20 @@ public class ObjectEntryVersionDraftModelImpl
 		_version = version;
 	}
 
+	@Override
+	public int getStatus() {
+		return _status;
+	}
+
+	@Override
+	public void setStatus(int status) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_status = status;
+	}
+
 	public long getColumnBitmask() {
 		if (_columnBitmask > 0) {
 			return _columnBitmask;
@@ -609,6 +630,7 @@ public class ObjectEntryVersionDraftModelImpl
 		objectEntryVersionDraftImpl.setObjectEntryId(getObjectEntryId());
 		objectEntryVersionDraftImpl.setContent(getContent());
 		objectEntryVersionDraftImpl.setVersion(getVersion());
+		objectEntryVersionDraftImpl.setStatus(getStatus());
 
 		objectEntryVersionDraftImpl.resetOriginalValues();
 
@@ -642,6 +664,8 @@ public class ObjectEntryVersionDraftModelImpl
 			this.<String>getColumnOriginalValue("content"));
 		objectEntryVersionDraftImpl.setVersion(
 			this.<Integer>getColumnOriginalValue("version"));
+		objectEntryVersionDraftImpl.setStatus(
+			this.<Integer>getColumnOriginalValue("status"));
 
 		return objectEntryVersionDraftImpl;
 	}
@@ -772,6 +796,8 @@ public class ObjectEntryVersionDraftModelImpl
 
 		objectEntryVersionDraftCacheModel.version = getVersion();
 
+		objectEntryVersionDraftCacheModel.status = getStatus();
+
 		return objectEntryVersionDraftCacheModel;
 	}
 
@@ -847,6 +873,7 @@ public class ObjectEntryVersionDraftModelImpl
 	private long _objectEntryId;
 	private String _content;
 	private int _version;
+	private int _status;
 
 	public <T> T getColumnValue(String columnName) {
 		Function<ObjectEntryVersionDraft, Object> function =
@@ -888,6 +915,7 @@ public class ObjectEntryVersionDraftModelImpl
 		_columnOriginalValues.put("objectEntryId", _objectEntryId);
 		_columnOriginalValues.put("content", _content);
 		_columnOriginalValues.put("version", _version);
+		_columnOriginalValues.put("status", _status);
 	}
 
 	private transient Map<String, Object> _columnOriginalValues;
@@ -923,6 +951,8 @@ public class ObjectEntryVersionDraftModelImpl
 
 		columnBitmasks.put("version", 1024L);
 
+		columnBitmasks.put("status", 2048L);
+
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}
 
@@ -930,4 +960,4 @@ public class ObjectEntryVersionDraftModelImpl
 	private ObjectEntryVersionDraft _escapedModel;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1630499296
+// LIFERAY-SERVICE-BUILDER-HASH:1286510299
