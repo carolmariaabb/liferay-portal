@@ -48,7 +48,6 @@ public class ObjectEntryVersionDraftLocalServiceImpl
 
 		objectEntryVersionDraft.setObjectDefinitionId(
 			objectEntryVersion.getObjectDefinitionId());
-
 		objectEntryVersionDraft.setObjectEntryId(objectEntryId);
 		objectEntryVersionDraft.setContent(objectEntryVersion.getContent());
 		objectEntryVersionDraft.setVersion(version);
