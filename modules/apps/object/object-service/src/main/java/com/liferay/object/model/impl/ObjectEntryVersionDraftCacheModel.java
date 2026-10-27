@@ -1,0 +1,285 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2026 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
+package com.liferay.object.model.impl;
+
+import com.liferay.object.model.ObjectEntryVersionDraft;
+import com.liferay.petra.lang.HashUtil;
+import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.model.CacheModel;
+import com.liferay.portal.kernel.model.MVCCModel;
+
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
+import java.util.Date;
+
+/**
+ * The cache model class for representing ObjectEntryVersionDraft in entity cache.
+ *
+ * @author Marco Leo
+ * @generated
+ */
+public class ObjectEntryVersionDraftCacheModel
+	implements CacheModel<ObjectEntryVersionDraft>, Externalizable, MVCCModel {
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof ObjectEntryVersionDraftCacheModel)) {
+			return false;
+		}
+
+		ObjectEntryVersionDraftCacheModel objectEntryVersionDraftCacheModel =
+			(ObjectEntryVersionDraftCacheModel)object;
+
+		if ((objectEntryVersionDraftId ==
+				objectEntryVersionDraftCacheModel.objectEntryVersionDraftId) &&
+			(mvccVersion == objectEntryVersionDraftCacheModel.mvccVersion)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	public int hashCode() {
+		int hashCode = HashUtil.hash(0, objectEntryVersionDraftId);
+
+		return HashUtil.hash(hashCode, mvccVersion);
+	}
+
+	@Override
+	public long getMvccVersion() {
+		return mvccVersion;
+	}
+
+	@Override
+	public void setMvccVersion(long mvccVersion) {
+		this.mvccVersion = mvccVersion;
+	}
+
+	@Override
+	public String toString() {
+		StringBundler sb = new StringBundler(33);
+
+		sb.append("{mvccVersion=");
+		sb.append(mvccVersion);
+		sb.append(", externalReferenceCode=");
+		sb.append(externalReferenceCode);
+		sb.append(", objectEntryVersionDraftId=");
+		sb.append(objectEntryVersionDraftId);
+		sb.append(", companyId=");
+		sb.append(companyId);
+		sb.append(", userId=");
+		sb.append(userId);
+		sb.append(", userName=");
+		sb.append(userName);
+		sb.append(", createDate=");
+		sb.append(createDate);
+		sb.append(", modifiedDate=");
+		sb.append(modifiedDate);
+		sb.append(", objectDefinitionId=");
+		sb.append(objectDefinitionId);
+		sb.append(", objectEntryId=");
+		sb.append(objectEntryId);
+		sb.append(", content=");
+		sb.append(content);
+		sb.append(", version=");
+		sb.append(version);
+		sb.append(", status=");
+		sb.append(status);
+		sb.append(", statusByUserId=");
+		sb.append(statusByUserId);
+		sb.append(", statusByUserName=");
+		sb.append(statusByUserName);
+		sb.append(", statusDate=");
+		sb.append(statusDate);
+		sb.append("}");
+
+		return sb.toString();
+	}
+
+	@Override
+	public ObjectEntryVersionDraft toEntityModel() {
+		ObjectEntryVersionDraftImpl objectEntryVersionDraftImpl =
+			new ObjectEntryVersionDraftImpl();
+
+		objectEntryVersionDraftImpl.setMvccVersion(mvccVersion);
+
+		if (externalReferenceCode == null) {
+			objectEntryVersionDraftImpl.setExternalReferenceCode("");
+		}
+		else {
+			objectEntryVersionDraftImpl.setExternalReferenceCode(
+				externalReferenceCode);
+		}
+
+		objectEntryVersionDraftImpl.setObjectEntryVersionDraftId(
+			objectEntryVersionDraftId);
+		objectEntryVersionDraftImpl.setCompanyId(companyId);
+		objectEntryVersionDraftImpl.setUserId(userId);
+
+		if (userName == null) {
+			objectEntryVersionDraftImpl.setUserName("");
+		}
+		else {
+			objectEntryVersionDraftImpl.setUserName(userName);
+		}
+
+		if (createDate == Long.MIN_VALUE) {
+			objectEntryVersionDraftImpl.setCreateDate(null);
+		}
+		else {
+			objectEntryVersionDraftImpl.setCreateDate(new Date(createDate));
+		}
+
+		if (modifiedDate == Long.MIN_VALUE) {
+			objectEntryVersionDraftImpl.setModifiedDate(null);
+		}
+		else {
+			objectEntryVersionDraftImpl.setModifiedDate(new Date(modifiedDate));
+		}
+
+		objectEntryVersionDraftImpl.setObjectDefinitionId(objectDefinitionId);
+		objectEntryVersionDraftImpl.setObjectEntryId(objectEntryId);
+
+		if (content == null) {
+			objectEntryVersionDraftImpl.setContent("");
+		}
+		else {
+			objectEntryVersionDraftImpl.setContent(content);
+		}
+
+		objectEntryVersionDraftImpl.setVersion(version);
+		objectEntryVersionDraftImpl.setStatus(status);
+		objectEntryVersionDraftImpl.setStatusByUserId(statusByUserId);
+
+		if (statusByUserName == null) {
+			objectEntryVersionDraftImpl.setStatusByUserName("");
+		}
+		else {
+			objectEntryVersionDraftImpl.setStatusByUserName(statusByUserName);
+		}
+
+		if (statusDate == Long.MIN_VALUE) {
+			objectEntryVersionDraftImpl.setStatusDate(null);
+		}
+		else {
+			objectEntryVersionDraftImpl.setStatusDate(new Date(statusDate));
+		}
+
+		objectEntryVersionDraftImpl.resetOriginalValues();
+
+		return objectEntryVersionDraftImpl;
+	}
+
+	@Override
+	public void readExternal(ObjectInput objectInput) throws IOException {
+		mvccVersion = objectInput.readLong();
+		externalReferenceCode = objectInput.readUTF();
+
+		objectEntryVersionDraftId = objectInput.readLong();
+
+		companyId = objectInput.readLong();
+
+		userId = objectInput.readLong();
+		userName = objectInput.readUTF();
+		createDate = objectInput.readLong();
+		modifiedDate = objectInput.readLong();
+
+		objectDefinitionId = objectInput.readLong();
+
+		objectEntryId = objectInput.readLong();
+		content = objectInput.readUTF();
+
+		version = objectInput.readInt();
+
+		status = objectInput.readInt();
+
+		statusByUserId = objectInput.readLong();
+		statusByUserName = objectInput.readUTF();
+		statusDate = objectInput.readLong();
+	}
+
+	@Override
+	public void writeExternal(ObjectOutput objectOutput) throws IOException {
+		objectOutput.writeLong(mvccVersion);
+
+		if (externalReferenceCode == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(externalReferenceCode);
+		}
+
+		objectOutput.writeLong(objectEntryVersionDraftId);
+
+		objectOutput.writeLong(companyId);
+
+		objectOutput.writeLong(userId);
+
+		if (userName == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(userName);
+		}
+
+		objectOutput.writeLong(createDate);
+		objectOutput.writeLong(modifiedDate);
+
+		objectOutput.writeLong(objectDefinitionId);
+
+		objectOutput.writeLong(objectEntryId);
+
+		if (content == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(content);
+		}
+
+		objectOutput.writeInt(version);
+
+		objectOutput.writeInt(status);
+
+		objectOutput.writeLong(statusByUserId);
+
+		if (statusByUserName == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(statusByUserName);
+		}
+
+		objectOutput.writeLong(statusDate);
+	}
+
+	public long mvccVersion;
+	public String externalReferenceCode;
+	public long objectEntryVersionDraftId;
+	public long companyId;
+	public long userId;
+	public String userName;
+	public long createDate;
+	public long modifiedDate;
+	public long objectDefinitionId;
+	public long objectEntryId;
+	public String content;
+	public int version;
+	public int status;
+	public long statusByUserId;
+	public String statusByUserName;
+	public long statusDate;
+
+}
+// LIFERAY-SERVICE-BUILDER-HASH:-893109844
