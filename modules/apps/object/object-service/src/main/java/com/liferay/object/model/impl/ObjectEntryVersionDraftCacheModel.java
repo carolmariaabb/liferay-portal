@@ -183,7 +183,9 @@ public class ObjectEntryVersionDraftCacheModel
 	}
 
 	@Override
-	public void readExternal(ObjectInput objectInput) throws IOException {
+	public void readExternal(ObjectInput objectInput)
+		throws ClassNotFoundException, IOException {
+
 		mvccVersion = objectInput.readLong();
 		externalReferenceCode = objectInput.readUTF();
 
@@ -199,7 +201,7 @@ public class ObjectEntryVersionDraftCacheModel
 		objectDefinitionId = objectInput.readLong();
 
 		objectEntryId = objectInput.readLong();
-		content = objectInput.readUTF();
+		content = (String)objectInput.readObject();
 
 		version = objectInput.readInt();
 
@@ -242,10 +244,10 @@ public class ObjectEntryVersionDraftCacheModel
 		objectOutput.writeLong(objectEntryId);
 
 		if (content == null) {
-			objectOutput.writeUTF("");
+			objectOutput.writeObject("");
 		}
 		else {
-			objectOutput.writeUTF(content);
+			objectOutput.writeObject(content);
 		}
 
 		objectOutput.writeInt(version);
@@ -282,4 +284,4 @@ public class ObjectEntryVersionDraftCacheModel
 	public long statusDate;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-893109844
+// LIFERAY-SERVICE-BUILDER-HASH:1874338765

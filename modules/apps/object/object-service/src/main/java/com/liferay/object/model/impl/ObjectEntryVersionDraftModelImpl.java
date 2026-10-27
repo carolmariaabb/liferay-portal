@@ -67,7 +67,7 @@ public class ObjectEntryVersionDraftModelImpl
 		{"companyId", Types.BIGINT}, {"userId", Types.BIGINT},
 		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
 		{"modifiedDate", Types.TIMESTAMP}, {"objectDefinitionId", Types.BIGINT},
-		{"objectEntryId", Types.BIGINT}, {"content", Types.VARCHAR},
+		{"objectEntryId", Types.BIGINT}, {"content", Types.CLOB},
 		{"version", Types.INTEGER}, {"status", Types.INTEGER},
 		{"statusByUserId", Types.BIGINT}, {"statusByUserName", Types.VARCHAR},
 		{"statusDate", Types.TIMESTAMP}
@@ -87,7 +87,7 @@ public class ObjectEntryVersionDraftModelImpl
 		TABLE_COLUMNS_MAP.put("modifiedDate", Types.TIMESTAMP);
 		TABLE_COLUMNS_MAP.put("objectDefinitionId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("objectEntryId", Types.BIGINT);
-		TABLE_COLUMNS_MAP.put("content", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("content", Types.CLOB);
 		TABLE_COLUMNS_MAP.put("version", Types.INTEGER);
 		TABLE_COLUMNS_MAP.put("status", Types.INTEGER);
 		TABLE_COLUMNS_MAP.put("statusByUserId", Types.BIGINT);
@@ -96,7 +96,7 @@ public class ObjectEntryVersionDraftModelImpl
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table ObjectEntryVersionDraft (mvccVersion LONG default 0 not null,externalReferenceCode VARCHAR(75) null,objectEntryVersionDraftId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,objectDefinitionId LONG,objectEntryId LONG,content VARCHAR(75) null,version INTEGER,status INTEGER,statusByUserId LONG,statusByUserName VARCHAR(75) null,statusDate DATE null)";
+		"create table ObjectEntryVersionDraft (mvccVersion LONG default 0 not null,externalReferenceCode VARCHAR(75) null,objectEntryVersionDraftId LONG not null primary key,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,objectDefinitionId LONG,objectEntryId LONG,content TEXT null,version INTEGER,status INTEGER,statusByUserId LONG,statusByUserName VARCHAR(75) null,statusDate DATE null)";
 
 	public static final String TABLE_SQL_DROP =
 		"drop table ObjectEntryVersionDraft";
@@ -1249,4 +1249,4 @@ public class ObjectEntryVersionDraftModelImpl
 	private ObjectEntryVersionDraft _escapedModel;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-936483359
+// LIFERAY-SERVICE-BUILDER-HASH:-1005089350

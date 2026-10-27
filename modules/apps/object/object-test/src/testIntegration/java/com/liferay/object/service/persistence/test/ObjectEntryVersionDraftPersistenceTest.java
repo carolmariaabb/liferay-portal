@@ -270,9 +270,9 @@ public class ObjectEntryVersionDraftPersistenceTest {
 			"externalReferenceCode", true, "objectEntryVersionDraftId", true,
 			"companyId", true, "userId", true, "userName", true, "createDate",
 			true, "modifiedDate", true, "objectDefinitionId", true,
-			"objectEntryId", true, "content", true, "version", true, "status",
-			true, "statusByUserId", true, "statusByUserName", true,
-			"statusDate", true);
+			"objectEntryId", true, "version", true, "status", true,
+			"statusByUserId", true, "statusByUserName", true, "statusDate",
+			true);
 	}
 
 	@Test
@@ -636,4 +636,4 @@ public class ObjectEntryVersionDraftPersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1179165623
+// LIFERAY-SERVICE-BUILDER-HASH:-1571194161

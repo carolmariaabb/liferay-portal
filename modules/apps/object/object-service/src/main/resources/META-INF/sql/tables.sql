@@ -162,7 +162,7 @@ create table ObjectEntryVersionDraft (
 	modifiedDate DATE null,
 	objectDefinitionId LONG,
 	objectEntryId LONG,
-	content VARCHAR(75) null,
+	content TEXT null,
 	version INTEGER,
 	status INTEGER,
 	statusByUserId LONG,
