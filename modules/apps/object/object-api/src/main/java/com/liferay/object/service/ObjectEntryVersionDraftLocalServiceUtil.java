@@ -36,6 +36,13 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 	 *
 	 * Never modify this class directly. Add custom service methods to <code>com.liferay.object.service.impl.ObjectEntryVersionDraftLocalServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
+	public static ObjectEntryVersionDraft addObjectEntryVersionDraft(
+			long userId, long objectEntryId, int version)
+		throws PortalException {
+
+		return getService().addObjectEntryVersionDraft(
+			userId, objectEntryId, version);
+	}
 
 	/**
 	 * Adds the object entry version draft to the database. Also notifies the appropriate model listeners.
@@ -110,6 +117,17 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 
 		return getService().deleteObjectEntryVersionDraft(
 			objectEntryVersionDraft);
+	}
+
+	public static void deleteObjectEntryVersionDraftByObjectDefinitionId(
+		long objectDefinitionId) {
+
+		getService().deleteObjectEntryVersionDraftByObjectDefinitionId(
+			objectDefinitionId);
+	}
+
+	public static void deleteObjectEntryVersionDrafts(long objectEntryId) {
+		getService().deleteObjectEntryVersionDrafts(objectEntryId);
 	}
 
 	/**
@@ -242,6 +260,15 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 			objectEntryVersionDraftId);
 	}
 
+	public static ObjectEntryVersionDraft getObjectEntryVersionDraft(
+			String externalReferenceCode, long companyId,
+			long objectDefinitionId)
+		throws PortalException {
+
+		return getService().getObjectEntryVersionDraft(
+			externalReferenceCode, companyId, objectDefinitionId);
+	}
+
 	/**
 	 * Returns a range of all the object entry version drafts.
 	 *
@@ -286,6 +313,15 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 		return getService().getPersistedModel(primaryKeyObj);
 	}
 
+	public static ObjectEntryVersionDraft updateObjectEntryVersionDraft(
+			long userId, long objectEntryVersionDraftId, String content,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws PortalException {
+
+		return getService().updateObjectEntryVersionDraft(
+			userId, objectEntryVersionDraftId, content, serviceContext);
+	}
+
 	/**
 	 * Updates the object entry version draft in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
@@ -303,6 +339,15 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 			objectEntryVersionDraft);
 	}
 
+	public static ObjectEntryVersionDraft updateStatus(
+			long userId, long objectEntryVersionDraftId, int status,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws PortalException {
+
+		return getService().updateStatus(
+			userId, objectEntryVersionDraftId, status, serviceContext);
+	}
+
 	public static ObjectEntryVersionDraftLocalService getService() {
 		return _serviceSnapshot.get();
 	}
@@ -313,4 +358,4 @@ public class ObjectEntryVersionDraftLocalServiceUtil {
 			ObjectEntryVersionDraftLocalService.class);
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1472656699
+// LIFERAY-SERVICE-BUILDER-HASH:-881805829

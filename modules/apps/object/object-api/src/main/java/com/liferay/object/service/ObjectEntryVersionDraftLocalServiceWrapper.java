@@ -31,6 +31,16 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 			objectEntryVersionDraftLocalService;
 	}
 
+	@Override
+	public com.liferay.object.model.ObjectEntryVersionDraft
+			addObjectEntryVersionDraft(
+				long userId, long objectEntryId, int version)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectEntryVersionDraftLocalService.addObjectEntryVersionDraft(
+			userId, objectEntryId, version);
+	}
+
 	/**
 	 * Adds the object entry version draft to the database. Also notifies the appropriate model listeners.
 	 *
@@ -115,6 +125,21 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 
 		return _objectEntryVersionDraftLocalService.
 			deleteObjectEntryVersionDraft(objectEntryVersionDraft);
+	}
+
+	@Override
+	public void deleteObjectEntryVersionDraftByObjectDefinitionId(
+		long objectDefinitionId) {
+
+		_objectEntryVersionDraftLocalService.
+			deleteObjectEntryVersionDraftByObjectDefinitionId(
+				objectDefinitionId);
+	}
+
+	@Override
+	public void deleteObjectEntryVersionDrafts(long objectEntryId) {
+		_objectEntryVersionDraftLocalService.deleteObjectEntryVersionDrafts(
+			objectEntryId);
 	}
 
 	/**
@@ -272,6 +297,17 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 			objectEntryVersionDraftId);
 	}
 
+	@Override
+	public com.liferay.object.model.ObjectEntryVersionDraft
+			getObjectEntryVersionDraft(
+				String externalReferenceCode, long companyId,
+				long objectDefinitionId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectEntryVersionDraftLocalService.getObjectEntryVersionDraft(
+			externalReferenceCode, companyId, objectDefinitionId);
+	}
+
 	/**
 	 * Returns a range of all the object entry version drafts.
 	 *
@@ -324,6 +360,18 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 			primaryKeyObj);
 	}
 
+	@Override
+	public com.liferay.object.model.ObjectEntryVersionDraft
+			updateObjectEntryVersionDraft(
+				long userId, long objectEntryVersionDraftId, String content,
+				com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectEntryVersionDraftLocalService.
+			updateObjectEntryVersionDraft(
+				userId, objectEntryVersionDraftId, content, serviceContext);
+	}
+
 	/**
 	 * Updates the object entry version draft in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
@@ -342,6 +390,16 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 
 		return _objectEntryVersionDraftLocalService.
 			updateObjectEntryVersionDraft(objectEntryVersionDraft);
+	}
+
+	@Override
+	public com.liferay.object.model.ObjectEntryVersionDraft updateStatus(
+			long userId, long objectEntryVersionDraftId, int status,
+			com.liferay.portal.kernel.service.ServiceContext serviceContext)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectEntryVersionDraftLocalService.updateStatus(
+			userId, objectEntryVersionDraftId, status, serviceContext);
 	}
 
 	@Override
@@ -367,4 +425,4 @@ public class ObjectEntryVersionDraftLocalServiceWrapper
 		_objectEntryVersionDraftLocalService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1797063590
+// LIFERAY-SERVICE-BUILDER-HASH:675777368
