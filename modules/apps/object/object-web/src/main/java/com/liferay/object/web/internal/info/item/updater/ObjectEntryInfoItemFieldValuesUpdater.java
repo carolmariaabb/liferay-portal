@@ -127,8 +127,8 @@ public class ObjectEntryInfoItemFieldValuesUpdater
 
 			DTOConverterContext dtoConverterContext =
 				new DefaultDTOConverterContext(
-					false, null, null, null, null, themeDisplay.getLocale(),
-					null, themeDisplay.getUser());
+					false, null, null, serviceContext.getRequest(), null,
+					themeDisplay.getLocale(), null, themeDisplay.getUser());
 
 			dtoConverterContext.setAttribute("addActions", Boolean.FALSE);
 
@@ -223,8 +223,8 @@ public class ObjectEntryInfoItemFieldValuesUpdater
 
 			DTOConverterContext updateDTOConverterContext =
 				new DefaultDTOConverterContext(
-					false, null, null, null, null, themeDisplay.getLocale(),
-					null, themeDisplay.getUser());
+					false, null, null, serviceContext.getRequest(), null,
+					themeDisplay.getLocale(), null, themeDisplay.getUser());
 
 			updateDTOConverterContext.setAttribute("addActions", Boolean.FALSE);
 

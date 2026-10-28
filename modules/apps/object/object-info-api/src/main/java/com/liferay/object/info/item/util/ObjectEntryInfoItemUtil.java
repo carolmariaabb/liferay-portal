@@ -8,6 +8,7 @@ package com.liferay.object.info.item.util;
 import com.liferay.object.entry.util.ObjectEntryVersionConverterUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntryVersion;
+import com.liferay.object.model.ObjectEntryVersionDraft;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
@@ -38,6 +39,7 @@ import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.preview.PreviewableResolverUtil;
@@ -236,6 +238,37 @@ public class ObjectEntryInfoItemUtil {
 		return user;
 	}
 
+	private static ObjectEntryVersionDraft _fetchObjectEntryVersionDraft(
+		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry) {
+
+		ServiceContext serviceContext =
+			ServiceContextThreadLocal.getServiceContext();
+
+		if ((serviceContext == null) || (serviceContext.getRequest() == null)) {
+			return null;
+		}
+
+		long draftId = ParamUtil.getLong(
+			serviceContext.getRequest(), "draftId");
+
+		if (draftId == 0) {
+			return null;
+		}
+
+		ObjectEntryVersionDraft objectEntryVersionDraft =
+			ObjectEntryVersionDraftLocalServiceUtil.
+				fetchObjectEntryVersionDraft(draftId);
+
+		if ((objectEntryVersionDraft == null) ||
+			(objectEntryVersionDraft.getObjectEntryId() !=
+				serviceBuilderObjectEntry.getObjectEntryId())) {
+
+			return null;
+		}
+
+		return objectEntryVersionDraft;
+	}
+
 	private static ObjectEntryVersion _fetchPreviewObjectEntryVersion(
 		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry) {
 
@@ -243,6 +276,14 @@ public class ObjectEntryInfoItemUtil {
 				serviceBuilderObjectEntry.getCompanyId(), "LPD-72278")) {
 
 			return null;
+		}
+
+		ObjectEntryVersionDraft objectEntryVersionDraft =
+			_fetchObjectEntryVersionDraft(serviceBuilderObjectEntry);
+
+		if (objectEntryVersionDraft != null) {
+			return ObjectEntryVersionConverterUtil.toObjectEntryVersion(
+				objectEntryVersionDraft);
 		}
 
 		Map<Serializable, Serializable> previewableMap =

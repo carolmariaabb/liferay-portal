@@ -29,6 +29,7 @@ import com.liferay.object.entry.scope.provider.ObjectEntryScopeProvider;
 import com.liferay.object.entry.scope.provider.ObjectEntryScopeProviderRegistry;
 import com.liferay.object.entry.util.ObjectEntryDTOConverterUtil;
 import com.liferay.object.entry.util.ObjectEntryThreadLocal;
+import com.liferay.object.entry.util.ObjectEntryVersionConverterUtil;
 import com.liferay.object.exception.NoSuchObjectEntryException;
 import com.liferay.object.exception.ObjectEntryValuesException;
 import com.liferay.object.field.attachment.AttachmentManager;
@@ -41,6 +42,7 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.model.ObjectEntryTable;
 import com.liferay.object.model.ObjectEntryVersion;
+import com.liferay.object.model.ObjectEntryVersionDraft;
 import com.liferay.object.model.ObjectEntryVersionTable;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectFolder;
@@ -77,6 +79,7 @@ import com.liferay.object.service.ObjectEntryFolderLocalService;
 import com.liferay.object.service.ObjectEntryFolderService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectEntryService;
+import com.liferay.object.service.ObjectEntryVersionDraftLocalService;
 import com.liferay.object.service.ObjectEntryVersionLocalService;
 import com.liferay.object.service.ObjectEntryVersionService;
 import com.liferay.object.service.ObjectFieldLocalService;
@@ -128,6 +131,7 @@ import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.RoleService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.service.permission.ModelPermissions;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -143,6 +147,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.OrderByComparatorFactoryUtil;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.UniqueUtil;
@@ -177,6 +182,8 @@ import com.liferay.sharing.configuration.SharingConfigurationFactory;
 import com.liferay.sharing.security.permission.SharingPermission;
 import com.liferay.subscription.service.SubscriptionLocalService;
 import com.liferay.trash.TrashHelper;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -1477,6 +1484,14 @@ public class DefaultObjectEntryManagerImpl
 
 		_checkObjectEntryStatus(serviceBuilderObjectEntry);
 
+		ObjectEntry draftObjectEntry = _updateDraftObjectEntry(
+			dtoConverterContext, objectDefinition, objectEntry, scopeKey,
+			serviceBuilderObjectEntry);
+
+		if (draftObjectEntry != null) {
+			return draftObjectEntry;
+		}
+
 		validateReadOnlyObjectFields(
 			objectDefinition, objectEntry, serviceBuilderObjectEntry);
 
@@ -2373,6 +2388,55 @@ public class DefaultObjectEntryManagerImpl
 			dtoConverterContext.getUserId());
 	}
 
+	private ObjectEntryVersionDraft _fetchObjectEntryVersionDraft(
+			DTOConverterContext dtoConverterContext,
+			ObjectDefinition objectDefinition,
+			com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry)
+		throws Exception {
+
+		if (!FeatureFlagManagerUtil.isEnabled(
+				objectDefinition.getCompanyId(), "LPD-72278")) {
+
+			return null;
+		}
+
+		HttpServletRequest httpServletRequest =
+			dtoConverterContext.getHttpServletRequest();
+
+		if (httpServletRequest == null) {
+			ServiceContext serviceContext =
+				ServiceContextThreadLocal.getServiceContext();
+
+			if (serviceContext != null) {
+				httpServletRequest = serviceContext.getRequest();
+			}
+		}
+
+		if (httpServletRequest == null) {
+			return null;
+		}
+
+		long draftId = ParamUtil.getLong(httpServletRequest, "draftId");
+
+		if (draftId == 0) {
+			return null;
+		}
+
+		ObjectEntryVersionDraft objectEntryVersionDraft =
+			_objectEntryVersionDraftLocalService.getObjectEntryVersionDraft(
+				draftId);
+
+		if ((objectEntryVersionDraft.getObjectDefinitionId() !=
+				objectDefinition.getObjectDefinitionId()) ||
+			(objectEntryVersionDraft.getObjectEntryId() !=
+				serviceBuilderObjectEntry.getObjectEntryId())) {
+
+			return null;
+		}
+
+		return objectEntryVersionDraft;
+	}
+
 	private com.liferay.portal.kernel.repository.model.FileEntry
 			_fetchServiceBuilderFileEntry(
 				FileEntry fileEntry, ObjectDefinition objectDefinition,
@@ -2571,12 +2635,24 @@ public class DefaultObjectEntryManagerImpl
 			com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry)
 		throws Exception {
 
+		_checkObjectEntryObjectDefinitionId(
+			objectDefinition, serviceBuilderObjectEntry);
+
+		ObjectEntryVersionDraft objectEntryVersionDraft =
+			_fetchObjectEntryVersionDraft(
+				dtoConverterContext, objectDefinition,
+				serviceBuilderObjectEntry);
+
+		if (objectEntryVersionDraft != null) {
+			return _toObjectEntry(
+				dtoConverterContext, objectDefinition, objectEntryVersionDraft,
+				serviceBuilderObjectEntry);
+		}
+
 		_checkApprovedObjectEntry(
 			GetterUtil.getBoolean(
 				dtoConverterContext.getAttribute("preferApproved")),
 			serviceBuilderObjectEntry);
-		_checkObjectEntryObjectDefinitionId(
-			objectDefinition, serviceBuilderObjectEntry);
 		_checkRootDescendantNode(serviceBuilderObjectEntry, false);
 
 		_setLatestApprovedObjectEntryVersionAttribute(
@@ -3964,6 +4040,24 @@ public class DefaultObjectEntryManagerImpl
 			serviceBuilderObjectEntry);
 	}
 
+	private ObjectEntry _toObjectEntry(
+			DTOConverterContext dtoConverterContext,
+			ObjectDefinition objectDefinition,
+			ObjectEntryVersionDraft objectEntryVersionDraft,
+			com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry)
+		throws Exception {
+
+		dtoConverterContext.setAttribute("addActions", Boolean.FALSE);
+
+		return _objectEntryDTOConverter.toDTO(
+			_getObjectEntryVersionDTOConverterContext(
+				dtoConverterContext, objectDefinition,
+				ObjectEntryVersionConverterUtil.toObjectEntryVersion(
+					objectEntryVersionDraft),
+				serviceBuilderObjectEntry),
+			serviceBuilderObjectEntry);
+	}
+
 	private Map<String, Serializable> _toObjectValues(
 			long allowedRelationshipObjectFieldId, Locale locale,
 			ObjectDefinition objectDefinition, ObjectEntry objectEntry,
@@ -4105,6 +4199,48 @@ public class DefaultObjectEntryManagerImpl
 			null);
 	}
 
+	private ObjectEntry _updateDraftObjectEntry(
+			DTOConverterContext dtoConverterContext,
+			ObjectDefinition objectDefinition, ObjectEntry objectEntry,
+			String scopeKey,
+			com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry)
+		throws Exception {
+
+		ObjectEntryVersionDraft objectEntryVersionDraft =
+			_fetchObjectEntryVersionDraft(
+				dtoConverterContext, objectDefinition,
+				serviceBuilderObjectEntry);
+
+		if (objectEntryVersionDraft == null) {
+			return null;
+		}
+
+		_objectEntryService.checkModelResourcePermission(
+			serviceBuilderObjectEntry, ActionKeys.UPDATE);
+
+		JSONObject dtoJSONObject = jsonFactory.createJSONObject(
+			objectEntry.toString());
+
+		dtoJSONObject.remove("actions");
+		dtoJSONObject.remove("creator");
+		dtoJSONObject.remove("dateCreated");
+		dtoJSONObject.remove("dateModified");
+		dtoJSONObject.remove("id");
+		dtoJSONObject.remove("status");
+		dtoJSONObject.remove("version");
+
+		return _toObjectEntry(
+			dtoConverterContext, objectDefinition,
+			_objectEntryVersionDraftLocalService.updateObjectEntryVersionDraft(
+				dtoConverterContext.getUserId(),
+				objectEntryVersionDraft.getObjectEntryVersionDraftId(),
+				dtoJSONObject.toString(),
+				_createServiceContext(
+					dtoConverterContext, objectDefinition, objectEntry,
+					scopeKey)),
+			serviceBuilderObjectEntry);
+	}
+
 	private void _updateDuplicateObjectEntryName(
 			ObjectDefinition objectDefinition,
 			ObjectEntryFolder objectEntryFolder, String languageId,
@@ -4201,6 +4337,14 @@ public class DefaultObjectEntryManagerImpl
 		String scopeKey = String.valueOf(
 			serviceBuilderObjectEntry.getGroupId());
 
+		ObjectEntry draftObjectEntry = _updateDraftObjectEntry(
+			dtoConverterContext, objectDefinition, objectEntry, scopeKey,
+			serviceBuilderObjectEntry);
+
+		if (draftObjectEntry != null) {
+			return draftObjectEntry;
+		}
+
 		ServiceContext serviceContext = _createServiceContext(
 			dtoConverterContext, objectDefinition, objectEntry, scopeKey);
 
@@ -4262,6 +4406,14 @@ public class DefaultObjectEntryManagerImpl
 		}
 		else {
 			_checkObjectEntryStatus(serviceBuilderObjectEntry);
+
+			ObjectEntry draftObjectEntry = _updateDraftObjectEntry(
+				dtoConverterContext, objectDefinition, objectEntry, scopeKey,
+				serviceBuilderObjectEntry);
+
+			if (draftObjectEntry != null) {
+				return draftObjectEntry;
+			}
 
 			validateReadOnlyObjectFields(
 				objectDefinition, objectEntry, serviceBuilderObjectEntry);
@@ -4546,6 +4698,10 @@ public class DefaultObjectEntryManagerImpl
 
 	@Reference
 	private ObjectEntryService _objectEntryService;
+
+	@Reference
+	private ObjectEntryVersionDraftLocalService
+		_objectEntryVersionDraftLocalService;
 
 	@Reference
 	private ObjectEntryVersionLocalService _objectEntryVersionLocalService;
