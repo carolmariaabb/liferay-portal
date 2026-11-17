@@ -435,12 +435,28 @@ public class ObjectEntryValuesException extends PortalException {
 		extends ObjectEntryValuesException {
 
 		public OneToOneConstraintViolation(
-			String columnName, long columnValue, String tableName) {
+			String columnName, long columnValue, String objectFieldName,
+			String tableName) {
 
 			super(
+				Collections.singletonList(objectFieldName),
 				String.format(
 					"One to one constraint violation for %s.%s with value %s",
-					tableName, columnName, columnValue));
+					tableName, columnName, columnValue),
+				"the-entry-selected-for-x-is-already-linked-to-another-entry");
+		}
+
+	}
+
+	public static class OneToOneSelfLink extends ObjectEntryValuesException {
+
+		public OneToOneSelfLink(String objectFieldName, long objectEntryId) {
+			super(
+				Collections.singletonList(objectFieldName),
+				String.format(
+					"Object entry %s cannot be linked to itself through %s",
+					objectEntryId, objectFieldName),
+				"an-entry-cannot-be-linked-to-itself");
 		}
 
 	}

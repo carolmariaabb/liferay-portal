@@ -410,7 +410,10 @@ public class ObjectFieldUtil {
 			}
 			else if (Objects.equals(
 						objectField.getRelationshipType(),
-						ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+						ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+					 Objects.equals(
+						 objectField.getRelationshipType(),
+						 ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
 
 				String objectRelationshipERCObjectFieldName =
 					ObjectFieldSettingUtil.getValue(
@@ -518,9 +521,12 @@ public class ObjectFieldUtil {
 			if (Objects.equals(
 					objectField.getBusinessType(),
 					ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP) &&
-				Objects.equals(
+				(Objects.equals(
 					objectField.getRelationshipType(),
-					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+					ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+				 Objects.equals(
+					 objectField.getRelationshipType(),
+					 ObjectRelationshipConstants.TYPE_ONE_TO_ONE))) {
 
 				if (Objects.equals(existingValue, value) ||
 					((existingValue != null) && (value != null) &&

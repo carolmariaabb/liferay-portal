@@ -1023,10 +1023,7 @@ public class ObjectEntryLocalServiceImpl
 			_objectRelationshipPersistence.findByPrimaryKey(
 				objectRelationshipId);
 
-		if (!Objects.equals(
-				objectRelationship.getType(),
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
-
+		if (!_hasRelationshipObjectField(objectRelationship.getType())) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -3211,9 +3208,8 @@ public class ObjectEntryLocalServiceImpl
 		List<ObjectField> objectFields, Map<String, Serializable> values) {
 
 		for (ObjectField objectField : objectFields) {
-			if (!Objects.equals(
-					objectField.getRelationshipType(),
-					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+			if (!_hasRelationshipObjectField(
+					objectField.getRelationshipType())) {
 
 				continue;
 			}
@@ -3286,9 +3282,8 @@ public class ObjectEntryLocalServiceImpl
 			new HashMap<>();
 
 		for (ObjectField objectField : objectFields) {
-			if (!Objects.equals(
-					objectField.getRelationshipType(),
-					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+			if (!_hasRelationshipObjectField(
+					objectField.getRelationshipType())) {
 
 				continue;
 			}
@@ -4756,10 +4751,7 @@ public class ObjectEntryLocalServiceImpl
 					);
 			}
 		}
-		else if (Objects.equals(
-					objectRelationship.getType(),
-					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
-
+		else if (_hasRelationshipObjectField(objectRelationship.getType())) {
 			ObjectField relationshipObjectField =
 				_objectFieldPersistence.findByPrimaryKey(
 					objectRelationship.getObjectFieldId2());
@@ -5744,10 +5736,7 @@ public class ObjectEntryLocalServiceImpl
 			return null;
 		}
 
-		if (Objects.equals(
-				objectField.getRelationshipType(),
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
-
+		if (_hasRelationshipObjectField(objectField.getRelationshipType())) {
 			return _getRelationshipObjectFieldPredicate(
 				column, objectField, search);
 		}
@@ -6080,9 +6069,13 @@ public class ObjectEntryLocalServiceImpl
 		Map<String, Object> queryExpressions = new HashMap<>();
 
 		for (ObjectRelationship objectRelationship :
-				_objectRelationshipPersistence.findByODI2_R_T(
-					objectDefinition2.getObjectDefinitionId(), false,
-					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+				ListUtil.concat(
+					_objectRelationshipPersistence.findByODI2_R_T(
+						objectDefinition2.getObjectDefinitionId(), false,
+						ObjectRelationshipConstants.TYPE_ONE_TO_MANY),
+					_objectRelationshipPersistence.findByODI2_R_T(
+						objectDefinition2.getObjectDefinitionId(), false,
+						ObjectRelationshipConstants.TYPE_ONE_TO_ONE))) {
 
 			ObjectField relationshipObjectField =
 				_objectFieldPersistence.findByPrimaryKey(
@@ -6722,6 +6715,20 @@ public class ObjectEntryLocalServiceImpl
 		return false;
 	}
 
+	private boolean _hasRelationshipObjectField(String relationshipType) {
+		if (Objects.equals(
+				relationshipType,
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+			Objects.equals(
+				relationshipType,
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	private boolean _hasTableName(Predicate predicate, String tableName) {
 		if (predicate == null) {
 			return false;
@@ -6982,7 +6989,8 @@ public class ObjectEntryLocalServiceImpl
 				_validateOneToOneInsert(
 					objectField.getDBColumnName(),
 					GetterUtil.getLong(values.get(objectField.getName())),
-					dynamicObjectDefinitionTable);
+					dynamicObjectDefinitionTable, objectEntryId,
+					objectField.getName());
 			}
 
 			for (String dbColumnName : objectField.getDBColumnNames()) {
@@ -8515,9 +8523,8 @@ public class ObjectEntryLocalServiceImpl
 				insertedValues.remove(objectField.getI18nObjectFieldName());
 				insertedValues.remove(objectField.getName());
 			}
-			else if (Objects.equals(
-						objectField.getRelationshipType(),
-						ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+			else if (_hasRelationshipObjectField(
+						objectField.getRelationshipType())) {
 
 				insertedValues.remove(
 					ObjectFieldSettingUtil.getValue(
@@ -8800,7 +8807,8 @@ public class ObjectEntryLocalServiceImpl
 				_validateOneToOneUpdate(
 					objectField.getDBColumnName(),
 					GetterUtil.getLong(values.get(objectField.getName())),
-					dynamicObjectDefinitionTable, objectEntryId);
+					dynamicObjectDefinitionTable, objectEntryId,
+					objectField.getName());
 			}
 
 			for (String dbColumnName : objectField.getDBColumnNames()) {
@@ -9196,11 +9204,17 @@ public class ObjectEntryLocalServiceImpl
 
 	private void _validateOneToOneInsert(
 			String dbColumnName, long dbColumnValue,
-			DynamicObjectDefinitionTable dynamicObjectDefinitionTable)
+			DynamicObjectDefinitionTable dynamicObjectDefinitionTable,
+			long objectEntryId, String objectFieldName)
 		throws PortalException {
 
 		if (dbColumnValue == 0) {
 			return;
+		}
+
+		if (dbColumnValue == objectEntryId) {
+			throw new ObjectEntryValuesException.OneToOneSelfLink(
+				objectFieldName, objectEntryId);
 		}
 
 		long count = 0;
@@ -9228,7 +9242,7 @@ public class ObjectEntryLocalServiceImpl
 
 		if (count > 0) {
 			throw new ObjectEntryValuesException.OneToOneConstraintViolation(
-				dbColumnName, dbColumnValue,
+				dbColumnName, dbColumnValue, objectFieldName,
 				dynamicObjectDefinitionTable.getTableName());
 		}
 	}
@@ -9236,11 +9250,16 @@ public class ObjectEntryLocalServiceImpl
 	private void _validateOneToOneUpdate(
 			String dbColumnName, long dbColumnValue,
 			DynamicObjectDefinitionTable dynamicObjectDefinitionTable,
-			long objectEntryId)
+			long objectEntryId, String objectFieldName)
 		throws PortalException {
 
 		if (dbColumnValue == 0) {
 			return;
+		}
+
+		if (dbColumnValue == objectEntryId) {
+			throw new ObjectEntryValuesException.OneToOneSelfLink(
+				objectFieldName, objectEntryId);
 		}
 
 		long count = 0;
@@ -9270,7 +9289,7 @@ public class ObjectEntryLocalServiceImpl
 
 		if (count > 0) {
 			throw new ObjectEntryValuesException.OneToOneConstraintViolation(
-				dbColumnName, dbColumnValue,
+				dbColumnName, dbColumnValue, objectFieldName,
 				dynamicObjectDefinitionTable.getTableName());
 		}
 	}

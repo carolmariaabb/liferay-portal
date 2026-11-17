@@ -107,9 +107,12 @@ public class RelationshipObjectFieldBusinessType
 		Map.Entry<String, Object> relatedElementEntry = MapUtil.getEntry(
 			values, relationshipName);
 
-		if (Objects.equals(
+		if ((Objects.equals(
 				objectField.getRelationshipType(),
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+			 Objects.equals(
+				 objectField.getRelationshipType(),
+				 ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) &&
 			(relatedElementEntry != null)) {
 
 			ObjectRelationship objectRelationship =
