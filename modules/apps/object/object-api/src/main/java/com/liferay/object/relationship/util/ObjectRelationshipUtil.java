@@ -201,6 +201,7 @@ public class ObjectRelationshipUtil {
 		Collections.unmodifiableSet(
 			SetUtil.fromArray(
 				ObjectRelationshipConstants.TYPE_MANY_TO_MANY,
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY));
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY,
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE));
 
 }
