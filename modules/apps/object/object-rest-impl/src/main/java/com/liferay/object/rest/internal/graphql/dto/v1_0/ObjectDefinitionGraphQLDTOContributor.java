@@ -148,7 +148,9 @@ public class ObjectDefinitionGraphQLDTOContributor
 						objectField.getName(), ListEntry.class));
 			}
 			else if (Objects.equals(
-						objectField.getRelationshipType(), "oneToMany")) {
+						objectField.getRelationshipType(), "oneToMany") ||
+					 Objects.equals(
+						 objectField.getRelationshipType(), "oneToOne")) {
 
 				String objectFieldName = objectField.getName();
 

@@ -186,7 +186,10 @@ public class ObjectEntryExtensionProvider extends BaseObjectExtensionProvider {
 
 			if (Objects.equals(
 					objectField.getRelationshipType(),
-					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+					ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+				Objects.equals(
+					objectField.getRelationshipType(),
+					ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
 
 				String objectRelationshipERCObjectFieldName =
 					ObjectFieldSettingUtil.getValue(

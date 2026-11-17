@@ -815,6 +815,28 @@ public class ObjectEntryDTOConverter
 			});
 	}
 
+	private UnsafeSupplier<Object, Exception> _getNestedFieldSupplier(
+		ObjectRelationship objectRelationship,
+		UnsafeSupplier<Object[], Exception> unsafeSupplier) {
+
+		if (!Objects.equals(
+				objectRelationship.getType(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
+
+			return unsafeSupplier::get;
+		}
+
+		return () -> {
+			Object[] objects = unsafeSupplier.get();
+
+			if (objects.length == 0) {
+				return null;
+			}
+
+			return objects[0];
+		};
+	}
+
 	private Map<String, UnsafeSupplier<Object, Exception>>
 			_getNestedFieldsRelatedProperties(
 				DTOConverterContext dtoConverterContext, long groupId,
@@ -858,38 +880,43 @@ public class ObjectEntryDTOConverter
 								getSystemObjectDefinitionManager(
 									relatedObjectDefinition.getName());
 
-					return () -> TransformUtil.transformToArray(
+					return _getNestedFieldSupplier(
+						objectRelationship,
+						() -> TransformUtil.transformToArray(
+							_getRelatedModels(
+								dtoConverterContext,
+								_getRelatedObjectDefinitionGroupId(
+									groupId, relatedObjectDefinition),
+								objectRelatedModelsProvider, objectRelationship,
+								primaryKey),
+							relatedModel -> _toExtendedEntity(
+								(BaseModel<?>)relatedModel, dtoConverterContext,
+								relatedObjectDefinition,
+								systemObjectDefinitionManager),
+							Object.class));
+				}
+
+				return _getNestedFieldSupplier(
+					objectRelationship,
+					() -> TransformUtil.transformToArray(
 						_getRelatedModels(
 							dtoConverterContext,
 							_getRelatedObjectDefinitionGroupId(
 								groupId, relatedObjectDefinition),
 							objectRelatedModelsProvider, objectRelationship,
 							primaryKey),
-						relatedModel -> _toExtendedEntity(
-							(BaseModel<?>)relatedModel, dtoConverterContext,
-							relatedObjectDefinition,
-							systemObjectDefinitionManager),
-						Object.class);
-				}
+						relatedModel -> {
+							com.liferay.object.model.ObjectEntry objectEntry =
+								(com.liferay.object.model.ObjectEntry)
+									relatedModel;
 
-				return () -> TransformUtil.transformToArray(
-					_getRelatedModels(
-						dtoConverterContext,
-						_getRelatedObjectDefinitionGroupId(
-							groupId, relatedObjectDefinition),
-						objectRelatedModelsProvider, objectRelationship,
-						primaryKey),
-					relatedModel -> {
-						com.liferay.object.model.ObjectEntry objectEntry =
-							(com.liferay.object.model.ObjectEntry)relatedModel;
-
-						return toDTO(
-							_getDTOConverterContext(
-								dtoConverterContext,
-								objectEntry.getObjectEntryId()),
-							objectEntry);
-					},
-					ObjectEntry.class);
+							return toDTO(
+								_getDTOConverterContext(
+									dtoConverterContext,
+									objectEntry.getObjectEntryId()),
+								objectEntry);
+						},
+						ObjectEntry.class));
 			});
 	}
 
@@ -1231,7 +1258,10 @@ public class ObjectEntryDTOConverter
 			}
 			else if (Objects.equals(
 						objectField.getRelationshipType(),
-						ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+						ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+					 Objects.equals(
+						 objectField.getRelationshipType(),
+						 ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
 
 				long primaryKey = GetterUtil.getLong(serializable);
 

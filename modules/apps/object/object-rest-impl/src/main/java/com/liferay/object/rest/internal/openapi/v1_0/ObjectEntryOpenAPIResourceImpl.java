@@ -325,9 +325,12 @@ public class ObjectEntryOpenAPIResourceImpl
 		else if (Objects.equals(
 					objectField.getBusinessType(),
 					ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP) &&
-				 Objects.equals(
+				 (Objects.equals(
 					 objectField.getRelationshipType(),
-					 ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+					 ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+				  Objects.equals(
+					  objectField.getRelationshipType(),
+					  ObjectRelationshipConstants.TYPE_ONE_TO_ONE))) {
 
 			ObjectRelationship objectRelationship =
 				_objectRelationshipLocalService.

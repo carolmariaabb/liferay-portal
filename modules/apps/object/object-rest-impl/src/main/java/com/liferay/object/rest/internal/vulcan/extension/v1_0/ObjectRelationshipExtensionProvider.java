@@ -131,6 +131,20 @@ public class ObjectRelationshipExtensionProvider
 							objectRelationship.getName()),
 						Pagination.of(QueryUtil.ALL_POS, QueryUtil.ALL_POS));
 
+				if (Objects.equals(
+						objectRelationship.getType(),
+						ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
+
+					List<ObjectEntry> objectEntries =
+						(List<ObjectEntry>)relatedObjectEntriesPage.getItems();
+
+					if (objectEntries.isEmpty()) {
+						return null;
+					}
+
+					return objectEntries.get(0);
+				}
+
 				return (Serializable)relatedObjectEntriesPage.getItems();
 			});
 	}
@@ -311,9 +325,12 @@ public class ObjectRelationshipExtensionProvider
 
 		if (Objects.equals(
 				objectRelationship.getType(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE) ||
+			(Objects.equals(
+				objectRelationship.getType(),
 				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
-			(objectDefinition.getObjectDefinitionId() ==
-				objectRelationship.getObjectDefinitionId2())) {
+			 (objectDefinition.getObjectDefinitionId() ==
+				 objectRelationship.getObjectDefinitionId2()))) {
 
 			return PropertyDefinition.PropertyType.SINGLE_ELEMENT;
 		}
@@ -326,9 +343,12 @@ public class ObjectRelationshipExtensionProvider
 		ObjectRelationship objectRelationship,
 		ObjectDefinition relatedObjectDefinition) {
 
-		if (Objects.equals(
+		if ((Objects.equals(
 				objectRelationship.getType(),
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+			 Objects.equals(
+				 objectRelationship.getType(),
+				 ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) &&
 			(objectRelationship.getObjectDefinitionId1() ==
 				relatedObjectDefinition.getObjectDefinitionId()) &&
 			(objectRelationship.getObjectDefinitionId2() ==

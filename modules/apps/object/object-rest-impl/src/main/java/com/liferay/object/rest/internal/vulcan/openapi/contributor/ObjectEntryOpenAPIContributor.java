@@ -29,6 +29,7 @@ import com.liferay.object.system.SystemObjectDefinitionManagerRegistry;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -181,9 +182,12 @@ public class ObjectEntryOpenAPIContributor extends BaseOpenAPIContributor {
 					if (Objects.equals(
 							objectRelationship.getType(),
 							ObjectRelationshipConstants.TYPE_MANY_TO_MANY) ||
-						(Objects.equals(
-							objectRelationship.getType(),
-							ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
+						(ArrayUtil.contains(
+							new String[] {
+								ObjectRelationshipConstants.TYPE_ONE_TO_MANY,
+								ObjectRelationshipConstants.TYPE_ONE_TO_ONE
+							},
+							objectRelationship.getType()) &&
 						 (objectRelationship.getObjectDefinitionId1() ==
 							 _objectDefinition.getObjectDefinitionId()))) {
 

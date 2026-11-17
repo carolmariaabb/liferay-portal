@@ -1830,15 +1830,14 @@ public class DefaultObjectEntryManagerImpl
 						objectDefinition.getCompanyId(),
 						relatedObjectDefinition.getStorageType());
 
-				boolean oneToManyObjectRelationship =
-					_isOneToManyObjectRelationship(
-						objectDefinition, objectRelationship,
-						relatedObjectDefinition);
+				boolean childRelationshipField = _hasChildRelationshipField(
+					objectDefinition, objectRelationship,
+					relatedObjectDefinition);
 
 				for (Object item : nestedObjectEntries) {
 					ObjectEntry nestedObjectEntry = (ObjectEntry)item;
 
-					if (oneToManyObjectRelationship) {
+					if (childRelationshipField) {
 						Map<String, Object> nestedObjectEntryProperties =
 							nestedObjectEntry.getProperties();
 
@@ -1947,7 +1946,7 @@ public class DefaultObjectEntryManagerImpl
 						}
 					}
 
-					if (!oneToManyObjectRelationship) {
+					if (!childRelationshipField) {
 						_relateNestedObjectEntry(
 							objectDefinition, objectRelationship,
 							serviceBuilderObjectEntry.getPrimaryKey(),
@@ -2284,7 +2283,7 @@ public class DefaultObjectEntryManagerImpl
 
 		ObjectRelatedModelsProvider<?> objectRelatedModelsProvider = null;
 
-		if (_isOneToManyObjectRelationship(
+		if (_hasChildRelationshipField(
 				relatedObjectDefinition, objectRelationship,
 				objectDefinition)) {
 
@@ -2932,7 +2931,7 @@ public class DefaultObjectEntryManagerImpl
 			ObjectDefinition relatedObjectDefinition)
 		throws Exception {
 
-		if (_isOneToManyObjectRelationship(
+		if (_hasChildRelationshipField(
 				relatedObjectDefinition, objectRelationship,
 				objectDefinition)) {
 
@@ -3257,6 +3256,28 @@ public class DefaultObjectEntryManagerImpl
 		return (Serializable)value;
 	}
 
+	private boolean _hasChildRelationshipField(
+		ObjectDefinition objectDefinition,
+		ObjectRelationship objectRelationship,
+		ObjectDefinition relatedObjectDefinition) {
+
+		if ((Objects.equals(
+				objectRelationship.getType(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+			 Objects.equals(
+				 objectRelationship.getType(),
+				 ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) &&
+			(objectRelationship.getObjectDefinitionId1() ==
+				objectDefinition.getObjectDefinitionId()) &&
+			(objectRelationship.getObjectDefinitionId2() ==
+				relatedObjectDefinition.getObjectDefinitionId())) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	private boolean _isDefaultSort(Sort[] sorts) {
 		if (sorts == null) {
 			return true;
@@ -3278,25 +3299,6 @@ public class DefaultObjectEntryManagerImpl
 	private boolean _isObjectEntryDraft(Status status) {
 		if ((status != null) &&
 			(status.getCode() == WorkflowConstants.STATUS_DRAFT)) {
-
-			return true;
-		}
-
-		return false;
-	}
-
-	private boolean _isOneToManyObjectRelationship(
-		ObjectDefinition objectDefinition,
-		ObjectRelationship objectRelationship,
-		ObjectDefinition relatedObjectDefinition) {
-
-		if (Objects.equals(
-				objectRelationship.getType(),
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
-			(objectRelationship.getObjectDefinitionId1() ==
-				objectDefinition.getObjectDefinitionId()) &&
-			(objectRelationship.getObjectDefinitionId2() ==
-				relatedObjectDefinition.getObjectDefinitionId())) {
 
 			return true;
 		}
