@@ -183,3 +183,38 @@ describe('Object relationship description', () => {
 		);
 	});
 });
+
+describe('Object relationship type', () => {
+	it('renders the one-to-one type without the inheritance checkbox', async () => {
+		fetchMock.hardReset();
+		fetchMock.mockGlobal();
+		fetchMock.get('http://localhost/url', {
+			objectRelationshipTypes: ['oneToMany', 'oneToOne'],
+		});
+		fetchMock.get(OBJECT_DEFINITION_URL_REGEX, objectDefinition);
+		fetchMock.get(OBJECT_DEFINITIONS_URL_REGEX, {
+			items: [objectDefinition],
+			totalCount: 1,
+		});
+
+		renderComponent({
+			editingObjectRelationship: false,
+			values: {
+				...objectRelationshipFormBaseDefaultProps.values,
+				type: 'oneToOne' as ObjectRelationshipType,
+			},
+		});
+
+		await waitFor(() =>
+			expect(
+				document.getElementById(
+					'lfr-objects__object-relationship-form-base-type'
+				)
+			).toHaveTextContent('one-to-one')
+		);
+
+		expect(
+			screen.queryByText('enable-inheritance')
+		).not.toBeInTheDocument();
+	});
+});

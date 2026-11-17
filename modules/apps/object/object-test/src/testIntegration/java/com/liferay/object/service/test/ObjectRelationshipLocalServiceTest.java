@@ -59,6 +59,7 @@ import com.liferay.object.service.persistence.ObjectLayoutRowPersistence;
 import com.liferay.object.service.persistence.ObjectLayoutTabPersistence;
 import com.liferay.object.service.test.system.TestSystemObjectDefinitionManager;
 import com.liferay.object.system.SystemObjectDefinitionManager;
+import com.liferay.object.system.SystemObjectDefinitionManagerRegistry;
 import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.object.test.util.ObjectRelationshipTestUtil;
 import com.liferay.object.test.util.TreeTestUtil;
@@ -92,6 +93,8 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.workflow.WorkflowInstanceManager;
 import com.liferay.portal.kernel.workflow.WorkflowTaskManager;
+import com.liferay.portal.test.rule.FeatureFlag;
+import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -106,6 +109,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -180,8 +184,6 @@ public class ObjectRelationshipLocalServiceTest {
 
 	@Test
 	public void testAddObjectRelationship() throws Exception {
-		//_testAddObjectRelationship(
-		//	ObjectRelationshipConstants.TYPE_ONE_TO_ONE);
 		_testAddObjectRelationshipManyToMany(
 			ObjectRelationshipConstants.DELETION_TYPE_PREVENT,
 			_objectDefinition1, _objectDefinition1, false);
@@ -634,6 +636,32 @@ public class ObjectRelationshipLocalServiceTest {
 						ServiceContextTestUtil.getServiceContext()));
 	}
 
+	@FeatureFlags(featureFlags = @FeatureFlag("LPD-108620"))
+	@Test
+	public void testAddObjectRelationshipOneToOne() throws Exception {
+		_testAddObjectRelationshipOneToOne(
+			_objectDefinition1, _objectDefinition1);
+		_testAddObjectRelationshipOneToOne(
+			_objectDefinition1, _objectDefinition2);
+	}
+
+	@Test
+	public void testAddObjectRelationshipOneToOneWithFeatureFlagDisabled()
+		throws Exception {
+
+		AssertUtils.assertFailure(
+			ObjectRelationshipTypeException.class,
+			"Invalid type " + ObjectRelationshipConstants.TYPE_ONE_TO_ONE,
+			() -> _objectRelationshipLocalService.addObjectRelationship(
+				null, TestPropsValues.getUserId(),
+				_objectDefinition1.getObjectDefinitionId(),
+				_objectDefinition2.getObjectDefinitionId(), 0,
+				ObjectRelationshipConstants.DELETION_TYPE_PREVENT, null, false,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				StringUtil.randomId(), false,
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE, null));
+	}
+
 	@Test
 	public void testAddSystemObjectRelationship() throws Exception {
 		ObjectDefinition addressObjectDefinition =
@@ -831,6 +859,31 @@ public class ObjectRelationshipLocalServiceTest {
 			objectRelationship);
 
 		_assertObjectLayoutTab(0, objectLayoutTabs.get(1));
+	}
+
+	@Test
+	public void testGetObjectRelationshipTypesWithFeatureFlagDisabled() {
+		Set<String> objectRelationshipTypes =
+			ObjectRelationshipUtil.getObjectRelationshipTypes(
+				_objectDefinition1, _systemObjectDefinitionManagerRegistry);
+
+		Assert.assertFalse(
+			objectRelationshipTypes.toString(),
+			objectRelationshipTypes.contains(
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE));
+	}
+
+	@FeatureFlags(featureFlags = @FeatureFlag("LPD-108620"))
+	@Test
+	public void testGetObjectRelationshipTypesWithFeatureFlagEnabled() {
+		Set<String> objectRelationshipTypes =
+			ObjectRelationshipUtil.getObjectRelationshipTypes(
+				_objectDefinition1, _systemObjectDefinitionManagerRegistry);
+
+		Assert.assertTrue(
+			objectRelationshipTypes.toString(),
+			objectRelationshipTypes.contains(
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE));
 	}
 
 	@Test
@@ -1847,6 +1900,50 @@ public class ObjectRelationshipLocalServiceTest {
 			objectRelationship);
 	}
 
+	private void _testAddObjectRelationshipOneToOne(
+			ObjectDefinition objectDefinition1,
+			ObjectDefinition objectDefinition2)
+		throws Exception {
+
+		String name = StringUtil.randomId();
+
+		ObjectRelationship objectRelationship =
+			_objectRelationshipLocalService.addObjectRelationship(
+				null, TestPropsValues.getUserId(),
+				objectDefinition1.getObjectDefinitionId(),
+				objectDefinition2.getObjectDefinitionId(), 0,
+				ObjectRelationshipConstants.DELETION_TYPE_PREVENT, null, false,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				name, false, ObjectRelationshipConstants.TYPE_ONE_TO_ONE, null);
+
+		Assert.assertEquals(
+			ObjectRelationshipConstants.TYPE_ONE_TO_ONE,
+			objectRelationship.getType());
+
+		String objectFieldName = StringBundler.concat(
+			"r_", name, "_", objectDefinition1.getPKObjectFieldName());
+
+		ObjectField objectField = _objectFieldLocalService.fetchObjectField(
+			objectDefinition2.getObjectDefinitionId(), objectFieldName);
+
+		Assert.assertNotNull(objectField);
+
+		Assert.assertEquals(
+			ObjectRelationshipConstants.TYPE_ONE_TO_ONE,
+			objectField.getRelationshipType());
+
+		Assert.assertTrue(
+			_hasColumn(
+				objectDefinition2.getExtensionDBTableName(), objectFieldName));
+
+		_objectRelationshipLocalService.deleteObjectRelationship(
+			objectRelationship);
+
+		Assert.assertFalse(
+			_hasColumn(
+				objectDefinition2.getExtensionDBTableName(), objectFieldName));
+	}
+
 	private void _testAddObjectRelationshipWithObjectField() throws Exception {
 		AssertUtils.assertFailure(
 			ObjectFieldDBColumnNameException.class,
@@ -2223,6 +2320,10 @@ public class ObjectRelationshipLocalServiceTest {
 
 	private ServiceRegistration<SystemObjectDefinitionManager>
 		_serviceRegistration2;
+
+	@Inject
+	private SystemObjectDefinitionManagerRegistry
+		_systemObjectDefinitionManagerRegistry;
 
 	@DeleteAfterTestRun
 	private ObjectDefinition _unmodifiableSystemObjectDefinition2;

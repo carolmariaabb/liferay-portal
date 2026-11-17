@@ -7,6 +7,7 @@ package com.liferay.object.related.models.test;
 
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
+import com.liferay.object.exception.ObjectEntryValuesException;
 import com.liferay.object.exception.RequiredObjectRelationshipException;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
@@ -32,6 +33,8 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.test.rule.FeatureFlag;
+import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
@@ -81,6 +84,116 @@ public abstract class BaseSystemObjectRelatedModelsProviderTestCase {
 
 		_testDeleteSystemObjectWithRelatedCustomObjectEntries(
 			TestPropsValues.getGroupId());
+	}
+
+	@FeatureFlags(featureFlags = @FeatureFlag("LPD-108620"))
+	@Test
+	public void testSystemObjectEntry1to1ObjectRelatedModels()
+		throws Exception {
+
+		long[] primaryKeys = addBaseModels(2);
+
+		addObjectRelationship(
+			_objectDefinition, _systemObjectDefinition,
+			ObjectRelationshipConstants.DELETION_TYPE_PREVENT,
+			ObjectRelationshipConstants.TYPE_ONE_TO_ONE);
+
+		ObjectEntry objectEntry = ObjectEntryTestUtil.addObjectEntry(
+			0, _objectDefinition.getObjectDefinitionId(),
+			Collections.emptyMap());
+
+		ObjectRelationshipTestUtil.assertGetRelatedModels(
+			0, objectRelatedModelsProvider,
+			_objectRelationship.getObjectRelationshipId(),
+			objectEntry.getObjectEntryId());
+
+		insertIntoOrUpdateExtensionTable(
+			objectEntry.getObjectEntryId(), primaryKeys[0],
+			_systemObjectDefinition.getObjectDefinitionId());
+
+		ObjectRelationshipTestUtil.assertGetRelatedModels(
+			1, objectRelatedModelsProvider,
+			_objectRelationship.getObjectRelationshipId(),
+			objectEntry.getObjectEntryId());
+
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.OneToOneConstraintViolation.class,
+			String.format(
+				"One to one constraint violation for %s.%s with value %s",
+				_relationshipObjectField.getDBTableName(),
+				_relationshipObjectField.getDBColumnName(),
+				objectEntry.getObjectEntryId()),
+			() -> insertIntoOrUpdateExtensionTable(
+				objectEntry.getObjectEntryId(), primaryKeys[1],
+				_systemObjectDefinition.getObjectDefinitionId()));
+
+		objectRelatedModelsProvider.disassociateRelatedModels(
+			TestPropsValues.getUserId(),
+			_objectRelationship.getObjectRelationshipId(),
+			objectEntry.getPrimaryKey(), primaryKeys[0]);
+
+		ObjectRelationshipTestUtil.assertGetRelatedModels(
+			0, objectRelatedModelsProvider,
+			_objectRelationship.getObjectRelationshipId(),
+			objectEntry.getObjectEntryId());
+
+		objectRelationshipLocalService.deleteObjectRelationship(
+			_objectRelationship);
+	}
+
+	@FeatureFlags(featureFlags = @FeatureFlag("LPD-108620"))
+	@Test
+	public void testSystemObjectEntry1to1ObjectRelatedModelsAsParent()
+		throws Exception {
+
+		long[] primaryKeys = addBaseModels(2);
+
+		addObjectRelationship(
+			_systemObjectDefinition, _objectDefinition,
+			ObjectRelationshipConstants.DELETION_TYPE_PREVENT,
+			ObjectRelationshipConstants.TYPE_ONE_TO_ONE);
+
+		ObjectRelationshipTestUtil.assertGetRelatedModels(
+			0, objectRelatedModelsProvider,
+			_objectRelationship.getObjectRelationshipId(), primaryKeys[0]);
+
+		ObjectEntry objectEntry = ObjectEntryTestUtil.addObjectEntry(
+			0, _objectDefinition.getObjectDefinitionId(),
+			HashMapBuilder.<String, Serializable>put(
+				_relationshipObjectField.getName(), primaryKeys[0]
+			).build());
+
+		ObjectRelationshipTestUtil.assertGetRelatedModels(
+			1, objectRelatedModelsProvider,
+			_objectRelationship.getObjectRelationshipId(), primaryKeys[0]);
+
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.OneToOneConstraintViolation.class,
+			String.format(
+				"One to one constraint violation for %s.%s with value %s",
+				_relationshipObjectField.getDBTableName(),
+				_relationshipObjectField.getDBColumnName(), primaryKeys[0]),
+			() -> ObjectEntryTestUtil.addObjectEntry(
+				0, _objectDefinition.getObjectDefinitionId(),
+				HashMapBuilder.<String, Serializable>put(
+					_relationshipObjectField.getName(), primaryKeys[0]
+				).build()));
+
+		ObjectEntryTestUtil.addObjectEntry(
+			0, _objectDefinition.getObjectDefinitionId(),
+			HashMapBuilder.<String, Serializable>put(
+				_relationshipObjectField.getName(), primaryKeys[1]
+			).build());
+
+		ObjectRelationshipTestUtil.assertGetRelatedModels(
+			1, objectRelatedModelsProvider,
+			_objectRelationship.getObjectRelationshipId(), primaryKeys[1]);
+
+		_objectEntryLocalService.deleteObjectEntry(objectEntry);
+
+		ObjectRelationshipTestUtil.assertGetRelatedModels(
+			0, objectRelatedModelsProvider,
+			_objectRelationship.getObjectRelationshipId(), primaryKeys[0]);
 	}
 
 	@Test

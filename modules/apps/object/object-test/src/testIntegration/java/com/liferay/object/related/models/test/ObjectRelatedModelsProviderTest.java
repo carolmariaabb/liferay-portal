@@ -68,6 +68,8 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.PortletCategoryKeys;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.test.rule.FeatureFlag;
+import com.liferay.portal.test.rule.FeatureFlags;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
@@ -84,7 +86,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -163,7 +164,7 @@ public class ObjectRelatedModelsProviderTest {
 			ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
 	}
 
-	@Ignore
+	@FeatureFlags(featureFlags = @FeatureFlag("LPD-108620"))
 	@Test
 	public void testObjectEntry1to1ObjectRelatedModelsProviderImpl()
 		throws Exception {
@@ -247,6 +248,50 @@ public class ObjectRelatedModelsProviderTest {
 
 		_objectRelationshipLocalService.deleteObjectRelationship(
 			_objectRelationship);
+	}
+
+	@FeatureFlags(featureFlags = @FeatureFlag("LPD-108620"))
+	@Test
+	public void testObjectEntry1to1ObjectRelatedModelsProviderImplWithSelfRelationship()
+		throws Exception {
+
+		_addObjectRelationship(
+			_objectDefinition1, _objectDefinition1,
+			ObjectRelationshipConstants.DELETION_TYPE_PREVENT,
+			ObjectRelationshipConstants.TYPE_ONE_TO_ONE);
+
+		ObjectEntry objectEntry1 = _addObjectEntry(
+			_objectDefinition1, Collections.emptyMap());
+
+		ObjectEntry objectEntry2 = _addObjectEntry(
+			_objectDefinition1,
+			HashMapBuilder.<String, Serializable>put(
+				_relationshipObjectField.getName(),
+				objectEntry1.getObjectEntryId()
+			).build());
+
+		AssertUtils.assertFailure(
+			ObjectEntryValuesException.OneToOneSelfLink.class,
+			String.format(
+				"Object entry %s cannot be linked to itself through %s",
+				objectEntry1.getObjectEntryId(),
+				_relationshipObjectField.getName()),
+			() -> _updateObjectEntry(
+				objectEntry1.getObjectEntryId(),
+				HashMapBuilder.<String, Serializable>put(
+					_relationshipObjectField.getName(),
+					objectEntry1.getObjectEntryId()
+				).build()));
+
+		ObjectRelationshipTestUtil.assertGetRelatedModels(
+			1, _objectRelatedModelsProvider,
+			_objectRelationship.getObjectRelationshipId(),
+			objectEntry1.getObjectEntryId());
+
+		ObjectRelationshipTestUtil.assertGetRelatedModels(
+			0, _objectRelatedModelsProvider,
+			_objectRelationship.getObjectRelationshipId(),
+			objectEntry2.getObjectEntryId());
 	}
 
 	@Test
