@@ -38,7 +38,8 @@ public class ObjectRelationshipImpl extends ObjectRelationshipBaseImpl {
 	@Override
 	public boolean isAllowedObjectRelationshipType(String type) {
 		Set<String> defaultObjectRelationshipTypes =
-			ObjectRelationshipUtil.getDefaultObjectRelationshipTypes();
+			ObjectRelationshipUtil.getDefaultObjectRelationshipTypes(
+				getCompanyId());
 
 		return defaultObjectRelationshipTypes.contains(type);
 	}

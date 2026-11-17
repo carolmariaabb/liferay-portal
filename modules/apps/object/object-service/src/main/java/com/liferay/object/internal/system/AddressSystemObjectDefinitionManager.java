@@ -69,7 +69,7 @@ public class AddressSystemObjectDefinitionManager
 	}
 
 	@Override
-	public Set<String> getAllowedObjectRelationshipTypes() {
+	public Set<String> getAllowedObjectRelationshipTypes(long companyId) {
 		return SetUtil.fromArray(ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
 	}
 

@@ -64,8 +64,11 @@ public interface SystemObjectDefinitionManager {
 		return StringPool.BLANK;
 	}
 
-	public default Set<String> getAllowedObjectRelationshipTypes() {
-		return ObjectRelationshipUtil.getDefaultObjectRelationshipTypes();
+	public default Set<String> getAllowedObjectRelationshipTypes(
+		long companyId) {
+
+		return ObjectRelationshipUtil.getDefaultObjectRelationshipTypes(
+			companyId);
 	}
 
 	public BaseModel<?> getBaseModelByExternalReferenceCode(

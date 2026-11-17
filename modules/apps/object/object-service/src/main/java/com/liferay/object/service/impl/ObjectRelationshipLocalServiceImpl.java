@@ -2355,7 +2355,8 @@ public class ObjectRelationshipLocalServiceImpl
 		throws PortalException {
 
 		Set<String> defaultObjectRelationshipTypes =
-			ObjectRelationshipUtil.getDefaultObjectRelationshipTypes();
+			ObjectRelationshipUtil.getDefaultObjectRelationshipTypes(
+				objectDefinition1.getCompanyId());
 
 		if (!defaultObjectRelationshipTypes.contains(type)) {
 			throw new ObjectRelationshipTypeException("Invalid type " + type);
@@ -2387,8 +2388,8 @@ public class ObjectRelationshipLocalServiceImpl
 						objectDefinition1.getName());
 
 			Set<String> allowedObjectRelationshipTypes =
-				systemObjectDefinitionManager.
-					getAllowedObjectRelationshipTypes();
+				systemObjectDefinitionManager.getAllowedObjectRelationshipTypes(
+					objectDefinition1.getCompanyId());
 
 			if (!allowedObjectRelationshipTypes.contains(type)) {
 				throw new ObjectRelationshipTypeException(

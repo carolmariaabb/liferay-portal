@@ -18,6 +18,7 @@ import com.liferay.object.system.SystemObjectDefinitionManagerRegistry;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.SetUtil;
@@ -34,7 +35,13 @@ import java.util.Set;
  */
 public class ObjectRelationshipUtil {
 
-	public static Set<String> getDefaultObjectRelationshipTypes() {
+	public static Set<String> getDefaultObjectRelationshipTypes(
+		long companyId) {
+
+		if (FeatureFlagManagerUtil.isEnabled(companyId, "LPD-108620")) {
+			return _oneToOneEnabledObjectRelationshipTypes;
+		}
+
 		return _defaultObjectRelationshipTypes;
 	}
 
@@ -84,7 +91,8 @@ public class ObjectRelationshipUtil {
 			systemObjectDefinitionManagerRegistry) {
 
 		if (!objectDefinition.isUnmodifiableSystemObject()) {
-			return _defaultObjectRelationshipTypes;
+			return getDefaultObjectRelationshipTypes(
+				objectDefinition.getCompanyId());
 		}
 
 		SystemObjectDefinitionManager systemObjectDefinitionManager =
@@ -95,8 +103,8 @@ public class ObjectRelationshipUtil {
 			return Collections.emptySet();
 		}
 
-		return systemObjectDefinitionManager.
-			getAllowedObjectRelationshipTypes();
+		return systemObjectDefinitionManager.getAllowedObjectRelationshipTypes(
+			objectDefinition.getCompanyId());
 	}
 
 	public static Map<String, String> getPKObjectFieldDBColumnNames(
@@ -202,5 +210,11 @@ public class ObjectRelationshipUtil {
 			SetUtil.fromArray(
 				ObjectRelationshipConstants.TYPE_MANY_TO_MANY,
 				ObjectRelationshipConstants.TYPE_ONE_TO_MANY));
+	private static final Set<String> _oneToOneEnabledObjectRelationshipTypes =
+		Collections.unmodifiableSet(
+			SetUtil.fromArray(
+				ObjectRelationshipConstants.TYPE_MANY_TO_MANY,
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY,
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE));
 
 }
