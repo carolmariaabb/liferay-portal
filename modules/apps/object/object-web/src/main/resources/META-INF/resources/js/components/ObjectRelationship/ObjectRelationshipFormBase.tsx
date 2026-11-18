@@ -126,7 +126,7 @@ export function ObjectRelationshipFormBase({
 
 	const handleHideReverseButton = () => {
 		return (
-			values.type !== 'oneToMany' ||
+			values.type === 'manyToMany' ||
 			!!readonly ||
 			currentObjectDefinition?.externalReferenceCode ===
 				'L_POSTAL_ADDRESS'
@@ -283,8 +283,16 @@ export function ObjectRelationshipFormBase({
 				items={objectRelationshipTypes}
 				label={Liferay.Language.get('type')}
 				onSelectionChange={(value) => {
+					const oneToManyValues =
+						value === 'oneToMany'
+							? {}
+							: {
+									edge: false,
+									parameterObjectFieldName: undefined,
+								};
+
 					if (
-						(value === 'manyToMany' || value === 'oneToOne') &&
+						value === 'manyToMany' &&
 						currentObjectDefinition?.id !== objectDefinition1?.id
 					) {
 						setValues({
@@ -296,6 +304,7 @@ export function ObjectRelationshipFormBase({
 							objectDefinitionId2: objectDefinition1?.id,
 							objectDefinitionName2: objectDefinition1?.name,
 							type: value,
+							...oneToManyValues,
 						});
 
 						setReverseOrder(!reverseOrder);
@@ -306,6 +315,7 @@ export function ObjectRelationshipFormBase({
 								objectDefinition1?.externalReferenceCode,
 							objectDefinitionId1: objectDefinition1?.id,
 							type: value as ObjectRelationshipType,
+							...oneToManyValues,
 						});
 					}
 				}}

@@ -31,6 +31,7 @@ import com.liferay.object.exception.ObjectRelationshipTypeException;
 import com.liferay.object.internal.dao.db.ObjectDBManagerUtil;
 import com.liferay.object.internal.info.collection.provider.ManyToManyObjectRelationshipRelatedInfoCollectionProvider;
 import com.liferay.object.internal.info.collection.provider.OneToManyObjectRelationshipRelatedInfoCollectionProvider;
+import com.liferay.object.internal.info.collection.provider.OneToOneObjectRelationshipRelatedInfoCollectionProvider;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectEntryTable;
@@ -177,6 +178,25 @@ public class ObjectRelationshipLocalServiceImpl
 			externalReferenceCode, 0L, user.getCompanyId(),
 			objectDefinitionId1);
 
+		String relationshipType = objectField.getRelationshipType();
+
+		if (Validator.isNull(relationshipType)) {
+			relationshipType = ObjectRelationshipConstants.TYPE_ONE_TO_MANY;
+		}
+
+		if (!Objects.equals(
+				relationshipType,
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
+			(!Objects.equals(
+				relationshipType,
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE) ||
+			 !FeatureFlagManagerUtil.isEnabled(
+				 user.getCompanyId(), "LPD-108620"))) {
+
+			throw new ObjectRelationshipTypeException(
+				"Invalid type " + relationshipType);
+		}
+
 		String objectFieldName = objectField.getName();
 
 		return _addObjectRelationship(
@@ -186,8 +206,7 @@ public class ObjectRelationshipLocalServiceImpl
 			0, ObjectRelationshipConstants.DELETION_TYPE_PREVENT, null, false,
 			LocalizedMapUtil.getLocalizedMap(externalReferenceCode),
 			objectFieldName.split(StringPool.UNDERLINE)[1], false,
-			objectField.isSystem(),
-			ObjectRelationshipConstants.TYPE_ONE_TO_MANY, objectField);
+			objectField.isSystem(), relationshipType, objectField);
 	}
 
 	@Override
@@ -1500,6 +1519,14 @@ public class ObjectRelationshipLocalServiceImpl
 				_language, objectDefinition1, objectDefinition2,
 				_objectEntryLocalService, objectRelationship);
 		}
+		else if (Objects.equals(
+					objectRelationship.getType(),
+					ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
+
+			return new OneToOneObjectRelationshipRelatedInfoCollectionProvider(
+				_language, objectDefinition1, objectDefinition2,
+				_objectEntryLocalService, objectRelationship);
+		}
 
 		return null;
 	}
@@ -2300,6 +2327,17 @@ public class ObjectRelationshipLocalServiceImpl
 				throw new ObjectRelationshipParameterObjectFieldIdException(
 					"Parameter object field ID " + parameterObjectFieldId +
 						" does not belong to a relationship object field");
+			}
+
+			if (!Objects.equals(
+					objectField.getRelationshipType(),
+					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+
+				throw new ObjectRelationshipParameterObjectFieldIdException(
+					StringBundler.concat(
+						"Parameter object field ID ", parameterObjectFieldId,
+						" does not belong to a one to many relationship ",
+						"object field"));
 			}
 		}
 	}

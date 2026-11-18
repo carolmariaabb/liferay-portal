@@ -236,7 +236,7 @@ public class MCPProfileUpgradeProcessTest {
 		throws Exception {
 
 		List<ObjectEntry> mcpServerProfileToolObjectEntries =
-			_objectEntryLocalService.getOneToManyObjectEntries(
+			_objectEntryLocalService.getRelatedObjectEntries(
 				0, objectRelationship.getObjectRelationshipId(), null, false,
 				mcpServerProfileObjectEntry.getObjectEntryId(), true, null,
 				QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);

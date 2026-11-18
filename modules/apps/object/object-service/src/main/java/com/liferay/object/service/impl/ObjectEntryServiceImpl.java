@@ -235,26 +235,6 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 	}
 
 	@Override
-	public ObjectEntry fetchManyToOneObjectEntry(
-			long groupId, long objectRelationshipId, long primaryKey)
-		throws PortalException {
-
-		ObjectEntry objectEntry =
-			objectEntryLocalService.fetchManyToOneObjectEntry(
-				groupId, objectRelationshipId, primaryKey);
-
-		if ((objectEntry != null) &&
-			!ObjectEntryThreadLocal.isSkipObjectEntryResourcePermission()) {
-
-			objectEntryService.checkModelResourcePermission(
-				objectEntry.getObjectDefinitionId(),
-				objectEntry.getObjectEntryId(), ActionKeys.VIEW);
-		}
-
-		return objectEntry;
-	}
-
-	@Override
 	public ObjectEntry fetchObjectEntry(long objectEntryId)
 		throws PortalException {
 
@@ -284,6 +264,26 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 			_checkPermission(
 				ActionKeys.VIEW, objectEntry.getObjectDefinitionId(),
 				objectEntry);
+		}
+
+		return objectEntry;
+	}
+
+	@Override
+	public ObjectEntry fetchRelatedObjectEntry(
+			long groupId, long objectRelationshipId, long primaryKey)
+		throws PortalException {
+
+		ObjectEntry objectEntry =
+			objectEntryLocalService.fetchRelatedObjectEntry(
+				groupId, objectRelationshipId, primaryKey);
+
+		if ((objectEntry != null) &&
+			!ObjectEntryThreadLocal.isSkipObjectEntryResourcePermission()) {
+
+			objectEntryService.checkModelResourcePermission(
+				objectEntry.getObjectDefinitionId(),
+				objectEntry.getObjectEntryId(), ActionKeys.VIEW);
 		}
 
 		return objectEntry;
@@ -422,31 +422,6 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 	}
 
 	@Override
-	public List<ObjectEntry> getOneToManyObjectEntries(
-			long groupId, long objectRelationshipId, Predicate predicate,
-			boolean preferApproved, long primaryKey, boolean related,
-			String search, int start, int end, Sort[] sorts)
-		throws PortalException {
-
-		return _getObjectEntries(
-			groupId,
-			objectEntryLocalService.getOneToManyObjectEntries(
-				groupId, objectRelationshipId, predicate, preferApproved,
-				primaryKey, related, search, start, end, sorts));
-	}
-
-	@Override
-	public int getOneToManyObjectEntriesCount(
-			long groupId, long objectRelationshipId, Predicate predicate,
-			long primaryKey, boolean related, String search)
-		throws PortalException {
-
-		return objectEntryLocalService.getOneToManyObjectEntriesCount(
-			groupId, objectRelationshipId, predicate, primaryKey, related,
-			search);
-	}
-
-	@Override
 	public ObjectEntry getOrAddEmptyObjectEntry(
 			String externalReferenceCode, long groupId, long objectDefinitionId)
 		throws PortalException {
@@ -467,6 +442,31 @@ public class ObjectEntryServiceImpl extends ObjectEntryServiceBaseImpl {
 
 		return objectEntryLocalService.getOrAddEmptyObjectEntry(
 			externalReferenceCode, groupId, getUserId(), objectDefinitionId);
+	}
+
+	@Override
+	public List<ObjectEntry> getRelatedObjectEntries(
+			long groupId, long objectRelationshipId, Predicate predicate,
+			boolean preferApproved, long primaryKey, boolean related,
+			String search, int start, int end, Sort[] sorts)
+		throws PortalException {
+
+		return _getObjectEntries(
+			groupId,
+			objectEntryLocalService.getRelatedObjectEntries(
+				groupId, objectRelationshipId, predicate, preferApproved,
+				primaryKey, related, search, start, end, sorts));
+	}
+
+	@Override
+	public int getRelatedObjectEntriesCount(
+			long groupId, long objectRelationshipId, Predicate predicate,
+			long primaryKey, boolean related, String search)
+		throws PortalException {
+
+		return objectEntryLocalService.getRelatedObjectEntriesCount(
+			groupId, objectRelationshipId, predicate, primaryKey, related,
+			search);
 	}
 
 	@Override

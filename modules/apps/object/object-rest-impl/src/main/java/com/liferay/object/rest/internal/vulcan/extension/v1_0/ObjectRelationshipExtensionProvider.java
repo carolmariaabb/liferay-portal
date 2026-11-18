@@ -97,9 +97,16 @@ public class ObjectRelationshipExtensionProvider
 
 				long primaryKey = getPrimaryKey(entity, objectDefinition);
 
-				if (_isManyToOneObjectRelationship(
-						objectDefinition, objectRelationship,
-						relatedObjectDefinition)) {
+				if ((Objects.equals(
+						objectRelationship.getType(),
+						ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+					 Objects.equals(
+						 objectRelationship.getType(),
+						 ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) &&
+					(objectRelationship.getObjectDefinitionId1() ==
+						relatedObjectDefinition.getObjectDefinitionId()) &&
+					(objectRelationship.getObjectDefinitionId2() ==
+						objectDefinition.getObjectDefinitionId())) {
 
 					DefaultObjectEntryManager defaultObjectEntryManager =
 						DefaultObjectEntryManagerProvider.provide(
@@ -107,12 +114,11 @@ public class ObjectRelationshipExtensionProvider
 								objectDefinition.getCompanyId(),
 								objectDefinition.getStorageType()));
 
-					return defaultObjectEntryManager.
-						fetchRelatedManyToOneObjectEntry(
-							_getDefaultDTOConverterContext(
-								objectDefinition, primaryKey, null, userId),
-							objectDefinition, primaryKey,
-							objectRelationship.getName());
+					return defaultObjectEntryManager.fetchRelatedObjectEntry(
+						_getDefaultDTOConverterContext(
+							objectDefinition, primaryKey, null, userId),
+						objectDefinition, primaryKey,
+						objectRelationship.getName());
 				}
 
 				DefaultObjectEntryManager defaultObjectEntryManager =
@@ -130,6 +136,20 @@ public class ObjectRelationshipExtensionProvider
 							objectDefinition.getObjectDefinitionId(),
 							objectRelationship.getName()),
 						Pagination.of(QueryUtil.ALL_POS, QueryUtil.ALL_POS));
+
+				if (Objects.equals(
+						objectRelationship.getType(),
+						ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
+
+					List<ObjectEntry> objectEntries =
+						(List<ObjectEntry>)relatedObjectEntriesPage.getItems();
+
+					if (objectEntries.isEmpty()) {
+						return null;
+					}
+
+					return objectEntries.get(0);
+				}
 
 				return (Serializable)relatedObjectEntriesPage.getItems();
 			});
@@ -309,35 +329,19 @@ public class ObjectRelationshipExtensionProvider
 		ObjectDefinition objectDefinition,
 		ObjectRelationship objectRelationship) {
 
-		if (Objects.equals(
+		if ((Objects.equals(
 				objectRelationship.getType(),
 				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
-			(objectDefinition.getObjectDefinitionId() ==
-				objectRelationship.getObjectDefinitionId2())) {
+			 (objectDefinition.getObjectDefinitionId() ==
+				 objectRelationship.getObjectDefinitionId2())) ||
+			Objects.equals(
+				objectRelationship.getType(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
 
 			return PropertyDefinition.PropertyType.SINGLE_ELEMENT;
 		}
 
 		return PropertyDefinition.PropertyType.MULTIPLE_ELEMENT;
-	}
-
-	private boolean _isManyToOneObjectRelationship(
-		ObjectDefinition objectDefinition,
-		ObjectRelationship objectRelationship,
-		ObjectDefinition relatedObjectDefinition) {
-
-		if (Objects.equals(
-				objectRelationship.getType(),
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
-			(objectRelationship.getObjectDefinitionId1() ==
-				relatedObjectDefinition.getObjectDefinitionId()) &&
-			(objectRelationship.getObjectDefinitionId2() ==
-				objectDefinition.getObjectDefinitionId())) {
-
-			return true;
-		}
-
-		return false;
 	}
 
 	private void _relateNestedObjectEntry(

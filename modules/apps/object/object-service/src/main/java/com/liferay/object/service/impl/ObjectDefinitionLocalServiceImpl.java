@@ -3222,6 +3222,25 @@ public class ObjectDefinitionLocalServiceImpl
 				accountEntryRestrictedObjectFieldId);
 		}
 
+		if (accountEntryRestricted &&
+			(accountEntryRestrictedObjectFieldId > 0)) {
+
+			ObjectField objectField = _objectFieldPersistence.fetchByPrimaryKey(
+				accountEntryRestrictedObjectFieldId);
+
+			if ((objectField != null) &&
+				Validator.isNotNull(objectField.getRelationshipType()) &&
+				!Objects.equals(
+					objectField.getRelationshipType(),
+					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+
+				_handleException(
+					new ObjectDefinitionAccountEntryRestrictedObjectFieldIdException(),
+					"accountEntryRestrictedObjectFieldId",
+					accountEntryRestrictedObjectFieldId);
+			}
+		}
+
 		if (objectDefinition.isApproved() &&
 			objectDefinition.isAccountEntryRestricted() &&
 			!accountEntryRestricted) {

@@ -66,7 +66,7 @@ public class LaunchSetPublisherImpl implements LaunchSetPublisher {
 			ServiceContextThreadLocal.getServiceContext();
 
 		for (ObjectEntry launchEntryObjectEntry :
-				_objectEntryLocalService.getOneToManyObjectEntries(
+				_objectEntryLocalService.getRelatedObjectEntries(
 					launchSetObjectEntry.getGroupId(),
 					objectRelationship.getObjectRelationshipId(), null, false,
 					launchSetObjectEntry.getObjectEntryId(), true, null,

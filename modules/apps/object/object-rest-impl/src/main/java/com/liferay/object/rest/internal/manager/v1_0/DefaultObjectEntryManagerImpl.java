@@ -710,7 +710,7 @@ public class DefaultObjectEntryManagerImpl
 	}
 
 	@Override
-	public ObjectEntry fetchRelatedManyToOneObjectEntry(
+	public ObjectEntry fetchRelatedObjectEntry(
 			DTOConverterContext dtoConverterContext,
 			ObjectDefinition objectDefinition, Long objectEntryId,
 			String objectRelationshipName)
@@ -1774,6 +1774,16 @@ public class DefaultObjectEntryManagerImpl
 
 			List<String> nestedExternalReferenceCodes = new ArrayList<>();
 
+			if (Objects.equals(
+					objectRelationship.getType(),
+					ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
+				_disassociateUnlistedRelatedModels(
+					dtoConverterContext, objectDefinition,
+					_getExternalReferenceCodes(nestedObjectEntries),
+					objectRelationship, relatedObjectDefinition,
+					serviceBuilderObjectEntry.getPrimaryKey());
+			}
+
 			if (relatedObjectDefinition.isUnmodifiableSystemObject()) {
 				SystemObjectDefinitionManager systemObjectDefinitionManager =
 					_systemObjectDefinitionManagerRegistry.
@@ -1830,15 +1840,14 @@ public class DefaultObjectEntryManagerImpl
 						objectDefinition.getCompanyId(),
 						relatedObjectDefinition.getStorageType());
 
-				boolean oneToManyObjectRelationship =
-					_isOneToManyObjectRelationship(
-						objectDefinition, objectRelationship,
-						relatedObjectDefinition);
+				boolean relationshipObjectField = _hasRelationshipObjectField(
+					objectDefinition, objectRelationship,
+					relatedObjectDefinition);
 
 				for (Object item : nestedObjectEntries) {
 					ObjectEntry nestedObjectEntry = (ObjectEntry)item;
 
-					if (oneToManyObjectRelationship) {
+					if (relationshipObjectField) {
 						Map<String, Object> nestedObjectEntryProperties =
 							nestedObjectEntry.getProperties();
 
@@ -1947,7 +1956,7 @@ public class DefaultObjectEntryManagerImpl
 						}
 					}
 
-					if (!oneToManyObjectRelationship) {
+					if (!relationshipObjectField) {
 						_relateNestedObjectEntry(
 							objectDefinition, objectRelationship,
 							serviceBuilderObjectEntry.getPrimaryKey(),
@@ -1965,33 +1974,11 @@ public class DefaultObjectEntryManagerImpl
 				}
 			}
 
-			long[] toDisassociatePrimaryKeys =
-				TransformUtil.transformToLongArray(
-					_getRelatedModels(
-						objectDefinition, objectRelationship,
-						serviceBuilderObjectEntry.getPrimaryKey(),
-						relatedObjectDefinition),
-					relatedModel -> {
-						ExternalReferenceCodeModel externalReferenceCodeModel =
-							(ExternalReferenceCodeModel)relatedModel;
-
-						if (nestedExternalReferenceCodes.contains(
-								externalReferenceCodeModel.
-									getExternalReferenceCode())) {
-
-							return null;
-						}
-
-						return relatedModel.getPrimaryKeyObj();
-					});
-
-			if (toDisassociatePrimaryKeys.length > 0) {
-				_disassociateRelatedModels(
-					objectDefinition, objectRelationship,
-					serviceBuilderObjectEntry.getPrimaryKey(),
-					toDisassociatePrimaryKeys, relatedObjectDefinition,
-					dtoConverterContext.getUserId());
-			}
+			_disassociateUnlistedRelatedModels(
+				dtoConverterContext, objectDefinition,
+				nestedExternalReferenceCodes, objectRelationship,
+				relatedObjectDefinition,
+				serviceBuilderObjectEntry.getPrimaryKey());
 
 			if (!properties.containsKey(entry.getKey())) {
 				continue;
@@ -2284,7 +2271,7 @@ public class DefaultObjectEntryManagerImpl
 
 		ObjectRelatedModelsProvider<?> objectRelatedModelsProvider = null;
 
-		if (_isOneToManyObjectRelationship(
+		if (_hasRelationshipObjectField(
 				relatedObjectDefinition, objectRelationship,
 				objectDefinition)) {
 
@@ -2324,6 +2311,39 @@ public class DefaultObjectEntryManagerImpl
 					userId, objectRelationship.getObjectRelationshipId(),
 					primaryKey1, primaryKey2);
 			}
+		}
+	}
+
+	private void _disassociateUnlistedRelatedModels(
+			DTOConverterContext dtoConverterContext,
+			ObjectDefinition objectDefinition,
+			List<String> externalReferenceCodes,
+			ObjectRelationship objectRelationship,
+			ObjectDefinition relatedObjectDefinition, long primaryKey1)
+		throws Exception {
+
+		long[] primaryKeys2 = TransformUtil.transformToLongArray(
+			_getRelatedModels(
+				objectDefinition, objectRelationship, primaryKey1,
+				relatedObjectDefinition),
+			relatedModel -> {
+				ExternalReferenceCodeModel externalReferenceCodeModel =
+					(ExternalReferenceCodeModel)relatedModel;
+
+				if (externalReferenceCodes.contains(
+						externalReferenceCodeModel.
+							getExternalReferenceCode())) {
+
+					return null;
+				}
+
+				return relatedModel.getPrimaryKeyObj();
+			});
+
+		if (primaryKeys2.length > 0) {
+			_disassociateRelatedModels(
+				objectDefinition, objectRelationship, primaryKey1, primaryKeys2,
+				relatedObjectDefinition, dtoConverterContext.getUserId());
 		}
 	}
 
@@ -2401,6 +2421,24 @@ public class DefaultObjectEntryManagerImpl
 		}
 
 		return QueryUtil.ALL_POS;
+	}
+
+	private List<String> _getExternalReferenceCodes(
+		List<?> nestedObjectEntries) {
+
+		return TransformUtil.transform(
+			nestedObjectEntries,
+			nestedObjectEntry -> {
+				if (nestedObjectEntry instanceof ObjectEntry) {
+					ObjectEntry objectEntry = (ObjectEntry)nestedObjectEntry;
+
+					return objectEntry.getExternalReferenceCode();
+				}
+
+				Map<?, ?> map = (Map<?, ?>)nestedObjectEntry;
+
+				return String.valueOf(map.get("externalReferenceCode"));
+			});
 	}
 
 	private List<Facet> _getFacets(
@@ -2498,35 +2536,6 @@ public class DefaultObjectEntryManagerImpl
 		}
 
 		return groupIdsList.toArray(new Long[0]);
-	}
-
-	private BaseModel<ExternalReferenceCodeModel> _getManyToOneRelatedModel(
-			ObjectRelationship objectRelationship, long primaryKey,
-			ObjectDefinition relatedObjectDefinition)
-		throws Exception {
-
-		if (relatedObjectDefinition.isUnmodifiableSystemObject()) {
-			ObjectRelatedModelsProvider objectRelatedModelsProvider =
-				_objectRelatedModelsProviderRegistry.
-					getObjectRelatedModelsProvider(
-						relatedObjectDefinition.getClassName(),
-						relatedObjectDefinition.getCompanyId(),
-						objectRelationship.getType());
-
-			return objectRelatedModelsProvider.fetchRelatedModel(
-				relatedObjectDefinition.getCompanyId(),
-				objectRelationship.getObjectRelationshipId(), primaryKey);
-		}
-
-		ObjectRelatedModelsProvider objectRelatedModelsProvider =
-			_objectRelatedModelsProviderRegistry.getObjectRelatedModelsProvider(
-				relatedObjectDefinition.getClassName(),
-				relatedObjectDefinition.getCompanyId(),
-				objectRelationship.getType());
-
-		return objectRelatedModelsProvider.fetchRelatedModel(
-			GroupThreadLocal.getGroupId(),
-			objectRelationship.getObjectRelationshipId(), primaryKey);
 	}
 
 	private String _getNewValue(
@@ -2932,12 +2941,29 @@ public class DefaultObjectEntryManagerImpl
 			ObjectDefinition relatedObjectDefinition)
 		throws Exception {
 
-		if (_isOneToManyObjectRelationship(
+		if (_hasRelationshipObjectField(
 				relatedObjectDefinition, objectRelationship,
 				objectDefinition)) {
 
-			BaseModel<?> baseModel = _getManyToOneRelatedModel(
-				objectRelationship, primaryKey, relatedObjectDefinition);
+			BaseModel<?> baseModel = null;
+
+			ObjectRelatedModelsProvider objectRelatedModelsProvider =
+				_objectRelatedModelsProviderRegistry.
+					getObjectRelatedModelsProvider(
+						relatedObjectDefinition.getClassName(),
+						relatedObjectDefinition.getCompanyId(),
+						objectRelationship.getType());
+
+			if (relatedObjectDefinition.isUnmodifiableSystemObject()) {
+				baseModel = objectRelatedModelsProvider.fetchRelatedModel(
+					relatedObjectDefinition.getCompanyId(),
+					objectRelationship.getObjectRelationshipId(), primaryKey);
+			}
+			else {
+				baseModel = objectRelatedModelsProvider.fetchRelatedModel(
+					GroupThreadLocal.getGroupId(),
+					objectRelationship.getObjectRelationshipId(), primaryKey);
+			}
 
 			if (baseModel == null) {
 				return new ArrayList<>();
@@ -3257,6 +3283,28 @@ public class DefaultObjectEntryManagerImpl
 		return (Serializable)value;
 	}
 
+	private boolean _hasRelationshipObjectField(
+		ObjectDefinition objectDefinition,
+		ObjectRelationship objectRelationship,
+		ObjectDefinition relatedObjectDefinition) {
+
+		if ((Objects.equals(
+				objectRelationship.getType(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+			 Objects.equals(
+				 objectRelationship.getType(),
+				 ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) &&
+			(objectRelationship.getObjectDefinitionId1() ==
+				objectDefinition.getObjectDefinitionId()) &&
+			(objectRelationship.getObjectDefinitionId2() ==
+				relatedObjectDefinition.getObjectDefinitionId())) {
+
+			return true;
+		}
+
+		return false;
+	}
+
 	private boolean _isDefaultSort(Sort[] sorts) {
 		if (sorts == null) {
 			return true;
@@ -3278,25 +3326,6 @@ public class DefaultObjectEntryManagerImpl
 	private boolean _isObjectEntryDraft(Status status) {
 		if ((status != null) &&
 			(status.getCode() == WorkflowConstants.STATUS_DRAFT)) {
-
-			return true;
-		}
-
-		return false;
-	}
-
-	private boolean _isOneToManyObjectRelationship(
-		ObjectDefinition objectDefinition,
-		ObjectRelationship objectRelationship,
-		ObjectDefinition relatedObjectDefinition) {
-
-		if (Objects.equals(
-				objectRelationship.getType(),
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
-			(objectRelationship.getObjectDefinitionId1() ==
-				objectDefinition.getObjectDefinitionId()) &&
-			(objectRelationship.getObjectDefinitionId2() ==
-				relatedObjectDefinition.getObjectDefinitionId())) {
 
 			return true;
 		}

@@ -83,7 +83,9 @@ export async function getNonInheritanceObjectRelationshipFields(
 	}
 
 	const objectRelationshipFields = objectFields.filter(
-		(field) => field.businessType === 'Relationship'
+		(field) =>
+			field.businessType === 'Relationship' &&
+			field.relationshipType === 'oneToMany'
 	);
 
 	const objectRelationshipsByParent = groupObjectRelationshipsByParent(
