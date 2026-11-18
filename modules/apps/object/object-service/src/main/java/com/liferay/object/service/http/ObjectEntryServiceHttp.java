@@ -328,16 +328,15 @@ public class ObjectEntryServiceHttp {
 		}
 	}
 
-	public static com.liferay.object.model.ObjectEntry
-			fetchManyToOneObjectEntry(
-				HttpPrincipal httpPrincipal, long groupId,
-				long objectRelationshipId, long primaryKey)
+	public static com.liferay.object.model.ObjectEntry fetchRelatedObjectEntry(
+			HttpPrincipal httpPrincipal, long groupId,
+			long objectRelationshipId, long primaryKey)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		try {
 			MethodKey methodKey = new MethodKey(
-				ObjectEntryServiceUtil.class, "fetchManyToOneObjectEntry",
-				_fetchManyToOneObjectEntryParameterTypes7);
+				ObjectEntryServiceUtil.class, "fetchRelatedObjectEntry",
+				_fetchRelatedObjectEntryParameterTypes7);
 
 			MethodHandler methodHandler = new MethodHandler(
 				methodKey, groupId, objectRelationshipId, primaryKey);
@@ -741,7 +740,7 @@ public class ObjectEntryServiceHttp {
 	}
 
 	public static java.util.List<com.liferay.object.model.ObjectEntry>
-			getOneToManyObjectEntries(
+			getRelatedObjectEntries(
 				HttpPrincipal httpPrincipal, long groupId,
 				long objectRelationshipId,
 				com.liferay.petra.sql.dsl.expression.Predicate predicate,
@@ -752,8 +751,8 @@ public class ObjectEntryServiceHttp {
 
 		try {
 			MethodKey methodKey = new MethodKey(
-				ObjectEntryServiceUtil.class, "getOneToManyObjectEntries",
-				_getOneToManyObjectEntriesParameterTypes17);
+				ObjectEntryServiceUtil.class, "getRelatedObjectEntries",
+				_getRelatedObjectEntriesParameterTypes17);
 
 			MethodHandler methodHandler = new MethodHandler(
 				methodKey, groupId, objectRelationshipId, predicate,
@@ -788,7 +787,7 @@ public class ObjectEntryServiceHttp {
 		}
 	}
 
-	public static int getOneToManyObjectEntriesCount(
+	public static int getRelatedObjectEntriesCount(
 			HttpPrincipal httpPrincipal, long groupId,
 			long objectRelationshipId,
 			com.liferay.petra.sql.dsl.expression.Predicate predicate,
@@ -797,8 +796,8 @@ public class ObjectEntryServiceHttp {
 
 		try {
 			MethodKey methodKey = new MethodKey(
-				ObjectEntryServiceUtil.class, "getOneToManyObjectEntriesCount",
-				_getOneToManyObjectEntriesCountParameterTypes18);
+				ObjectEntryServiceUtil.class, "getRelatedObjectEntriesCount",
+				_getRelatedObjectEntriesCountParameterTypes18);
 
 			MethodHandler methodHandler = new MethodHandler(
 				methodKey, groupId, objectRelationshipId, predicate, primaryKey,
@@ -1401,7 +1400,7 @@ public class ObjectEntryServiceHttp {
 		new Class[] {
 			long.class, com.liferay.portal.kernel.service.ServiceContext.class
 		};
-	private static final Class<?>[] _fetchManyToOneObjectEntryParameterTypes7 =
+	private static final Class<?>[] _fetchRelatedObjectEntryParameterTypes7 =
 		new Class[] {long.class, long.class, long.class};
 	private static final Class<?>[] _fetchObjectEntryParameterTypes8 =
 		new Class[] {long.class};
@@ -1427,7 +1426,7 @@ public class ObjectEntryServiceHttp {
 		new Class[] {long.class};
 	private static final Class<?>[] _getObjectEntryParameterTypes16 =
 		new Class[] {String.class, long.class, long.class};
-	private static final Class<?>[] _getOneToManyObjectEntriesParameterTypes17 =
+	private static final Class<?>[] _getRelatedObjectEntriesParameterTypes17 =
 		new Class[] {
 			long.class, long.class,
 			com.liferay.petra.sql.dsl.expression.Predicate.class, boolean.class,
@@ -1435,7 +1434,7 @@ public class ObjectEntryServiceHttp {
 			com.liferay.portal.kernel.search.Sort[].class
 		};
 	private static final Class<?>[]
-		_getOneToManyObjectEntriesCountParameterTypes18 = new Class[] {
+		_getRelatedObjectEntriesCountParameterTypes18 = new Class[] {
 			long.class, long.class,
 			com.liferay.petra.sql.dsl.expression.Predicate.class, long.class,
 			boolean.class, String.class
@@ -1494,4 +1493,4 @@ public class ObjectEntryServiceHttp {
 	};
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:145977417
+// LIFERAY-SERVICE-BUILDER-HASH:318306431
