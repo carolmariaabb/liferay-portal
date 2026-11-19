@@ -29,6 +29,7 @@ import com.liferay.object.info.field.converter.ObjectFieldInfoFieldConverter;
 import com.liferay.object.internal.item.selector.SystemObjectEntryItemSelectorView;
 import com.liferay.object.internal.notification.handler.ObjectDefinitionNotificationHandler;
 import com.liferay.object.internal.notification.term.contributor.ObjectDefinitionNotificationTermEvaluator;
+import com.liferay.object.internal.related.models.SystemObject1to1ObjectRelatedModelsProviderImpl;
 import com.liferay.object.internal.related.models.SystemObject1toMObjectRelatedModelsProviderImpl;
 import com.liferay.object.internal.related.models.SystemObjectMtoMObjectRelatedModelsProviderImpl;
 import com.liferay.object.internal.rest.context.path.RESTContextPathResolverImpl;
@@ -68,6 +69,7 @@ import com.liferay.portal.instance.lifecycle.BasePortalInstanceLifecycleListener
 import com.liferay.portal.instance.lifecycle.EveryNodeEveryStartup;
 import com.liferay.portal.instance.lifecycle.PortalInstanceLifecycleListener;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
@@ -361,20 +363,34 @@ public class SystemObjectDefinitionManagerPortalInstanceLifecycleListener
 					"model.class.name", objectDefinition.getClassName()
 				).build());
 
-			ObjectRelatedModelsProviderRegistryUtil.register(
-				_bundleContext, objectDefinition,
-				new SystemObjectMtoMObjectRelatedModelsProviderImpl(
-					_inlineSQLHelper, objectDefinition,
-					_objectDefinitionLocalService, _objectFieldLocalService,
-					_objectRelationshipLocalService,
-					systemObjectDefinitionManager,
-					_systemObjectDefinitionManagerRegistry));
+			if (FeatureFlagManagerUtil.isEnabled(
+					objectDefinition.getCompanyId(), "LPD-108620")) {
+
+				ObjectRelatedModelsProviderRegistryUtil.register(
+					_bundleContext, objectDefinition,
+					new SystemObject1to1ObjectRelatedModelsProviderImpl(
+						_inlineSQLHelper, objectDefinition,
+						_objectDefinitionLocalService, _objectEntryLocalService,
+						_objectFieldLocalService,
+						_objectRelationshipLocalService,
+						systemObjectDefinitionManager,
+						_systemObjectDefinitionManagerRegistry));
+			}
+
 			ObjectRelatedModelsProviderRegistryUtil.register(
 				_bundleContext, objectDefinition,
 				new SystemObject1toMObjectRelatedModelsProviderImpl(
 					_inlineSQLHelper, objectDefinition,
 					_objectDefinitionLocalService, _objectEntryLocalService,
 					_objectFieldLocalService, _objectRelationshipLocalService,
+					systemObjectDefinitionManager,
+					_systemObjectDefinitionManagerRegistry));
+			ObjectRelatedModelsProviderRegistryUtil.register(
+				_bundleContext, objectDefinition,
+				new SystemObjectMtoMObjectRelatedModelsProviderImpl(
+					_inlineSQLHelper, objectDefinition,
+					_objectDefinitionLocalService, _objectFieldLocalService,
+					_objectRelationshipLocalService,
 					systemObjectDefinitionManager,
 					_systemObjectDefinitionManagerRegistry));
 		}
