@@ -5970,9 +5970,13 @@ public class ObjectEntryLocalServiceImpl
 		Map<String, Object> queryExpressions = new HashMap<>();
 
 		for (ObjectRelationship objectRelationship :
-				_objectRelationshipPersistence.findByODI2_R_T(
-					objectDefinition2.getObjectDefinitionId(), false,
-					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+				ListUtil.concat(
+					_objectRelationshipPersistence.findByODI2_R_T(
+						objectDefinition2.getObjectDefinitionId(), false,
+						ObjectRelationshipConstants.TYPE_ONE_TO_MANY),
+					_objectRelationshipPersistence.findByODI2_R_T(
+						objectDefinition2.getObjectDefinitionId(), false,
+						ObjectRelationshipConstants.TYPE_ONE_TO_ONE))) {
 
 			ObjectField relationshipObjectField =
 				_objectFieldPersistence.findByPrimaryKey(
