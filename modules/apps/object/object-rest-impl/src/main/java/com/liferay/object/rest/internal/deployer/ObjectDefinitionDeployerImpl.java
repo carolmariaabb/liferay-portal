@@ -35,8 +35,10 @@ import com.liferay.object.rest.internal.jaxrs.exception.mapper.RequiredObjectEnt
 import com.liferay.object.rest.internal.jaxrs.exception.mapper.RequiredObjectRelationshipExceptionMapper;
 import com.liferay.object.rest.internal.jaxrs.exception.mapper.RestoreEntryExceptionMapper;
 import com.liferay.object.rest.internal.jaxrs.exception.mapper.UnsupportedOperationExceptionMapper;
+import com.liferay.object.rest.internal.manager.v1_0.ObjectEntry1to1ObjectRelationshipElementsParserImpl;
 import com.liferay.object.rest.internal.manager.v1_0.ObjectEntry1toMObjectRelationshipElementsParserImpl;
 import com.liferay.object.rest.internal.manager.v1_0.ObjectEntryMtoMObjectRelationshipElementsParserImpl;
+import com.liferay.object.rest.internal.manager.v1_0.SystemObjectEntry1to1ObjectRelationshipElementsParserImpl;
 import com.liferay.object.rest.internal.manager.v1_0.SystemObjectEntry1toMObjectRelationshipElementsParserImpl;
 import com.liferay.object.rest.internal.manager.v1_0.SystemObjectEntryMtoMObjectRelationshipElementsParserImpl;
 import com.liferay.object.rest.internal.openapi.v1_0.ObjectEntryOpenAPIResourceImpl;
@@ -77,6 +79,7 @@ import com.liferay.portal.configuration.module.configuration.ConfigurationProvid
 import com.liferay.portal.db.partition.util.DBPartitionUtil;
 import com.liferay.portal.kernel.comment.CommentManager;
 import com.liferay.portal.kernel.comment.DiscussionPermission;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -596,110 +599,132 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					serviceRegistrationsMap = new HashMap<>();
 				}
 
+				List<ServiceRegistration<?>> serviceRegistrations =
+					new ArrayList<>(
+						Arrays.asList(
+							_bundleContext.registerService(
+								DTOConverter.class,
+								new ObjectEntryDTOConverter(
+									objectDefinition.getClassName()),
+								HashMapDictionaryBuilder.put(
+									"dto.class.name",
+									objectDefinition.getClassName()
+								).build()),
+							_bundleContext.registerService(
+								ObjectEntryOpenAPIResource.class,
+								new ObjectEntryOpenAPIResourceImpl(
+									_bundleContext, _dtoConverterRegistry,
+									_objectActionLocalService, objectDefinition,
+									_objectDefinitionLocalService,
+									_objectEntryOpenAPIResourceProvider,
+									_objectFieldLocalService,
+									_objectRelationshipLocalService,
+									_openAPIResource,
+									_systemObjectDefinitionManagerRegistry),
+								HashMapDictionaryBuilder.<String, Object>put(
+									"companyId",
+									String.valueOf(
+										objectDefinition.getCompanyId())
+								).put(
+									"openapi.resource", "true"
+								).put(
+									"openapi.resource.key",
+									objectDefinition.getName()
+								).put(
+									"openapi.resource.path",
+									objectDefinition.getRESTContextPath()
+								).build()),
+							_bundleContext.registerService(
+								ObjectEntryResource.class,
+								new PrototypeServiceFactory
+									<ObjectEntryResource>() {
+
+									@Override
+									public ObjectEntryResource getService(
+										Bundle bundle,
+										ServiceRegistration<ObjectEntryResource>
+											serviceRegistration) {
+
+										return _createObjectEntryResourceImpl(
+											objectDefinition, restContextPath);
+									}
+
+									@Override
+									public void ungetService(
+										Bundle bundle,
+										ServiceRegistration<ObjectEntryResource>
+											serviceRegistration,
+										ObjectEntryResource
+											objectEntryResource) {
+									}
+
+								},
+								HashMapDictionaryBuilder.<String, Object>put(
+									"batch.engine.entity.class.name",
+									ObjectEntry.class.getName() + "#" +
+										objectDefinition.getName()
+								).put(
+									"batch.engine.task.item.delegate", "true"
+								).put(
+									"batch.engine.task.item.delegate.class." +
+										"name",
+									ObjectEntry.class.getName()
+								).put(
+									"batch.engine.task.item.delegate.name",
+									objectDefinition.getName()
+								).put(
+									"batch.planner.export.enabled", "true"
+								).put(
+									"batch.planner.import.enabled", "true"
+								).put(
+									"companyId",
+									String.valueOf(
+										objectDefinition.getCompanyId())
+								).put(
+									"crud.entity.class.name",
+									StringUtil.replace(
+										objectDefinition.getClassName(),
+										ObjectDefinition.class.getName(),
+										com.liferay.object.admin.rest.dto.v1_0.
+											ObjectDefinition.class.getName())
+								).put(
+									"crud.item.delegate", "true"
+								).put(
+									"export.import.vulcan.batch.engine.task." +
+										"item.delegate",
+									"true"
+								).build()),
+							_bundleContext.registerService(
+								ObjectRelationshipElementsParser.class,
+								new ObjectEntry1toMObjectRelationshipElementsParserImpl(
+									objectDefinition),
+								HashMapDictionaryBuilder.<String, Object>put(
+									"companyId", objectDefinition.getCompanyId()
+								).build()),
+							_bundleContext.registerService(
+								ObjectRelationshipElementsParser.class,
+								new ObjectEntryMtoMObjectRelationshipElementsParserImpl(
+									objectDefinition),
+								HashMapDictionaryBuilder.<String, Object>put(
+									"companyId", objectDefinition.getCompanyId()
+								).build())));
+
+				if (FeatureFlagManagerUtil.isEnabled(
+						objectDefinition.getCompanyId(), "LPD-108620")) {
+
+					serviceRegistrations.add(
+						_bundleContext.registerService(
+							ObjectRelationshipElementsParser.class,
+							new ObjectEntry1to1ObjectRelationshipElementsParserImpl(
+								objectDefinition),
+							HashMapDictionaryBuilder.<String, Object>put(
+								"companyId", objectDefinition.getCompanyId()
+							).build()));
+				}
+
 				serviceRegistrationsMap.computeIfAbsent(
 					objectDefinition.getCompanyId(),
-					key2 -> Arrays.asList(
-						_bundleContext.registerService(
-							DTOConverter.class,
-							new ObjectEntryDTOConverter(
-								objectDefinition.getClassName()),
-							HashMapDictionaryBuilder.put(
-								"dto.class.name",
-								objectDefinition.getClassName()
-							).build()),
-						_bundleContext.registerService(
-							ObjectEntryOpenAPIResource.class,
-							new ObjectEntryOpenAPIResourceImpl(
-								_bundleContext, _dtoConverterRegistry,
-								_objectActionLocalService, objectDefinition,
-								_objectDefinitionLocalService,
-								_objectEntryOpenAPIResourceProvider,
-								_objectFieldLocalService,
-								_objectRelationshipLocalService,
-								_openAPIResource,
-								_systemObjectDefinitionManagerRegistry),
-							HashMapDictionaryBuilder.<String, Object>put(
-								"companyId",
-								String.valueOf(objectDefinition.getCompanyId())
-							).put(
-								"openapi.resource", "true"
-							).put(
-								"openapi.resource.key",
-								objectDefinition.getName()
-							).put(
-								"openapi.resource.path",
-								objectDefinition.getRESTContextPath()
-							).build()),
-						_bundleContext.registerService(
-							ObjectEntryResource.class,
-							new PrototypeServiceFactory<ObjectEntryResource>() {
-
-								@Override
-								public ObjectEntryResource getService(
-									Bundle bundle,
-									ServiceRegistration<ObjectEntryResource>
-										serviceRegistration) {
-
-									return _createObjectEntryResourceImpl(
-										objectDefinition, restContextPath);
-								}
-
-								@Override
-								public void ungetService(
-									Bundle bundle,
-									ServiceRegistration<ObjectEntryResource>
-										serviceRegistration,
-									ObjectEntryResource objectEntryResource) {
-								}
-
-							},
-							HashMapDictionaryBuilder.<String, Object>put(
-								"batch.engine.entity.class.name",
-								ObjectEntry.class.getName() + "#" +
-									objectDefinition.getName()
-							).put(
-								"batch.engine.task.item.delegate", "true"
-							).put(
-								"batch.engine.task.item.delegate.class.name",
-								ObjectEntry.class.getName()
-							).put(
-								"batch.engine.task.item.delegate.name",
-								objectDefinition.getName()
-							).put(
-								"batch.planner.export.enabled", "true"
-							).put(
-								"batch.planner.import.enabled", "true"
-							).put(
-								"companyId",
-								String.valueOf(objectDefinition.getCompanyId())
-							).put(
-								"crud.entity.class.name",
-								StringUtil.replace(
-									objectDefinition.getClassName(),
-									ObjectDefinition.class.getName(),
-									com.liferay.object.admin.rest.dto.v1_0.
-										ObjectDefinition.class.getName())
-							).put(
-								"crud.item.delegate", "true"
-							).put(
-								"export.import.vulcan.batch.engine.task.item." +
-									"delegate",
-								"true"
-							).build()),
-						_bundleContext.registerService(
-							ObjectRelationshipElementsParser.class,
-							new ObjectEntry1toMObjectRelationshipElementsParserImpl(
-								objectDefinition),
-							HashMapDictionaryBuilder.<String, Object>put(
-								"companyId", objectDefinition.getCompanyId()
-							).build()),
-						_bundleContext.registerService(
-							ObjectRelationshipElementsParser.class,
-							new ObjectEntryMtoMObjectRelationshipElementsParserImpl(
-								objectDefinition),
-							HashMapDictionaryBuilder.<String, Object>put(
-								"companyId", objectDefinition.getCompanyId()
-							).build())));
+					key2 -> serviceRegistrations);
 
 				return serviceRegistrationsMap;
 			});
@@ -915,21 +940,47 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 				serviceRegistrationsMap.computeIfAbsent(
 					objectDefinition.getCompanyId(),
-					key2 -> Arrays.asList(
-						_bundleContext.registerService(
-							ObjectRelationshipElementsParser.class,
-							new SystemObjectEntry1toMObjectRelationshipElementsParserImpl(
-								objectDefinition),
-							HashMapDictionaryBuilder.<String, Object>put(
-								"companyId", objectDefinition.getCompanyId()
-							).build()),
-						_bundleContext.registerService(
-							ObjectRelationshipElementsParser.class,
-							new SystemObjectEntryMtoMObjectRelationshipElementsParserImpl(
-								objectDefinition),
-							HashMapDictionaryBuilder.<String, Object>put(
-								"companyId", objectDefinition.getCompanyId()
-							).build())));
+					key2 -> {
+						List<ServiceRegistration<?>> serviceRegistrations =
+							new ArrayList<>(
+								Arrays.asList(
+									_bundleContext.registerService(
+										ObjectRelationshipElementsParser.class,
+										new SystemObjectEntry1toMObjectRelationshipElementsParserImpl(
+											objectDefinition),
+										HashMapDictionaryBuilder.
+											<String, Object>put(
+												"companyId",
+												objectDefinition.getCompanyId()
+											).build()),
+									_bundleContext.registerService(
+										ObjectRelationshipElementsParser.class,
+										new SystemObjectEntryMtoMObjectRelationshipElementsParserImpl(
+											objectDefinition),
+										HashMapDictionaryBuilder.
+											<String, Object>put(
+												"companyId",
+												objectDefinition.getCompanyId()
+											).build())));
+
+						if (FeatureFlagManagerUtil.isEnabled(
+								objectDefinition.getCompanyId(),
+								"LPD-108620")) {
+
+							serviceRegistrations.add(
+								_bundleContext.registerService(
+									ObjectRelationshipElementsParser.class,
+									new SystemObjectEntry1to1ObjectRelationshipElementsParserImpl(
+										objectDefinition),
+									HashMapDictionaryBuilder.
+										<String, Object>put(
+											"companyId",
+											objectDefinition.getCompanyId()
+										).build()));
+						}
+
+						return serviceRegistrations;
+					});
 
 				return serviceRegistrationsMap;
 			});
