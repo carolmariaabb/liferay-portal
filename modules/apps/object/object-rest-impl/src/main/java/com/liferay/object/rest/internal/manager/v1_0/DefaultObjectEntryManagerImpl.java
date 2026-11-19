@@ -3290,9 +3290,12 @@ public class DefaultObjectEntryManagerImpl
 		ObjectRelationship objectRelationship,
 		ObjectDefinition relatedObjectDefinition) {
 
-		if (Objects.equals(
+		if ((Objects.equals(
 				objectRelationship.getType(),
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+			 Objects.equals(
+				 objectRelationship.getType(),
+				 ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) &&
 			(objectRelationship.getObjectDefinitionId1() ==
 				objectDefinition.getObjectDefinitionId()) &&
 			(objectRelationship.getObjectDefinitionId2() ==

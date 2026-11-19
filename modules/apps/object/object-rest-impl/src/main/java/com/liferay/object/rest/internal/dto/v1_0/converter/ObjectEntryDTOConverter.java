@@ -15,7 +15,6 @@ import com.liferay.object.constants.ObjectActionKeys;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
-import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.entry.util.ObjectEntryDTOConverterUtil;
 import com.liferay.object.entry.util.ObjectEntryValuesUtil;
 import com.liferay.object.field.business.type.ObjectFieldBusinessType;
@@ -1219,19 +1218,7 @@ public class ObjectEntryDTOConverter
 			}
 
 			if (objectField.compareBusinessType(
-					ObjectFieldConstants.BUSINESS_TYPE_RICH_TEXT)) {
-
-				Serializable finalSerializable = serializable;
-
-				unsafeSuppliers.put(objectFieldName, () -> finalSerializable);
-				unsafeSuppliers.put(
-					objectFieldName + "RawText",
-					() -> HtmlParserUtil.extractText(
-						GetterUtil.getString(finalSerializable)));
-			}
-			else if (Objects.equals(
-						objectField.getRelationshipType(),
-						ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+					ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP)) {
 
 				long primaryKey = GetterUtil.getLong(serializable);
 
@@ -1256,6 +1243,17 @@ public class ObjectEntryDTOConverter
 				_addManyToOneObjectRelationshipNames(
 					objectField, objectFieldName, objectRelationship,
 					primaryKey, unsafeSuppliers, values);
+			}
+			else if (objectField.compareBusinessType(
+						ObjectFieldConstants.BUSINESS_TYPE_RICH_TEXT)) {
+
+				Serializable finalSerializable = serializable;
+
+				unsafeSuppliers.put(objectFieldName, () -> finalSerializable);
+				unsafeSuppliers.put(
+					objectFieldName + "RawText",
+					() -> HtmlParserUtil.extractText(
+						GetterUtil.getString(finalSerializable)));
 			}
 			else {
 				Serializable finalSerializable = serializable;
