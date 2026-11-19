@@ -1830,15 +1830,15 @@ public class DefaultObjectEntryManagerImpl
 						objectDefinition.getCompanyId(),
 						relatedObjectDefinition.getStorageType());
 
-				boolean oneToManyObjectRelationship =
-					_isOneToManyObjectRelationship(
+				boolean parentChildObjectRelationship =
+					_isParentChildObjectRelationship(
 						objectDefinition, objectRelationship,
 						relatedObjectDefinition);
 
 				for (Object item : nestedObjectEntries) {
 					ObjectEntry nestedObjectEntry = (ObjectEntry)item;
 
-					if (oneToManyObjectRelationship) {
+					if (parentChildObjectRelationship) {
 						Map<String, Object> nestedObjectEntryProperties =
 							nestedObjectEntry.getProperties();
 
@@ -1947,7 +1947,7 @@ public class DefaultObjectEntryManagerImpl
 						}
 					}
 
-					if (!oneToManyObjectRelationship) {
+					if (!parentChildObjectRelationship) {
 						_relateNestedObjectEntry(
 							objectDefinition, objectRelationship,
 							serviceBuilderObjectEntry.getPrimaryKey(),
@@ -2284,7 +2284,7 @@ public class DefaultObjectEntryManagerImpl
 
 		ObjectRelatedModelsProvider<?> objectRelatedModelsProvider = null;
 
-		if (_isOneToManyObjectRelationship(
+		if (_isParentChildObjectRelationship(
 				relatedObjectDefinition, objectRelationship,
 				objectDefinition)) {
 
@@ -2498,35 +2498,6 @@ public class DefaultObjectEntryManagerImpl
 		}
 
 		return groupIdsList.toArray(new Long[0]);
-	}
-
-	private BaseModel<ExternalReferenceCodeModel> _getManyToOneRelatedModel(
-			ObjectRelationship objectRelationship, long primaryKey,
-			ObjectDefinition relatedObjectDefinition)
-		throws Exception {
-
-		if (relatedObjectDefinition.isUnmodifiableSystemObject()) {
-			ObjectRelatedModelsProvider objectRelatedModelsProvider =
-				_objectRelatedModelsProviderRegistry.
-					getObjectRelatedModelsProvider(
-						relatedObjectDefinition.getClassName(),
-						relatedObjectDefinition.getCompanyId(),
-						objectRelationship.getType());
-
-			return objectRelatedModelsProvider.fetchRelatedModel(
-				relatedObjectDefinition.getCompanyId(),
-				objectRelationship.getObjectRelationshipId(), primaryKey);
-		}
-
-		ObjectRelatedModelsProvider objectRelatedModelsProvider =
-			_objectRelatedModelsProviderRegistry.getObjectRelatedModelsProvider(
-				relatedObjectDefinition.getClassName(),
-				relatedObjectDefinition.getCompanyId(),
-				objectRelationship.getType());
-
-		return objectRelatedModelsProvider.fetchRelatedModel(
-			GroupThreadLocal.getGroupId(),
-			objectRelationship.getObjectRelationshipId(), primaryKey);
 	}
 
 	private String _getNewValue(
@@ -2926,17 +2897,46 @@ public class DefaultObjectEntryManagerImpl
 			ObjectEntryVersionTable.INSTANCE.getTableName(), columns.toArray());
 	}
 
+	private BaseModel<ExternalReferenceCodeModel> _getRelatedModel(
+			ObjectRelationship objectRelationship, long primaryKey,
+			ObjectDefinition relatedObjectDefinition)
+		throws Exception {
+
+		if (relatedObjectDefinition.isUnmodifiableSystemObject()) {
+			ObjectRelatedModelsProvider objectRelatedModelsProvider =
+				_objectRelatedModelsProviderRegistry.
+					getObjectRelatedModelsProvider(
+						relatedObjectDefinition.getClassName(),
+						relatedObjectDefinition.getCompanyId(),
+						objectRelationship.getType());
+
+			return objectRelatedModelsProvider.fetchRelatedModel(
+				relatedObjectDefinition.getCompanyId(),
+				objectRelationship.getObjectRelationshipId(), primaryKey);
+		}
+
+		ObjectRelatedModelsProvider objectRelatedModelsProvider =
+			_objectRelatedModelsProviderRegistry.getObjectRelatedModelsProvider(
+				relatedObjectDefinition.getClassName(),
+				relatedObjectDefinition.getCompanyId(),
+				objectRelationship.getType());
+
+		return objectRelatedModelsProvider.fetchRelatedModel(
+			GroupThreadLocal.getGroupId(),
+			objectRelationship.getObjectRelationshipId(), primaryKey);
+	}
+
 	private List<? extends BaseModel<?>> _getRelatedModels(
 			ObjectDefinition objectDefinition,
 			ObjectRelationship objectRelationship, long primaryKey,
 			ObjectDefinition relatedObjectDefinition)
 		throws Exception {
 
-		if (_isOneToManyObjectRelationship(
+		if (_isParentChildObjectRelationship(
 				relatedObjectDefinition, objectRelationship,
 				objectDefinition)) {
 
-			BaseModel<?> baseModel = _getManyToOneRelatedModel(
+			BaseModel<?> baseModel = _getRelatedModel(
 				objectRelationship, primaryKey, relatedObjectDefinition);
 
 			if (baseModel == null) {
@@ -3285,7 +3285,7 @@ public class DefaultObjectEntryManagerImpl
 		return false;
 	}
 
-	private boolean _isOneToManyObjectRelationship(
+	private boolean _isParentChildObjectRelationship(
 		ObjectDefinition objectDefinition,
 		ObjectRelationship objectRelationship,
 		ObjectDefinition relatedObjectDefinition) {

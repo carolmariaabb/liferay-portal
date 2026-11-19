@@ -501,7 +501,7 @@ public class ObjectEntryDTOConverter
 		return objectEntry;
 	}
 
-	private void _addManyToOneObjectRelationshipNames(
+	private void _addObjectRelationshipNames(
 		ObjectField objectField, String objectFieldName,
 		ObjectRelationship objectRelationship, long primaryKey,
 		Map<String, UnsafeSupplier<Object, Exception>> unsafeSuppliers,
@@ -527,7 +527,7 @@ public class ObjectEntryDTOConverter
 			objectRelationshipERCObjectFieldName, () -> relatedObjectEntryERC);
 	}
 
-	private void _addManyToOneRelatedObjectEntries(
+	private void _addRelatedObjectEntries(
 			DTOConverterContext dtoConverterContext, String objectFieldName,
 			ObjectRelationship objectRelationship, long primaryKey,
 			Map<String, UnsafeSupplier<Object, Exception>> unsafeSuppliers)
@@ -538,8 +538,7 @@ public class ObjectEntryDTOConverter
 				objectFieldName.lastIndexOf(StringPool.UNDERLINE) + 1),
 			"Id", "");
 
-		String manyToOneRelationshipName = StringUtil.removeLast(
-			objectFieldName, "Id");
+		String relationshipName = StringUtil.removeLast(objectFieldName, "Id");
 
 		AtomicReference<Serializable> relatedObjectEntryAtomicReference =
 			new AtomicReference<>();
@@ -556,11 +555,10 @@ public class ObjectEntryDTOConverter
 					}
 
 					if (!StringUtil.equals(
-							nestedFieldName, manyToOneRelationshipName) &&
-						!StringUtil.equals(
 							nestedFieldName, objectRelationship.getName()) &&
 						!StringUtil.equals(
 							nestedFieldName, relatedObjectDefinitionName) &&
+						!StringUtil.equals(nestedFieldName, relationshipName) &&
 						_log.isWarnEnabled()) {
 
 						_log.warn(
@@ -698,7 +696,7 @@ public class ObjectEntryDTOConverter
 				continue;
 			}
 
-			unsafeSuppliers.put(manyToOneRelationshipName, entry::getValue);
+			unsafeSuppliers.put(relationshipName, entry::getValue);
 		}
 	}
 
@@ -1235,12 +1233,12 @@ public class ObjectEntryDTOConverter
 					(!_hasRootModelHierarchyNestedField() ||
 					 !objectRelationship.isEdge())) {
 
-					_addManyToOneRelatedObjectEntries(
+					_addRelatedObjectEntries(
 						dtoConverterContext, objectFieldName,
 						objectRelationship, primaryKey, unsafeSuppliers);
 				}
 
-				_addManyToOneObjectRelationshipNames(
+				_addObjectRelationshipNames(
 					objectField, objectFieldName, objectRelationship,
 					primaryKey, unsafeSuppliers, values);
 			}
