@@ -26,6 +26,7 @@ import com.liferay.object.internal.layout.tab.screen.navigation.category.ObjectL
 import com.liferay.object.internal.layout.tab.screen.navigation.entry.ObjectLayoutTabScreenNavigationEntry;
 import com.liferay.object.internal.notification.handler.ObjectDefinitionNotificationHandler;
 import com.liferay.object.internal.notification.term.contributor.ObjectDefinitionNotificationTermEvaluator;
+import com.liferay.object.internal.related.models.ObjectEntry1to1ObjectRelatedModelsPredicateProviderImpl;
 import com.liferay.object.internal.related.models.ObjectEntry1to1ObjectRelatedModelsProviderImpl;
 import com.liferay.object.internal.related.models.ObjectEntry1toMObjectRelatedModelsPredicateProviderImpl;
 import com.liferay.object.internal.related.models.ObjectEntry1toMObjectRelatedModelsProviderImpl;
@@ -76,6 +77,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.db.partition.util.DBPartitionUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.security.permission.ResourceActions;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionLogic;
@@ -478,6 +480,17 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					objectDefinition, _objectEntryService,
 					_objectFieldLocalService,
 					_objectRelationshipLocalService)));
+
+		if (FeatureFlagManagerUtil.isEnabled(
+				objectDefinition.getCompanyId(), "LPD-108620")) {
+
+			serviceRegistrations.add(
+				_bundleContext.registerService(
+					ObjectRelatedModelsPredicateProvider.class,
+					new ObjectEntry1to1ObjectRelatedModelsPredicateProviderImpl(
+						objectDefinition, _objectFieldLocalService),
+					null));
+		}
 
 		ConsumerSupplier<ModelResourcePermissionLogic<ObjectEntry>>
 			consumerSupplier = new ConsumerSupplier<>();
