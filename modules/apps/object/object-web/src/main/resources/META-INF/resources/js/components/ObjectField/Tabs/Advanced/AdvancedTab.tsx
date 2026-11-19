@@ -55,7 +55,9 @@ export function AdvancedTab({
 		values.businessType === 'Aggregation' ||
 		values.businessType === 'AutoIncrement' ||
 		values.businessType === 'Formula' ||
-		(values.businessType === 'Relationship' && isRootDescendantNode) ||
+		(values.businessType === 'Relationship' &&
+			values.relationshipType === 'oneToMany' &&
+			isRootDescendantNode) ||
 		values.required ||
 		values.system;
 	const hasDefaultValue =

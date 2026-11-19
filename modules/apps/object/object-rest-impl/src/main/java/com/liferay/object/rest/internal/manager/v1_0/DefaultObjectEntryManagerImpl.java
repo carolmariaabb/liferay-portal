@@ -1774,6 +1774,17 @@ public class DefaultObjectEntryManagerImpl
 
 			List<String> nestedExternalReferenceCodes = new ArrayList<>();
 
+			if (Objects.equals(
+					objectRelationship.getType(),
+					ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
+
+				_disassociateUnlistedRelatedModels(
+					dtoConverterContext, objectDefinition,
+					_getExternalReferenceCodes(nestedObjectEntries),
+					objectRelationship, relatedObjectDefinition,
+					serviceBuilderObjectEntry.getPrimaryKey());
+			}
+
 			if (relatedObjectDefinition.isUnmodifiableSystemObject()) {
 				SystemObjectDefinitionManager systemObjectDefinitionManager =
 					_systemObjectDefinitionManagerRegistry.
@@ -1965,33 +1976,11 @@ public class DefaultObjectEntryManagerImpl
 				}
 			}
 
-			long[] toDisassociatePrimaryKeys =
-				TransformUtil.transformToLongArray(
-					_getRelatedModels(
-						objectDefinition, objectRelationship,
-						serviceBuilderObjectEntry.getPrimaryKey(),
-						relatedObjectDefinition),
-					relatedModel -> {
-						ExternalReferenceCodeModel externalReferenceCodeModel =
-							(ExternalReferenceCodeModel)relatedModel;
-
-						if (nestedExternalReferenceCodes.contains(
-								externalReferenceCodeModel.
-									getExternalReferenceCode())) {
-
-							return null;
-						}
-
-						return relatedModel.getPrimaryKeyObj();
-					});
-
-			if (toDisassociatePrimaryKeys.length > 0) {
-				_disassociateRelatedModels(
-					objectDefinition, objectRelationship,
-					serviceBuilderObjectEntry.getPrimaryKey(),
-					toDisassociatePrimaryKeys, relatedObjectDefinition,
-					dtoConverterContext.getUserId());
-			}
+			_disassociateUnlistedRelatedModels(
+				dtoConverterContext, objectDefinition,
+				nestedExternalReferenceCodes, objectRelationship,
+				relatedObjectDefinition,
+				serviceBuilderObjectEntry.getPrimaryKey());
 
 			if (!properties.containsKey(entry.getKey())) {
 				continue;
@@ -2327,6 +2316,39 @@ public class DefaultObjectEntryManagerImpl
 		}
 	}
 
+	private void _disassociateUnlistedRelatedModels(
+			DTOConverterContext dtoConverterContext,
+			ObjectDefinition objectDefinition,
+			List<String> externalReferenceCodes,
+			ObjectRelationship objectRelationship,
+			ObjectDefinition relatedObjectDefinition, long primaryKey1)
+		throws Exception {
+
+		long[] primaryKeys2 = TransformUtil.transformToLongArray(
+			_getRelatedModels(
+				objectDefinition, objectRelationship, primaryKey1,
+				relatedObjectDefinition),
+			relatedModel -> {
+				ExternalReferenceCodeModel externalReferenceCodeModel =
+					(ExternalReferenceCodeModel)relatedModel;
+
+				if (externalReferenceCodes.contains(
+						externalReferenceCodeModel.
+							getExternalReferenceCode())) {
+
+					return null;
+				}
+
+				return relatedModel.getPrimaryKeyObj();
+			});
+
+		if (primaryKeys2.length > 0) {
+			_disassociateRelatedModels(
+				objectDefinition, objectRelationship, primaryKey1, primaryKeys2,
+				relatedObjectDefinition, dtoConverterContext.getUserId());
+		}
+	}
+
 	private void _executeObjectAction(
 			DTOConverterContext dtoConverterContext, String objectActionName,
 			ObjectDefinition objectDefinition,
@@ -2401,6 +2423,24 @@ public class DefaultObjectEntryManagerImpl
 		}
 
 		return QueryUtil.ALL_POS;
+	}
+
+	private List<String> _getExternalReferenceCodes(
+		List<?> nestedObjectEntries) {
+
+		return TransformUtil.transform(
+			nestedObjectEntries,
+			nestedObjectEntry -> {
+				if (nestedObjectEntry instanceof ObjectEntry) {
+					ObjectEntry objectEntry = (ObjectEntry)nestedObjectEntry;
+
+					return objectEntry.getExternalReferenceCode();
+				}
+
+				Map<?, ?> map = (Map<?, ?>)nestedObjectEntry;
+
+				return String.valueOf(map.get("externalReferenceCode"));
+			});
 	}
 
 	private List<Facet> _getFacets(
