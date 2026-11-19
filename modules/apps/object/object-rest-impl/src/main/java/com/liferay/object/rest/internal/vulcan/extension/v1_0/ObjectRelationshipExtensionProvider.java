@@ -137,6 +137,20 @@ public class ObjectRelationshipExtensionProvider
 							objectRelationship.getName()),
 						Pagination.of(QueryUtil.ALL_POS, QueryUtil.ALL_POS));
 
+				if (Objects.equals(
+						objectRelationship.getType(),
+						ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
+
+					List<ObjectEntry> objectEntries =
+						(List<ObjectEntry>)relatedObjectEntriesPage.getItems();
+
+					if (objectEntries.isEmpty()) {
+						return null;
+					}
+
+					return objectEntries.get(0);
+				}
+
 				return (Serializable)relatedObjectEntriesPage.getItems();
 			});
 	}

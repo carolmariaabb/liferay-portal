@@ -15,6 +15,7 @@ import com.liferay.object.constants.ObjectActionKeys;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
+import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.entry.util.ObjectEntryDTOConverterUtil;
 import com.liferay.object.entry.util.ObjectEntryValuesUtil;
 import com.liferay.object.field.business.type.ObjectFieldBusinessType;
@@ -855,39 +856,66 @@ public class ObjectEntryDTOConverter
 								getSystemObjectDefinitionManager(
 									relatedObjectDefinition.getName());
 
-					return () -> TransformUtil.transformToArray(
+					return _getNestedFieldsUnsafeSupplier(
+						objectRelationship,
+						() -> TransformUtil.transformToArray(
+							_getRelatedModels(
+								dtoConverterContext,
+								_getRelatedObjectDefinitionGroupId(
+									groupId, relatedObjectDefinition),
+								objectRelatedModelsProvider, objectRelationship,
+								primaryKey),
+							relatedModel -> _toExtendedEntity(
+								(BaseModel<?>)relatedModel, dtoConverterContext,
+								relatedObjectDefinition,
+								systemObjectDefinitionManager),
+							Object.class));
+				}
+
+				return _getNestedFieldsUnsafeSupplier(
+					objectRelationship,
+					() -> TransformUtil.transformToArray(
 						_getRelatedModels(
 							dtoConverterContext,
 							_getRelatedObjectDefinitionGroupId(
 								groupId, relatedObjectDefinition),
 							objectRelatedModelsProvider, objectRelationship,
 							primaryKey),
-						relatedModel -> _toExtendedEntity(
-							(BaseModel<?>)relatedModel, dtoConverterContext,
-							relatedObjectDefinition,
-							systemObjectDefinitionManager),
-						Object.class);
+						relatedModel -> {
+							com.liferay.object.model.ObjectEntry objectEntry =
+								(com.liferay.object.model.ObjectEntry)
+									relatedModel;
+
+							return toDTO(
+								_getDTOConverterContext(
+									dtoConverterContext,
+									objectEntry.getObjectEntryId()),
+								objectEntry);
+						},
+						ObjectEntry.class));
+			});
+	}
+
+	private UnsafeSupplier<Object, Exception> _getNestedFieldsUnsafeSupplier(
+		ObjectRelationship objectRelationship,
+		UnsafeSupplier<Object[], Exception> unsafeSupplier) {
+
+		if (Objects.equals(
+				objectRelationship.getType(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
+
+			return () -> {
+				Object[] objects = unsafeSupplier.get();
+
+				if (objects.length == 0) {
+					return null;
 				}
 
-				return () -> TransformUtil.transformToArray(
-					_getRelatedModels(
-						dtoConverterContext,
-						_getRelatedObjectDefinitionGroupId(
-							groupId, relatedObjectDefinition),
-						objectRelatedModelsProvider, objectRelationship,
-						primaryKey),
-					relatedModel -> {
-						com.liferay.object.model.ObjectEntry objectEntry =
-							(com.liferay.object.model.ObjectEntry)relatedModel;
+				return objects[0];
+			};
+		}
 
-						return toDTO(
-							_getDTOConverterContext(
-								dtoConverterContext,
-								objectEntry.getObjectEntryId()),
-							objectEntry);
-					},
-					ObjectEntry.class);
-			});
+		return unsafeSupplier::get;
 	}
 
 	private ObjectDefinition _getObjectDefinition(
