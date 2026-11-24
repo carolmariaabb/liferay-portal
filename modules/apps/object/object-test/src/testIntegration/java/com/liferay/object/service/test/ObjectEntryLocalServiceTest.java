@@ -3484,6 +3484,17 @@ public class ObjectEntryLocalServiceTest {
 			WorkflowConstants.ACTION_SAVE_DRAFT);
 	}
 
+	@FeatureFlag("LPD-108620")
+	@Test
+	public void testAddObjectEntryWithObjectRelationshipAndObjectValidationRule()
+		throws Exception {
+
+		_testAddObjectEntryWithObjectRelationshipAndObjectValidationRule(
+			ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+		_testAddObjectEntryWithObjectRelationshipAndObjectValidationRule(
+			ObjectRelationshipConstants.TYPE_ONE_TO_ONE);
+	}
+
 	@Test
 	public void testAddObjectEntryWithObjectRelationshipInScopeDepot()
 		throws Exception {
@@ -13129,6 +13140,72 @@ public class ObjectEntryLocalServiceTest {
 		_objectDefinition =
 			_objectDefinitionLocalService.updateObjectDefinition(
 				_objectDefinition);
+	}
+
+	private void
+			_testAddObjectEntryWithObjectRelationshipAndObjectValidationRule(
+				String type)
+		throws Exception {
+
+		ObjectDefinition objectDefinition1 =
+			ObjectDefinitionTestUtil.publishObjectDefinition(
+				Collections.singletonList(
+					new TextObjectFieldBuilder(
+					).labelMap(
+						RandomTestUtil.randomLocaleStringMap()
+					).name(
+						"name"
+					).build()));
+		ObjectDefinition objectDefinition2 =
+			ObjectDefinitionTestUtil.publishObjectDefinition();
+
+		ObjectRelationshipTestUtil.addObjectRelationship(
+			_objectRelationshipLocalService, objectDefinition1,
+			objectDefinition2,
+			ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
+			"objectRelationship", type);
+
+		String relationshipObjectFieldName =
+			"r_objectRelationship_" + objectDefinition1.getPKObjectFieldName();
+		String value = RandomTestUtil.randomString();
+
+		ObjectValidationRule objectValidationRule = _addObjectValidationRule(
+			objectDefinition2,
+			StringBundler.concat(
+				"equals(", relationshipObjectFieldName, "_name, \"", value,
+				"\")"));
+
+		ObjectEntry objectEntry1 = _addObjectEntry(
+			0, objectDefinition1.getObjectDefinitionId(),
+			HashMapBuilder.<String, Serializable>put(
+				"name", value
+			).build());
+
+		_addObjectEntry(
+			0, objectDefinition2.getObjectDefinitionId(),
+			HashMapBuilder.<String, Serializable>put(
+				relationshipObjectFieldName, objectEntry1.getObjectEntryId()
+			).build());
+
+		ObjectEntry objectEntry2 = _addObjectEntry(
+			0, objectDefinition1.getObjectDefinitionId(),
+			HashMapBuilder.<String, Serializable>put(
+				"parentText", RandomTestUtil.randomString()
+			).build());
+
+		try {
+			_addObjectEntry(
+				0, objectDefinition2.getObjectDefinitionId(),
+				HashMapBuilder.<String, Serializable>put(
+					relationshipObjectFieldName, objectEntry2.getObjectEntryId()
+				).build());
+
+			Assert.fail();
+		}
+		catch (ModelListenerException modelListenerException) {
+			_assertFailureObjectValidationRule(
+				modelListenerException, objectValidationRule);
+		}
 	}
 
 	private void _testAddObjectEntryWithRichTextObjectField(
