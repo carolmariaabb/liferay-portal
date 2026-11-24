@@ -127,6 +127,48 @@ public class ObjectEntryResourceRelationshipTest
 			JSONCompareMode.LENIENT);
 	}
 
+	@FeatureFlag("LPD-108620")
+	@Test
+	public void testGetObjectEntryWithNestedFieldsInOneToOneRelationship()
+		throws Exception {
+
+		ObjectDefinition objectDefinition1 = getObjectDefinition1();
+
+		ObjectEntry objectEntry1 = ObjectEntryTestUtil.addObjectEntry(
+			objectDefinition1, OBJECT_FIELD_NAME_1, OBJECT_FIELD_VALUE_1);
+
+		ObjectDefinition objectDefinition2 = getObjectDefinition2();
+
+		ObjectEntry objectEntry2 = ObjectEntryTestUtil.addObjectEntry(
+			objectDefinition2, OBJECT_FIELD_NAME_2, OBJECT_FIELD_VALUE_2);
+
+		ObjectRelationship objectRelationship =
+			addObjectRelationshipAndRelateObjectEntries(
+				objectDefinition1, objectDefinition2,
+				objectEntry1.getPrimaryKey(), objectEntry2.getPrimaryKey(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE);
+
+		JSONObject jsonObject = getNestedFieldsObjectEntryJSONObject(
+			null, objectRelationship.getName(), objectDefinition1);
+
+		JSONObject relatedJSONObject = jsonObject.getJSONObject(
+			objectRelationship.getName());
+
+		Assert.assertEquals(
+			objectEntry2.getExternalReferenceCode(),
+			relatedJSONObject.getString("externalReferenceCode"));
+
+		jsonObject = getNestedFieldsObjectEntryJSONObject(
+			null, objectRelationship.getName(), objectDefinition2);
+
+		relatedJSONObject = jsonObject.getJSONObject(
+			objectRelationship.getName());
+
+		Assert.assertEquals(
+			objectEntry1.getExternalReferenceCode(),
+			relatedJSONObject.getString("externalReferenceCode"));
+	}
+
 	@Test
 	@TestInfo("LPD-66174")
 	public void testGetObjectEntryWithSystemObjectCustomFieldsInOneToManyRelationship()
