@@ -206,6 +206,7 @@ import com.liferay.portal.language.override.service.PLOEntryLocalService;
 import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LogEntry;
 import com.liferay.portal.test.log.LoggerTestUtil;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
@@ -4050,6 +4051,7 @@ public class ObjectDefinitionLocalServiceTest {
 		_objectDefinitionLocalService.deleteObjectDefinition(objectDefinition);
 	}
 
+	@FeatureFlag("LPD-108620")
 	@Test
 	public void testUpdateCustomObjectDefinition() throws Exception {
 		_assertObjectDefinitionValidationExceptionValidationErrors(
@@ -4094,6 +4096,58 @@ public class ObjectDefinitionLocalServiceTest {
 						).name(
 							"Test"
 						).build()),
+					Collections.emptyList(), new ServiceContext());
+			});
+
+		_assertObjectDefinitionValidationExceptionValidationErrors(
+			List.of(
+				ObjectDefinitionAccountEntryRestrictedObjectFieldIdException.
+					class.getName()),
+			() -> {
+				ObjectDefinition objectDefinition1 =
+					ObjectDefinitionTestUtil.addCustomObjectDefinition();
+				ObjectDefinition objectDefinition2 =
+					ObjectDefinitionTestUtil.addCustomObjectDefinition();
+
+				ObjectRelationship objectRelationship =
+					_objectRelationshipLocalService.addObjectRelationship(
+						null, TestPropsValues.getUserId(),
+						objectDefinition1.getObjectDefinitionId(),
+						objectDefinition2.getObjectDefinitionId(), 0,
+						ObjectRelationshipConstants.DELETION_TYPE_PREVENT, null,
+						false,
+						LocalizedMapUtil.getLocalizedMap(
+							RandomTestUtil.randomString()),
+						StringUtil.randomId(), false,
+						ObjectRelationshipConstants.TYPE_ONE_TO_ONE, null);
+
+				_objectDefinitionLocalService.updateCustomObjectDefinition(
+					objectDefinition2.getExternalReferenceCode(),
+					objectDefinition2.getObjectDefinitionId(),
+					objectRelationship.getObjectFieldId2(),
+					objectDefinition2.getDescriptionObjectFieldId(),
+					objectDefinition2.getObjectFolderId(),
+					objectDefinition2.getTitleObjectFieldId(), true,
+					objectDefinition2.isActive(), null, null,
+					objectDefinition2.isEnableCategorization(),
+					objectDefinition2.isEnableComments(),
+					objectDefinition2.isEnableFormContainer(),
+					objectDefinition2.isEnableFriendlyURLCustomization(),
+					objectDefinition2.isEnableIndexSearch(),
+					objectDefinition2.isEnableObjectEntryDraft(),
+					objectDefinition2.isEnableObjectEntryHistory(),
+					objectDefinition2.isEnableObjectEntrySchedule(),
+					objectDefinition2.isEnableObjectEntrySubscription(),
+					objectDefinition2.isEnableObjectEntryVersioning(),
+					objectDefinition2.getFriendlyURLSeparator(),
+					objectDefinition2.getLabelMap(),
+					objectDefinition2.getShortName(),
+					objectDefinition2.getPanelAppOrder(),
+					objectDefinition2.getPanelCategoryKey(),
+					objectDefinition2.isPortlet(),
+					objectDefinition2.getPluralLabelMap(),
+					objectDefinition2.getScope(), objectDefinition2.getStatus(),
+					Collections.emptyList(), Collections.emptyList(),
 					Collections.emptyList(), new ServiceContext());
 			});
 
