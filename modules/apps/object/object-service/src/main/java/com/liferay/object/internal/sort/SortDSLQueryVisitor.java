@@ -85,7 +85,10 @@ public class SortDSLQueryVisitor extends BaseSortDSLQueryVisitor {
 
 		if (!Objects.equals(
 				objectRelationship.getType(),
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
+			!Objects.equals(
+				objectRelationship.getType(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
 
 			String relationshipType = CamelCaseUtil.fromCamelCase(
 				objectRelationship.getType(), CharPool.SPACE);
