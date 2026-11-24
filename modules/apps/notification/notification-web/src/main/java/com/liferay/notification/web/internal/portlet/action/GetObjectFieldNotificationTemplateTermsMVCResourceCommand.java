@@ -71,7 +71,10 @@ public class GetObjectFieldNotificationTemplateTermsMVCResourceCommand
 
 			if (!Objects.equals(
 					objectRelationship.getType(),
-					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+					ObjectRelationshipConstants.TYPE_ONE_TO_MANY) &&
+				!Objects.equals(
+					objectRelationship.getType(),
+					ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
 
 				continue;
 			}
