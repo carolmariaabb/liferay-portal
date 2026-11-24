@@ -2285,6 +2285,59 @@ public class ObjectEntryResourceSortTest
 		}
 	}
 
+	@FeatureFlag("LPD-108620")
+	@Test
+	public void testSortByOneToOneRelationshipCustomObjectFields()
+		throws Exception {
+
+		ObjectRelationship objectRelationship =
+			ObjectRelationshipTestUtil.addObjectRelationship(
+				getObjectDefinition2(), getObjectDefinition1(),
+				TestPropsValues.getUserId(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE);
+
+		String endpoint1 = getEndpoint(getObjectDefinition1(), testGroupId);
+
+		JSONObject jsonObject1 = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				OBJECT_FIELD_NAME_TEXT, RandomTestUtil.randomString()
+			).toString(),
+			endpoint1, Http.Method.POST);
+		JSONObject jsonObject2 = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				OBJECT_FIELD_NAME_TEXT, RandomTestUtil.randomString()
+			).toString(),
+			endpoint1, Http.Method.POST);
+
+		String endpoint2 = getEndpoint(getObjectDefinition2(), testGroupId);
+
+		JSONObject jsonObject3 = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				OBJECT_FIELD_NAME_TEXT, "a" + RandomTestUtil.randomString()
+			).toString(),
+			endpoint2, Http.Method.POST);
+		JSONObject jsonObject4 = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				OBJECT_FIELD_NAME_TEXT, "b" + RandomTestUtil.randomString()
+			).toString(),
+			endpoint2, Http.Method.POST);
+
+		try {
+			_relateObjectEntries(
+				endpoint2, jsonObject3, objectRelationship, jsonObject2);
+			_relateObjectEntries(
+				endpoint2, jsonObject4, objectRelationship, jsonObject1);
+
+			_testSortByFieldNames(
+				endpoint1, jsonObject2, jsonObject1,
+				objectRelationship.getName() + "/" + OBJECT_FIELD_NAME_TEXT);
+		}
+		finally {
+			_deleteObjectEntries(
+				jsonObject1, jsonObject2, jsonObject3, jsonObject4);
+		}
+	}
+
 	@Test
 	public void testSortBySystemObjectField() throws Exception {
 		Role role = RoleTestUtil.addRole(RoleConstants.TYPE_REGULAR);
