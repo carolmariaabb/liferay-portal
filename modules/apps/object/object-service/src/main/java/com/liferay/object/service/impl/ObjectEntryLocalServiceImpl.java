@@ -3270,8 +3270,8 @@ public class ObjectEntryLocalServiceImpl
 
 		for (ObjectField objectField : objectFields) {
 			if (!Objects.equals(
-					objectField.getRelationshipType(),
-					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+					objectField.getBusinessType(),
+					ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP)) {
 
 				continue;
 			}
@@ -3345,8 +3345,8 @@ public class ObjectEntryLocalServiceImpl
 
 		for (ObjectField objectField : objectFields) {
 			if (!Objects.equals(
-					objectField.getRelationshipType(),
-					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+					objectField.getBusinessType(),
+					ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP)) {
 
 				continue;
 			}
@@ -4816,7 +4816,10 @@ public class ObjectEntryLocalServiceImpl
 		}
 		else if (Objects.equals(
 					objectRelationship.getType(),
-					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+					ObjectRelationshipConstants.TYPE_ONE_TO_MANY) ||
+				 Objects.equals(
+					 objectRelationship.getType(),
+					 ObjectRelationshipConstants.TYPE_ONE_TO_ONE)) {
 
 			ObjectField relationshipObjectField =
 				_objectFieldPersistence.findByPrimaryKey(
@@ -5803,8 +5806,8 @@ public class ObjectEntryLocalServiceImpl
 		}
 
 		if (Objects.equals(
-				objectField.getRelationshipType(),
-				ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+				objectField.getBusinessType(),
+				ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP)) {
 
 			return _getRelationshipObjectFieldPredicate(
 				column, objectField, search);
@@ -6023,9 +6026,13 @@ public class ObjectEntryLocalServiceImpl
 		Map<String, Object> queryExpressions = new HashMap<>();
 
 		for (ObjectRelationship objectRelationship :
-				_objectRelationshipPersistence.findByODI2_R_T(
-					objectDefinition2.getObjectDefinitionId(), false,
-					ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+				ListUtil.concat(
+					_objectRelationshipPersistence.findByODI2_R_T(
+						objectDefinition2.getObjectDefinitionId(), false,
+						ObjectRelationshipConstants.TYPE_ONE_TO_MANY),
+					_objectRelationshipPersistence.findByODI2_R_T(
+						objectDefinition2.getObjectDefinitionId(), false,
+						ObjectRelationshipConstants.TYPE_ONE_TO_ONE))) {
 
 			ObjectField relationshipObjectField =
 				_objectFieldPersistence.findByPrimaryKey(
@@ -8574,8 +8581,8 @@ public class ObjectEntryLocalServiceImpl
 				insertedValues.remove(objectField.getName());
 			}
 			else if (Objects.equals(
-						objectField.getRelationshipType(),
-						ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+						objectField.getBusinessType(),
+						ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP)) {
 
 				insertedValues.remove(
 					ObjectFieldSettingUtil.getValue(
