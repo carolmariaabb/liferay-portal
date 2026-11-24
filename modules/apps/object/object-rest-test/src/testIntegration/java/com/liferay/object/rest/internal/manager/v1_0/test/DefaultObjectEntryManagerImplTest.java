@@ -3207,6 +3207,46 @@ public class DefaultObjectEntryManagerImplTest
 		}
 	}
 
+	@FeatureFlag("LPD-108620")
+	@Test
+	public void testAddObjectEntryWithOneToOneObjectRelationship()
+		throws Exception {
+
+		ObjectDefinition objectDefinition1 = _addObjectDefinition();
+		ObjectDefinition objectDefinition2 = _addObjectDefinition();
+
+		ObjectRelationship objectRelationship =
+			_objectRelationshipLocalService.addObjectRelationship(
+				null, adminUser.getUserId(),
+				objectDefinition1.getObjectDefinitionId(),
+				objectDefinition2.getObjectDefinitionId(), 0,
+				ObjectRelationshipConstants.DELETION_TYPE_PREVENT, null, false,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				StringUtil.randomId(), false,
+				ObjectRelationshipConstants.TYPE_ONE_TO_ONE, null);
+
+		ObjectEntry objectEntry1 = _addObjectEntry(
+			objectDefinition1, new HashMap<>());
+		ObjectField objectField = objectFieldLocalService.getObjectField(
+			objectRelationship.getObjectFieldId2());
+
+		ObjectEntry objectEntry2 = _addObjectEntry(
+			objectDefinition2,
+			HashMapBuilder.<String, Object>put(
+				objectField.getName(), objectEntry1.getId()
+			).build());
+
+		Map<String, Object> properties = objectEntry2.getProperties();
+
+		Assert.assertEquals(
+			GetterUtil.getLong(objectEntry1.getId()),
+			GetterUtil.getLong(properties.get(objectField.getName())));
+		Assert.assertEquals(
+			objectEntry1.getExternalReferenceCode(),
+			properties.get(
+				_getObjectRelationshipERCObjectFieldName(objectField)));
+	}
+
 	@Test
 	public void testAddObjectEntryWithPortletImportInProcess()
 		throws Exception {
