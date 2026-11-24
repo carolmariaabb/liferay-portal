@@ -11,6 +11,7 @@ import com.liferay.frontend.data.set.view.FDSViewRegistry;
 import com.liferay.frontend.data.set.view.table.FDSTableSchema;
 import com.liferay.frontend.data.set.view.table.FDSTableSchemaField;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
+import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.field.builder.AggregationObjectFieldBuilder;
 import com.liferay.object.field.setting.builder.ObjectFieldSettingBuilder;
 import com.liferay.object.field.util.ObjectFieldUtil;
@@ -32,6 +33,8 @@ import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
@@ -78,15 +81,81 @@ public class ObjectEntriesTableFDSViewTest {
 		PrincipalThreadLocal.setName(_originalName);
 	}
 
+	@FeatureFlag("LPD-108620")
 	@Test
 	public void testGetFDSTableSchema() throws Exception {
+		_testGetFDSTableSchema(ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+		_testGetFDSTableSchema(ObjectRelationshipConstants.TYPE_ONE_TO_ONE);
+	}
+
+	private void _assertFDSTableSchemaField(
+		String expectedLabel, boolean expectedSortable,
+		Map<String, FDSTableSchemaField> fdsTableSchemaFieldsMap,
+		String fieldName) {
+
+		FDSTableSchemaField fdsTableSchemaField = fdsTableSchemaFieldsMap.get(
+			fieldName);
+
+		Assert.assertNotNull(fdsTableSchemaField);
+		Assert.assertEquals(expectedLabel, fdsTableSchemaField.getLabel());
+		Assert.assertEquals(expectedSortable, fdsTableSchemaField.isSortable());
+	}
+
+	private void _assertTimeZone(
+		Map<String, FDSTableSchemaField> fdsTableSchemaFieldsMap,
+		String expectedTimeZoneId, String fieldName) {
+
+		FDSTableSchemaField fdsTableSchemaField = fdsTableSchemaFieldsMap.get(
+			fieldName);
+
+		Assert.assertNotNull(fdsTableSchemaField);
+
+		JSONObject jsonObject = fdsTableSchemaField.toJSONObject();
+
+		jsonObject = jsonObject.getJSONObject("format");
+
+		Assert.assertEquals(
+			expectedTimeZoneId, jsonObject.getString("timeZone"));
+	}
+
+	private ObjectViewColumn _createObjectViewColumn(
+		String objectFieldLabel, String objectFieldName) {
+
+		ObjectViewColumn objectViewColumn = _objectViewColumnPersistence.create(
+			0);
+
+		objectViewColumn.setLabelMap(
+			LocalizedMapUtil.getLocalizedMap(objectFieldLabel));
+		objectViewColumn.setObjectFieldName(objectFieldName);
+		objectViewColumn.setPriority(0);
+
+		return objectViewColumn;
+	}
+
+	private Map<String, FDSTableSchemaField> _getFDSTableSchemaFieldsMap(
+		ObjectDefinition objectDefinition) {
+
+		List<FDSView> fdsViews = _fdsViewRegistry.getFDSViews(
+			objectDefinition.getPortletId());
+
+		FDSView fdsView = fdsViews.get(0);
+
+		FDSTableSchema fdsTableSchema = fdsView.getFDSTableSchema(
+			LocaleUtil.US);
+
+		return fdsTableSchema.getFDSTableSchemaFieldsMap();
+	}
+
+	private void _testGetFDSTableSchema(String type) throws Exception {
 		_objectDefinition1 = ObjectDefinitionTestUtil.publishObjectDefinition();
 		_objectDefinition2 = ObjectDefinitionTestUtil.publishObjectDefinition();
 
 		ObjectRelationship objectRelationship =
 			ObjectRelationshipTestUtil.addObjectRelationship(
 				_objectRelationshipLocalService, _objectDefinition1,
-				_objectDefinition2);
+				_objectDefinition2,
+				ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
+				StringUtil.randomId(), type);
 
 		ObjectField objectField = ObjectFieldUtil.addCustomObjectField(
 			new AggregationObjectFieldBuilder(
@@ -150,64 +219,6 @@ public class ObjectEntriesTableFDSViewTest {
 			fdsTableSchemaFieldsMap, _user.getTimeZoneId(), "dateCreated");
 		_assertTimeZone(
 			fdsTableSchemaFieldsMap, _user.getTimeZoneId(), "dateModified");
-	}
-
-	private void _assertFDSTableSchemaField(
-		String expectedLabel, boolean expectedSortable,
-		Map<String, FDSTableSchemaField> fdsTableSchemaFieldsMap,
-		String fieldName) {
-
-		FDSTableSchemaField fdsTableSchemaField = fdsTableSchemaFieldsMap.get(
-			fieldName);
-
-		Assert.assertNotNull(fdsTableSchemaField);
-		Assert.assertEquals(expectedLabel, fdsTableSchemaField.getLabel());
-		Assert.assertEquals(expectedSortable, fdsTableSchemaField.isSortable());
-	}
-
-	private void _assertTimeZone(
-		Map<String, FDSTableSchemaField> fdsTableSchemaFieldsMap,
-		String expectedTimeZoneId, String fieldName) {
-
-		FDSTableSchemaField fdsTableSchemaField = fdsTableSchemaFieldsMap.get(
-			fieldName);
-
-		Assert.assertNotNull(fdsTableSchemaField);
-
-		JSONObject jsonObject = fdsTableSchemaField.toJSONObject();
-
-		jsonObject = jsonObject.getJSONObject("format");
-
-		Assert.assertEquals(
-			expectedTimeZoneId, jsonObject.getString("timeZone"));
-	}
-
-	private ObjectViewColumn _createObjectViewColumn(
-		String objectFieldLabel, String objectFieldName) {
-
-		ObjectViewColumn objectViewColumn = _objectViewColumnPersistence.create(
-			0);
-
-		objectViewColumn.setLabelMap(
-			LocalizedMapUtil.getLocalizedMap(objectFieldLabel));
-		objectViewColumn.setObjectFieldName(objectFieldName);
-		objectViewColumn.setPriority(0);
-
-		return objectViewColumn;
-	}
-
-	private Map<String, FDSTableSchemaField> _getFDSTableSchemaFieldsMap(
-		ObjectDefinition objectDefinition) {
-
-		List<FDSView> fdsViews = _fdsViewRegistry.getFDSViews(
-			objectDefinition.getPortletId());
-
-		FDSView fdsView = fdsViews.get(0);
-
-		FDSTableSchema fdsTableSchema = fdsView.getFDSTableSchema(
-			LocaleUtil.US);
-
-		return fdsTableSchema.getFDSTableSchemaFieldsMap();
 	}
 
 	@Inject
